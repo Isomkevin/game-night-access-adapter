@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Night — Voice (toolkit path)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Voice commands</h1>
+      <p class="owner"><strong>Bunny</strong> owns toolkit Controller integration. This page is a Web Speech fallback / demo that speaks the shared protocol.</p>
+      <p id="status">Idle</p>
+    </header>
+
+    <button type="button" id="listen" class="big">Start listening</button>
+    <pre id="log" aria-live="polite"></pre>
+
+    <h2>Phrases</h2>
+    <ul>
+      <li>“turn left” / “left”</li>
+      <li>“turn right” / “right”</li>
+      <li>“go” / “accelerate”</li>
+      <li>“stop” / “brake”</li>
+      <li>“boost”</li>
+      <li>“pause”</li>
+    </ul>
+
+    <script type="module" src="voice.js"></script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+[submodule "game"]
+	path = game
+	url = https://github.com/KhazP/librecorsa.git
+[submodule "toolkit"]
+	path = toolkit
+	url = https://github.com/Isomkevin/AI-for-Accessibility-Toolkit.git

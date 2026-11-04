@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Game Night Access Adapter</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Game Night</h1>
+      <p id="status" class="status">Checking bridge…</p>
+    </header>
+
+    <section class="pad" aria-label="Demo controls">
+      <p class="hint">Hold a control while LibreCorsa is focused and driving.</p>
+      <div class="row">
+        <button type="button" class="hold" data-action="steerLeft" aria-label="Steer left">◀ Left</button>
+        <button type="button" class="hold" data-action="throttle" aria-label="Throttle">Throttle</button>
+        <button type="button" class="hold" data-action="steerRight" aria-label="Steer right">Right ▶</button>
+      </div>
+      <div class="row">
+        <button type="button" class="hold" data-action="brake" aria-label="Brake">Brake</button>
+        <button type="button" class="hold" data-action="boost" aria-label="Boost">Boost</button>
+        <button type="button" class="pulse" data-action="pause" aria-label="Pause">Pause</button>
+      </div>
+    </section>
+
+    <footer>
+      <button type="button" id="reconnect">Reconnect bridge</button>
+      <a href="#" id="open-options">Remap controls</a>
+    </footer>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

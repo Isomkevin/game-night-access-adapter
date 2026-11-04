@@ -1,0 +1,14 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+!.env.example
+bridge/node_modules/
+game/node_modules/
+game/.next/
+game/out/
+toolkit/node_modules/
+.vscode/
+.idea/

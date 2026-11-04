@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Night — Head tracking</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Head tracking</h1>
+      <p id="status">Starting camera…</p>
+      <p class="owner">Owner: <strong>Tim</strong> (Kevin backup). Milestone 1 — MediaPipe in-browser, no native deps.</p>
+    </header>
+
+    <div class="stage">
+      <video id="video" playsinline autoplay muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
+
+    <div class="gauge">
+      <span>Yaw (steer)</span>
+      <strong id="yaw">—</strong>
+    </div>
+
+    <p class="hint">Tilt your head left/right to steer. Works without a phone. Keep this tab open beside LibreCorsa.</p>
+
+    <script type="module" src="camera.js"></script>
+  </body>
+</html>

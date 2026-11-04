@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Remap controls — Game Night</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Remap controls</h1>
+      <p class="lede">
+        Map any accessible input to any LibreCorsa action. Changes save on this device.
+        Large targets — click a row to change the game action.
+      </p>
+
+      <section>
+        <h2>Input → action</h2>
+        <div id="remap-table" class="table" role="table" aria-label="Control remapping"></div>
+      </section>
+
+      <section>
+        <h2>Key codes sent to the game</h2>
+        <p class="hint">Defaults match LibreCorsa. Change only if you rebound keys in the game.</p>
+        <div id="keys-table" class="table"></div>
+      </section>
+
+      <section class="actions">
+        <button type="button" id="reset" class="secondary">Reset to defaults</button>
+        <button type="button" id="export">Export profile</button>
+        <label class="import">
+          Import profile
+          <input type="file" id="import" accept="application/json,.json" />
+        </label>
+        <span id="save-msg" class="save-msg" aria-live="polite"></span>
+      </section>
+    </main>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>
