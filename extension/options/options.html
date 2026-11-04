@@ -14,6 +14,29 @@
       </p>
 
       <section>
+        <h2>Bridge connection</h2>
+        <p class="hint">
+          Local WebSocket URL for camera / phone / voice. Leave the default unless the bridge
+          runs on another port (e.g. <code>ws://127.0.0.1:18766</code>).
+        </p>
+        <div class="row bridge-row">
+          <label for="bridge-url">Bridge WebSocket URL</label>
+          <div class="bridge-fields">
+            <input
+              id="bridge-url"
+              type="url"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="ws://127.0.0.1:18765"
+              aria-describedby="bridge-hint"
+            />
+            <button type="button" id="save-bridge" class="secondary">Save &amp; reconnect</button>
+          </div>
+        </div>
+        <p id="bridge-hint" class="hint">Saved URL is used by the extension service worker immediately.</p>
+      </section>
+
+      <section>
         <h2>Input → action</h2>
         <div id="remap-table" class="table" role="table" aria-label="Control remapping"></div>
       </section>

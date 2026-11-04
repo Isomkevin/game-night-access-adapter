@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Night Access Adapter — Presentation</title>
+    <style>
+      :root {
+        --bg: #102018;
+        --panel: #183226;
+        --ink: #f3efe6;
+        --muted: #b7c4ba;
+        --accent: #3ecf8e;
+        --warm: #e2b14a;
+        --line: rgba(243, 239, 230, 0.14);
+        font-family: "Segoe UI", "Source Sans 3", system-ui, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: radial-gradient(circle at top left, #214833, var(--bg) 55%);
+        color: var(--ink);
+      }
+      .deck {
+        height: 100%;
+        overflow: hidden;
+      }
+      .slide {
+        display: none;
+        height: 100%;
+        padding: clamp(28px, 5vw, 64px);
+        flex-direction: column;
+        justify-content: center;
+        gap: 18px;
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      .slide.active { display: flex; }
+      .brand {
+        font-size: clamp(1rem, 2vw, 1.15rem);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(2.4rem, 6vw, 4.4rem);
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        max-width: 14ch;
+      }
+      h2 {
+        margin: 0;
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        letter-spacing: -0.02em;
+      }
+      p, li {
+        font-size: clamp(1.05rem, 2.1vw, 1.4rem);
+        line-height: 1.45;
+        color: var(--muted);
+        max-width: 46rem;
+      }
+      ul { margin: 0; padding-left: 1.2em; }
+      li { margin: 0.35em 0; }
+      .hero-line {
+        color: var(--ink);
+        font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+        max-width: 36rem;
+      }
+      .arch {
+        display: grid;
+        gap: 10px;
+        margin-top: 8px;
+      }
+      .arch span {
+        display: block;
+        padding: 14px 18px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--panel) 88%, black);
+        color: var(--ink);
+        font-size: 1.15rem;
+      }
+      .meta {
+        position: fixed;
+        left: 24px;
+        bottom: 18px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .nav {
+        position: fixed;
+        right: 24px;
+        bottom: 14px;
+        display: flex;
+        gap: 8px;
+      }
+      .nav button {
+        min-width: 44px;
+        min-height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        color: var(--ink);
+        font-size: 1.1rem;
+        cursor: pointer;
+      }
+      .tag {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        color: var(--warm);
+        font-size: 0.95rem;
+      }
+      code {
+        font-family: ui-monospace, Consolas, monospace;
+        color: var(--accent);
+      }
+      a { color: var(--accent); }
+    </style>
+  </head>
+  <body>
+    <div class="deck" id="deck">
+      <section class="slide active" data-title="Title">
+        <div class="brand">Game Night Access Adapter</div>
+        <h1>Play together without assuming fast fingers.</h1>
+        <p class="hero-line">
+          Remappable camera, voice, and phone inputs for LibreCorsa — software only, laptop + phone.
+        </p>
+        <p>Co-designer: Justin Machogu · Due Saturday 7 Nov</p>
+      </section>
+
+      <section class="slide" data-title="Problem">
+        <div class="brand">Problem + co-designer</div>
+        <h2>Browser games assume mouse, chords, and continuous pace.</h2>
+        <ul>
+          <li>Justin: wheelchair user, limited finger mobility; loves racing / FIFA</li>
+          <li>Core ask: <strong style="color:var(--ink)">fully remappable controls</strong></li>
+          <li>Already remaps keys and uses voice at work — we mirror that for games</li>
+          <li>Hard constraint: <span class="tag">no external hardware</span></li>
+        </ul>
+      </section>
+
+      <section class="slide" data-title="Architecture">
+        <div class="brand">Architecture</div>
+        <h2>Inputs → bridge → extension → game keys</h2>
+        <div class="arch" aria-label="Architecture flow">
+          <span>Camera · Voice · Phone · Demo pad</span>
+          <span>Local bridge WebSocket <code>:18765</code></span>
+          <span>Chrome extension remap table</span>
+          <span>LibreCorsa keyboard codes (<code>KeyW/A/S/D</code>…)</span>
+        </div>
+      </section>
+
+      <section class="slide" data-title="Why this shape">
+        <div class="brand">Why LibreCorsa + software phone</div>
+        <h2>One open-source racer as proof of concept.</h2>
+        <ul>
+          <li>Next.js + Three.js F1-style game Justin can evaluate</li>
+          <li>Phone = LAN web page (gyro + large buttons), not USB/ADB</li>
+          <li>Works on Justin’s MacBook; camera is the redundant fallback</li>
+          <li>Universal adapter later — PoC first</li>
+        </ul>
+      </section>
+
+      <section class="slide" data-title="Demo">
+        <div class="brand">Live demo</div>
+        <h2>Show remap, then drive.</h2>
+        <ul>
+          <li>Load unpacked extension → Options → change one binding</li>
+          <li>Drive with demo pad, phone tilt, or head tracking</li>
+          <li>Focus the game canvas; driving phase only</li>
+          <li>Badge <code>demo</code> = offline pad; <code>ON</code> = bridge connected</li>
+        </ul>
+      </section>
+
+      <section class="slide" data-title="Toolkit">
+        <div class="brand">Toolkit integration</div>
+        <h2>Use and extend the AI for Accessibility Toolkit.</h2>
+        <ul>
+          <li>Voice via toolkit Controller → shared <code>voice:*</code> protocol</li>
+          <li>Example pack: <code>examples/game-night-librecorsa/</code> on the fork</li>
+          <li>Upstream PR compare link in README / toolkit-contribution docs</li>
+          <li>Issues filed from Justin’s testing (latency, grammar, macOS)</li>
+        </ul>
+      </section>
+
+      <section class="slide" data-title="Next">
+        <div class="brand">What’s next</div>
+        <h2>Honest PoC → universal adapter vision.</h2>
+        <ul>
+          <li>Ship Saturday: working public repo, docs, video, presentation</li>
+          <li>Next: more games via remap profiles; tighter toolkit Controller</li>
+          <li>Keep redundancy: camera ↔ phone ↔ voice ↔ keyboard</li>
+        </ul>
+        <p>
+          Repo:
+          <a href="https://github.com/Isomkevin/game-night-access-adapter">github.com/Isomkevin/game-night-access-adapter</a>
+        </p>
+      </section>
+    </div>
+
+    <div class="meta"><span id="pos">1</span> / <span id="total">7</span> · ← → or click</div>
+    <div class="nav">
+      <button type="button" id="prev" aria-label="Previous slide">←</button>
+      <button type="button" id="next" aria-label="Next slide">→</button>
+    </div>
+
+    <script>
+      const slides = [...document.querySelectorAll('.slide')];
+      const pos = document.getElementById('pos');
+      const total = document.getElementById('total');
+      total.textContent = String(slides.length);
+      let i = 0;
+      function show(n) {
+        i = (n + slides.length) % slides.length;
+        slides.forEach((s, idx) => s.classList.toggle('active', idx === i));
+        pos.textContent = String(i + 1);
+        document.title = `${slides[i].dataset.title} — Game Night`;
+      }
+      document.getElementById('prev').onclick = () => show(i - 1);
+      document.getElementById('next').onclick = () => show(i + 1);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+          e.preventDefault();
+          show(i + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+          e.preventDefault();
+          show(i - 1);
+        } else if (e.key === 'Home') show(0);
+        else if (e.key === 'End') show(slides.length - 1);
+      });
+    </script>
+  </body>
+</html>

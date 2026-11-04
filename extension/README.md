@@ -24,7 +24,7 @@ After every `git pull` that touches `extension/`, click **Reload** on the extens
 | Surface | What it does |
 | --- | --- |
 | Toolbar popup | Hold demo controls; reconnect bridge; open remap |
-| Options page | Full remap table, key-code overrides, export/import JSON |
+| Options page | Bridge WebSocket URL; full remap table; key-code overrides; export/import JSON |
 | Badge `demo` | Bridge down — demo pad still works |
 | Badge `ON` | WebSocket to bridge is up |
 

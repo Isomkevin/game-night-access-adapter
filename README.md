@@ -122,11 +122,11 @@ npm start
 ## Challenge deliverables
 
 - [x] Working code in a public repository (this repo)
-- [ ] Pull request to the toolkit — fork branch ready: [Isomkevin:feat/game-night-librecorsa-example](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit/tree/feat/game-night-librecorsa-example) → [compare vs upstream](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/compare/main...Isomkevin:AI-for-Accessibility-Toolkit:feat/game-night-librecorsa-example) (needs Collective collaborator rights to submit)
-- [x] README + short write-up
-- [ ] Short demo video
-- [ ] Presentation
-- [ ] Toolkit issues logged from Justin testing
+- [x] Pull request to the toolkit — [#55](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/pull/55)
+- [x] README + short write-up ([docs/writeup.md](docs/writeup.md))
+- [ ] Short demo video — shot list in [docs/demo-video.md](docs/demo-video.md)
+- [x] Presentation — open [docs/presentation.html](docs/presentation.html) (←/→ keys); checklist in [docs/presentation-checklist.md](docs/presentation-checklist.md)
+- [ ] Toolkit issues logged from Justin testing — template in [docs/toolkit-contribution/ISSUE_TEMPLATE.md](docs/toolkit-contribution/ISSUE_TEMPLATE.md)
 
 ## Credits
 

@@ -21,7 +21,7 @@ Record each session before claiming a feature works.
 
 ## Sessions
 
-### 2026-11-04 — Developer smoke (Kevin)
+### 2026-11-04 — Developer smoke (Kevin) — scaffold review
 
 | Field | Value |
 | --- | --- |
@@ -33,6 +33,21 @@ Record each session before claiming a feature works.
 | Mapping used | defaults |
 | What was attempted | Scaffold + synthetic key path reviewed against game source |
 | Result | Source review: no `isTrusted` gate; live drive test pending |
+| Justin's feedback | — |
+| Toolkit issues filed | — |
+
+### 2026-11-04 — Developer smoke (Kevin) — bridge + game boot
+
+| Field | Value |
+| --- | --- |
+| Date | 2026-11-04 |
+| Adapter / commit | main (extension Options bridge URL + icons + presentation) |
+| Game | LibreCorsa local `npm run dev` → http://localhost:3000 |
+| Browser / OS | Chromium (Cursor browser) + Node WS client / Windows |
+| Input method | bridge protocol (synthetic phone → extension role) |
+| Mapping used | n/a (pre-extension fan-out) |
+| What was attempted | Health `/health`; static `/phone/` `/camera/` `/voice/` = 200; WS hello+input fan-out to `role=extension`; LibreCorsa title/loading boots; phone UI “Connected to bridge”; camera “Bridge connected — tracking…”; Chrome launched with `--load-extension=extension` |
+| Result | **worked** for bridge + input pages + game boot. **Manual step left:** enter driving phase and hold extension demo pad (or phone/camera) while game tab focused — confirm car moves, then tick issue #8 |
 | Justin's feedback | — |
 | Toolkit issues filed | — |
 

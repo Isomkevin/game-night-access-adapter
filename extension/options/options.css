@@ -77,6 +77,29 @@ h2 {
   font-size: 1rem;
 }
 
+.bridge-row {
+  grid-template-columns: 1fr minmax(240px, 1fr);
+  margin-bottom: 8px;
+}
+
+.bridge-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.bridge-fields input {
+  flex: 1 1 220px;
+  min-height: 44px;
+  font-size: 1rem;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #fafafa;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
 select {
   min-height: 44px;
   font-size: 1rem;

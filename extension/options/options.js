@@ -1,5 +1,6 @@
 import {
   DEFAULT_REMAP,
+  DEFAULT_BRIDGE_WS,
   LOGICAL_INPUTS,
 } from '../lib/protocol.js';
 import {
@@ -9,13 +10,22 @@ import {
   keyCodeLabel,
 } from '../lib/actions.js';
 
-const STORAGE = { remap: 'remap', keyCodes: 'keyCodes' };
+const STORAGE = {
+  remap: 'remap',
+  keyCodes: 'keyCodes',
+  bridgeUrl: 'bridgeUrl',
+};
 
 async function load() {
-  const data = await chrome.storage.local.get([STORAGE.remap, STORAGE.keyCodes]);
+  const data = await chrome.storage.local.get([
+    STORAGE.remap,
+    STORAGE.keyCodes,
+    STORAGE.bridgeUrl,
+  ]);
   return {
     remap: data[STORAGE.remap] || { ...DEFAULT_REMAP },
     keyCodes: data[STORAGE.keyCodes] || { ...DEFAULT_KEY_CODES },
+    bridgeUrl: data[STORAGE.bridgeUrl] || DEFAULT_BRIDGE_WS,
   };
 }
 
@@ -102,14 +112,57 @@ function renderKeys(keyCodes) {
   }
 }
 
+function renderBridge(bridgeUrl) {
+  const input = document.getElementById('bridge-url');
+  input.value = bridgeUrl || DEFAULT_BRIDGE_WS;
+}
+
+function normalizeBridgeUrl(raw) {
+  const value = String(raw || '').trim();
+  if (!value) return DEFAULT_BRIDGE_WS;
+  if (!/^wss?:\/\//i.test(value)) {
+    throw new Error('Bridge URL must start with ws:// or wss://');
+  }
+  // Basic sanity — reject accidental http(s) paste leftovers
+  new URL(value.replace(/^ws/i, 'http'));
+  return value;
+}
+
+document.getElementById('save-bridge').addEventListener('click', async () => {
+  const input = document.getElementById('bridge-url');
+  const msg = document.getElementById('save-msg');
+  try {
+    const bridgeUrl = normalizeBridgeUrl(input.value);
+    input.value = bridgeUrl;
+    await save({ [STORAGE.bridgeUrl]: bridgeUrl });
+    try {
+      await chrome.runtime.sendMessage({ type: 'gnaa-reconnect' });
+    } catch {
+      /* service worker will pick up storage change */
+    }
+  } catch (err) {
+    msg.textContent = err.message || 'Invalid bridge URL';
+    setTimeout(() => {
+      msg.textContent = '';
+    }, 2500);
+  }
+});
+
 document.getElementById('reset').addEventListener('click', async () => {
   await save({
     [STORAGE.remap]: { ...DEFAULT_REMAP },
     [STORAGE.keyCodes]: { ...DEFAULT_KEY_CODES },
+    [STORAGE.bridgeUrl]: DEFAULT_BRIDGE_WS,
   });
   const state = await load();
+  renderBridge(state.bridgeUrl);
   renderRemap(state.remap);
   renderKeys(state.keyCodes);
+  try {
+    await chrome.runtime.sendMessage({ type: 'gnaa-reconnect' });
+  } catch {
+    /* ignore */
+  }
 });
 
 document.getElementById('export').addEventListener('click', async () => {
@@ -133,12 +186,20 @@ document.getElementById('import').addEventListener('change', async (e) => {
   await save({
     [STORAGE.remap]: parsed.remap || DEFAULT_REMAP,
     [STORAGE.keyCodes]: parsed.keyCodes || DEFAULT_KEY_CODES,
+    [STORAGE.bridgeUrl]: parsed.bridgeUrl || DEFAULT_BRIDGE_WS,
   });
   const state = await load();
+  renderBridge(state.bridgeUrl);
   renderRemap(state.remap);
   renderKeys(state.keyCodes);
+  try {
+    await chrome.runtime.sendMessage({ type: 'gnaa-reconnect' });
+  } catch {
+    /* ignore */
+  }
 });
 
 const initial = await load();
+renderBridge(initial.bridgeUrl);
 renderRemap(initial.remap);
 renderKeys(initial.keyCodes);

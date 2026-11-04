@@ -14,6 +14,7 @@ Start here if you are new to the repo:
 | --- | --- |
 | [writeup.md](writeup.md) | Short project write-up for judging |
 | [testing-log.md](testing-log.md) | Justin (and other) session notes — fill before claiming “works” |
+| [presentation.html](presentation.html) | Saturday slide deck (←/→ keys) |
 | [presentation-checklist.md](presentation-checklist.md) | Demo video + slides checklist |
 | [demo-video.md](demo-video.md) | Shot list / upload placeholder |
 | [toolkit-contribution/](toolkit-contribution/) | Upstream toolkit PR pack + issue template |

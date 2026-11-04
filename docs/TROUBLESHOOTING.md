@@ -34,7 +34,7 @@ If that fails, check network access to GitHub and that you cloned with a GitHub 
 1. Is the bridge running? `cd bridge && npm start`
 2. Health: `curl http://127.0.0.1:18765/health` → `"ok": true`
 3. Popup → **Reconnect bridge**
-4. Port conflict: set `GNAA_PORT=18766` when starting the bridge **and** store the matching `ws://127.0.0.1:18766` (today the extension defaults to `18765` in code — if you change the port, update `extension/lib/protocol.js` `DEFAULT_BRIDGE_PORT` / storage `bridgeUrl` or ask Kevin to expose a UI field)
+4. Port conflict: set `GNAA_PORT=18766` when starting the bridge, then open extension **Options → Bridge connection** and save `ws://127.0.0.1:18766` (or edit storage `bridgeUrl`). Defaults remain `18765`.
 5. Firewall blocking localhost is rare; corporate proxies can break WS — try another network
 
 ## Phone page loads but doesn’t steer
