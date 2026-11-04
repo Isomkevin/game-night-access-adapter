@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Night — Voice (toolkit VoiceCommands)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Voice commands — toolkit</h1>
+      <p class="owner">Uses the AI-for-Accessibility Toolkit <code>VoiceCommands</code> adapter from <code>toolkit/</code> and sends shared-protocol events to the bridge.</p>
+      <p id="status">Idle</p>
+    </header>
+
+    <button type="button" id="listen" class="big">Start listening</button>
+    <pre id="log" aria-live="polite"></pre>
+
+    <h2>Phrases</h2>
+    <ul>
+      <li>“accelerate” — hold throttle (until “brake” or “coast”)</li>
+      <li>“brake” — hold brake (until “accelerate” or “coast”)</li>
+      <li>“coast” — release throttle and brake</li>
+      <li>“left” / “right” — steer for 0.3 s</li>
+      <li>“gear up” / “gear down”</li>
+      <li>“boost”</li>
+      <li>“pause” — release everything and pause</li>
+      <li>“stop listening” — turn voice off</li>
+    </ul>
+
+    <script type="module" src="toolkit-voice.js"></script>
+  </body>
+</html>
