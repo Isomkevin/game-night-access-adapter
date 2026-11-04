@@ -1,0 +1,7 @@
+# Documentation
+
+| Doc | Description |
+|-----|-------------|
+| [phone-tilt-adapter.md](phone-tilt-adapter.md) | Android tilt → keyboard adapter: setup, architecture, tuning, limitations |
+
+Add a short doc for each new input adapter before opening a merge request, including: how to run it, what was tested (OS / browser / device), and known accessibility limitations.

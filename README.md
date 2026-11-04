@@ -2,7 +2,7 @@
 
 A proof-of-concept accessibility adapter for an open-source browser racing game. The goal is to let players map controls that work for them—such as head movement, voice commands, or phone input—to the keyboard actions a game expects.
 
-> **Project status:** In development. Input methods, platform support, and toolkit integration must be tested before they are described as working features.
+> **Project status:** In development. One phone-tilt input path is implemented under `adapters/phone_tilt/` and has been exercised on Linux + a Samsung Galaxy A25. Camera, voice, browser-extension bridge, and cross-platform co-designer testing are still pending.
 
 ## The problem
 
@@ -28,21 +28,21 @@ The immediate goal is **one playable racing-game proof of concept**, tested with
 
 ### Input methods under exploration
 
-- **Camera:** Head movement for steering, with other inputs available for acceleration and braking.
-- **Voice:** Commands routed through the provided accessibility toolkit.
-- **Phone:** A configurable virtual controller or phone-sensor input.
-- **Combined controls:** Allowing a player to use more than one method where useful.
+| Method | Status | Notes |
+|--------|--------|-------|
+| **Phone tilt** (accelerometer → WASD) | **Implemented (PoC)** | See [`adapters/phone_tilt/`](adapters/phone_tilt/) and [`docs/phone-tilt-adapter.md`](docs/phone-tilt-adapter.md) |
+| **Camera** (head movement) | Planned | Steering via camera; needs fallback |
+| **Voice** | Planned | Through the accessibility toolkit |
+| **Combined controls** | Planned | Mix methods per player preference |
 
 All mappings should be configurable rather than fixed to a particular gesture, command, or disability profile. An input method should also have a fallback where possible—for example, the camera should not be the only way to steer.
 
-These are proposed capabilities. The repository should identify which ones have actually been implemented and tested.
-
-## Planned architecture
+## Architecture
 
 ```text
 Camera / voice / phone
           ↓
-   Input adapters
+   Input adapters   ←  adapters/phone_tilt is the first concrete adapter
           ↓
  Configurable action mapping
           ↓
@@ -51,9 +51,11 @@ Camera / voice / phone
  Open-source browser racing game
 ```
 
-The team is exploring a browser extension as the connection to the game and a local bridge for inputs that need one. The game-facing layer would produce the keyboard actions expected by the selected game.
+**Current phone path (local bridge):** Wireless ADB reads motion sensors on the phone; a small Python service maps tilt to OS keystrokes aimed at the focused game window. A browser extension is still planned for tighter in-page integration; the keystroke bridge is enough to prove the accessibility idea end-to-end.
 
-Architecture details—including how the phone connects and which components require a local service—remain subject to implementation and testing.
+```text
+Phone sensors ──ADB──► sensor_reader ──► tilt mapping ──► keystrokes ──► racing game
+```
 
 ## Scope
 
@@ -111,21 +113,46 @@ Before requesting a merge:
 
 Proposed work areas include the repository and integration, browser extension, local bridge and phone input, camera input, and toolkit voice integration. Component ownership and boundaries should be confirmed in project issues.
 
-## Getting started
+## Repository layout
 
-Setup instructions will be added as components land. Until then, do not assume the repository contains a working adapter.
+```text
+adapters/
+  phone_tilt/          # Android tilt → keyboard adapter (working PoC)
+docs/
+  phone-tilt-adapter.md
+README.md
+LICENSE
+```
+
+## Getting started (phone tilt PoC)
 
 ### Prerequisites
 
-_To be confirmed after the game, toolkit, and implementation dependencies are added._
+- Linux host with Python 3.10+ and `adb` (Android platform-tools)
+- Android 11+ phone on the same network, **Wireless debugging** enabled
+- Packages from `adapters/phone_tilt/requirements.txt` (`pygame`, `pynput`, optional `websocket-client`)
 
-### Run locally
+### Pair the phone
 
-_To be added with the first working end-to-end build._
+```bash
+cd adapters/phone_tilt
+python3 pair_and_connect.py <PAIR_IP:PORT> <6_DIGIT_CODE>
+adb devices   # should show the phone as "device"
+```
+
+### Run the adapter
+
+```bash
+cd adapters/phone_tilt
+python3 -m pip install -r requirements.txt
+python3 gyro_controller.py
+```
+
+Focus the game window, then tilt the phone. **P** pauses injection; **Esc** quits.
 
 ### Configure controls
 
-_To be added when configurable input mapping is implemented._
+Edit the constants at the top of `adapters/phone_tilt/gyro_controller.py` (`ACCEL_DEADZONE`, `AXIS_DOMINANCE`, `USE_ARROWS`, invert flags). Full tuning notes: [`docs/phone-tilt-adapter.md`](docs/phone-tilt-adapter.md).
 
 ## Testing and known limitations
 
