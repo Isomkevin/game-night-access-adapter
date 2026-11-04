@@ -1,0 +1,18 @@
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+!.env.example
+bridge/node_modules/
+game/node_modules/
+game/.next/
+game/out/
+toolkit/node_modules/
+.vscode/
+.idea/
+
+# Accidental local clones — use git submodules `game/` and `toolkit/` instead
+/librecorsa-game/
+/AI-for-Accessibility-Toolkit/

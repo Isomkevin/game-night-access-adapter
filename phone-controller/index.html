@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Game Night — Phone controller</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Phone controller</h1>
+      <p id="status">Connecting…</p>
+    </header>
+
+    <p class="hint">Tilt the phone left/right to steer. Large buttons for throttle, brake, and boost. Software only — no USB cable.</p>
+
+    <div class="gauge" aria-live="polite">
+      <span>Steer</span>
+      <div class="bar"><i id="steer-bar"></i></div>
+      <strong id="steer-label">0°</strong>
+    </div>
+
+    <div class="buttons">
+      <button type="button" id="throttle" class="hold big">Throttle</button>
+      <button type="button" id="brake" class="hold big">Brake</button>
+      <button type="button" id="boost" class="hold">Boost</button>
+    </div>
+
+    <button type="button" id="enable" class="enable">Enable motion sensors</button>
+
+    <script type="module" src="phone.js"></script>
+  </body>
+</html>

@@ -1,162 +1,138 @@
 # Game Night Access Adapter
 
-A proof-of-concept accessibility adapter for an open-source browser racing game. The goal is to let players map controls that work for them—such as head movement, voice commands, or phone input—to the keyboard actions a game expects.
+Proof-of-concept accessibility adapter for **[LibreCorsa](https://github.com/KhazP/librecorsa)** so players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — can remap camera, voice, and phone inputs onto the keyboard actions the game already understands.
 
-> **Project status:** In development. Input methods, platform support, and toolkit integration must be tested before they are described as working features.
+> **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → game → extension demo pad → optional bridge).  
+> Full doc index: **[docs/README.md](docs/README.md)**.
 
-## The problem
+> **Status:** Phase A scaffold + extension demo path landed. Test with Justin before calling features supported — see [`docs/testing-log.md`](docs/testing-log.md).
 
-Browser games often assume players can see the screen, use a mouse or standard keyboard, react quickly, and play continuously without pauses. Those assumptions can prevent people with different access needs from playing alongside friends and family.
+## Problem
 
-Our co-designer described a specific motor-access barrier: limited finger mobility makes multi-key combinations and some gamepad buttons difficult to use. He already adapts how he uses his laptop through remapped controls, extensions, and voice commands. This project explores whether the same principle—**make the input fit the player**—can make a browser game easier to play.
+Browser games often assume players can use a mouse, multi-key chords, and continuous play. That excludes many people from playing with friends and family. Justin’s core ask: **fully remappable controls**.
 
-Our challenge is:
-
-> How might we adapt one open-source browser game so people with different access needs can play together using the controls, pace, and feedback that work for them?
-
-## Proposed solution
-
-Game Night Access Adapter is designed as a configurable layer between the player and a browser game:
+## Solution
 
 ```text
-Player input → configurable action mapping → game keyboard input
+Camera / voice / phone / demo UI
+        ↓
+ Local bridge (WebSocket :18765)
+        ↓
+ Chrome extension (remap table)
+        ↓
+ LibreCorsa keyboard codes (KeyW/A/S/D, …)
 ```
 
-Instead of requiring the player to use the game's default controls, the adapter would translate an accessible input into an action the game already understands. For example, a player might map a head movement to steering left.
+- **No extra hardware.** Phone is a LAN web page (software controller), not USB/ADB — works on Justin’s MacBook.
+- **Toolkit:** [AI for Accessibility Toolkit](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit) via fork [Isomkevin/AI-for-Accessibility-Toolkit](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit). Contribution pack: [`docs/toolkit-contribution/`](docs/toolkit-contribution/).
 
-The immediate goal is **one playable racing-game proof of concept**, tested with our co-designer. A reusable adapter for other games is a longer-term direction, not a claim about the current build.
+## Prerequisites
 
-### Input methods under exploration
+| Tool | Notes |
+| --- | --- |
+| Git | Submodule support |
+| Node.js 18+ | 20 LTS recommended |
+| Chrome / Chromium | MV3 extension + best MediaPipe / Web Speech support |
 
-- **Camera:** Head movement for steering, with other inputs available for acceleration and braking.
-- **Voice:** Commands routed through the provided accessibility toolkit.
-- **Phone:** A configurable virtual controller or phone-sensor input.
-- **Combined controls:** Allowing a player to use more than one method where useful.
+## Clone
 
-All mappings should be configurable rather than fixed to a particular gesture, command, or disability profile. An input method should also have a fallback where possible—for example, the camera should not be the only way to steer.
-
-These are proposed capabilities. The repository should identify which ones have actually been implemented and tested.
-
-## Planned architecture
-
-```text
-Camera / voice / phone
-          ↓
-   Input adapters
-          ↓
- Configurable action mapping
-          ↓
- Browser extension and/or local bridge
-          ↓
- Open-source browser racing game
+```bash
+git clone --recurse-submodules https://github.com/Isomkevin/game-night-access-adapter.git
+cd game-night-access-adapter
 ```
 
-The team is exploring a browser extension as the connection to the game and a local bridge for inputs that need one. The game-facing layer would produce the keyboard actions expected by the selected game.
+If you already cloned without submodules:
 
-Architecture details—including how the phone connects and which components require a local service—remain subject to implementation and testing.
+```bash
+git submodule update --init --recursive
+```
 
-## Scope
+## Quick start
 
-### Proof of concept
+For the full walkthrough (driving phase, badge meanings, verify checklist), use [docs/ONBOARDING.md](docs/ONBOARDING.md).
 
-1. Select and document the open-source browser racing game used for testing.
-2. Identify its essential actions and default controls.
-3. Implement at least one accessible alternative input.
-4. Let the player map that input to a game action.
-5. Test the complete flow with the co-designer.
-6. Record usability findings, limitations, and toolkit issues.
+### 1. Game (LibreCorsa)
 
-### Future direction
+```bash
+cd game
+npm install
+npm run dev
+```
 
-- Additional input methods and combinations
-- Profiles that players can save and reuse
-- Support for more browser games
-- More complete coverage of the challenge's pace and feedback needs
+Open `http://localhost:3000` and get into a **driving** session (keyboard is ignored on menus).
 
-**Out of scope for the initial proof of concept:** claiming that the adapter supports every game, access need, or operating system.
+### 2. Chrome extension
 
-## Accessibility and co-design
+1. `chrome://extensions` → Developer mode → **Load unpacked** → select `extension/`
+2. Pin the extension. Use the popup demo pad (hold Left / Throttle / Right…) while the game tab is focused.
+3. **Remap controls** from the popup link (large-target options page).
 
-This project is being developed with a co-designer who has limited finger mobility and plays games with others. His experience informs the choice of controls and the usability tests; it should not be treated as a substitute for testing with people who have other access needs.
+Badge `demo` = bridge offline (demo still works). Badge `ON` = bridge connected.
 
-We will evaluate questions such as:
+### 3. Bridge (optional — camera / phone / voice)
 
-- Can the player set up controls without difficult multi-key actions?
-- Can they steer and perform other essential actions reliably?
-- Can they change a mapping when an input is uncomfortable?
-- What happens if camera tracking or phone input becomes unreliable?
-- Does the adapter work on the device and operating system used for testing?
+```bash
+cd bridge
+npm install
+npm start
+```
 
-Findings should be recorded as observations, not assumed from a successful technical demo.
+| UI | URL |
+| --- | --- |
+| Phone | `http://127.0.0.1:18765/phone/` (or `http://<lan-ip>:18765/phone/`) |
+| Camera | `http://127.0.0.1:18765/camera/` |
+| Voice | `http://127.0.0.1:18765/voice/` |
+| Health | `http://127.0.0.1:18765/health` |
 
-## Constraints
+## Repo layout
 
-- The challenge calls for adapting an **existing open-source browser game**, not building a new game.
-- The solution is expected to run on laptops and phones **without extra hardware**.
-- The provided accessibility toolkit must be used and extended.
-- Phone-based input and any proposed connection method need to be checked against the hardware constraint.
-- Cross-platform behavior, particularly macOS support for co-designer testing, needs verification.
+| Path | Role | Owner | Docs |
+| --- | --- | --- | --- |
+| `game/` | LibreCorsa submodule | upstream | upstream README |
+| `toolkit/` | AI-for-Accessibility fork | Bunny / Kevin | [toolkit-contribution](docs/toolkit-contribution/) |
+| `extension/` | Chrome MV3 remap + injection | Kevin | [extension/README.md](extension/README.md) |
+| `bridge/` | Local WebSocket hub | Omar (+ Kevin stub) | [bridge/README.md](bridge/README.md) |
+| `phone-controller/` | Gyro + big buttons | Omar / Kevin | [phone-controller/README.md](phone-controller/README.md) |
+| `camera/` | MediaPipe head tilt | **Tim** (Kevin backup) | [camera/README.md](camera/README.md) |
+| `voice/` | Web Speech demo → protocol | Bunny → toolkit Controller | [voice/README.md](voice/README.md) |
+| `packages/shared/` | Action IDs + protocol | shared | [packages/shared/README.md](packages/shared/README.md) |
+| `docs/` | Onboarding, architecture, testing | team | [docs/README.md](docs/README.md) |
 
-## Development approach
+## Documentation map
 
-The team plans to work in parallel on separate components, while keeping a playable end-to-end proof of concept as the priority.
+| Doc | When to read |
+| --- | --- |
+| [docs/ONBOARDING.md](docs/ONBOARDING.md) | First day — get a working demo |
+| [docs/architecture.md](docs/architecture.md) | Understand data flow / injection |
+| [docs/protocol.md](docs/protocol.md) | Before changing inputs or remap |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Before your first push |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | When something fails |
+| [docs/writeup.md](docs/writeup.md) | Challenge short write-up |
+| [docs/testing-log.md](docs/testing-log.md) | Justin / smoke-test records |
+| [docs/presentation-checklist.md](docs/presentation-checklist.md) | Saturday demo / slides |
+| [docs/demo-video.md](docs/demo-video.md) | Video shot list |
+| [docs/toolkit-contribution/](docs/toolkit-contribution/) | Upstream toolkit PR |
 
-Before requesting a merge:
+## Team workflow
 
-1. Document what the component does and how to run it.
-2. Test it locally.
-3. State which operating system and browser were tested.
-4. Describe required permissions, dependencies, and known limitations.
-5. Ask another team member to pull and test it on their machine where possible.
-
-Proposed work areas include the repository and integration, browser extension, local bridge and phone input, camera input, and toolkit voice integration. Component ownership and boundaries should be confirmed in project issues.
-
-## Getting started
-
-Setup instructions will be added as components land. Until then, do not assume the repository contains a working adapter.
-
-### Prerequisites
-
-_To be confirmed after the game, toolkit, and implementation dependencies are added._
-
-### Run locally
-
-_To be added with the first working end-to-end build._
-
-### Configure controls
-
-_To be added when configurable input mapping is implemented._
-
-## Testing and known limitations
-
-Maintain a record of:
-
-- Game and adapter versions tested
-- Browser and operating system
-- Input method and control mapping
-- What the player attempted
-- Whether the action worked reliably
-- Co-designer feedback
-- Bugs, accessibility barriers, and toolkit issues
-
-See the project issues for current results and limitations. A feature should only be marked supported after it has been tested.
+- Branch per person; **document before push** (see [CONTRIBUTING.md](docs/CONTRIBUTING.md)); notify WhatsApp after each push
+- Check-ins Wed–Fri **20:30**
+- Bunny: merges; Kevin: backup merges + AWS if cloud hosting is needed
 
 ## Challenge deliverables
 
-- Working code in a public repository
-- A pull request to the accessibility toolkit
-- This README and a short project write-up
-- A short demo video and presentation
-- Toolkit issues identified through co-designer testing
-
-## Contributing
-
-Keep changes focused and documented. Open an issue or discuss a proposed input method before adding it, and describe the access need it addresses. Test accessibility behavior with users where possible rather than assuming a control is accessible because it works for a developer.
+- [x] Working code in a public repository (this repo)
+- [ ] Pull request to the toolkit — fork branch ready: [Isomkevin:feat/game-night-librecorsa-example](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit/tree/feat/game-night-librecorsa-example) → [compare vs upstream](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/compare/main...Isomkevin:AI-for-Accessibility-Toolkit:feat/game-night-librecorsa-example) (needs Collective collaborator rights to submit)
+- [x] README + short write-up
+- [ ] Short demo video
+- [ ] Presentation
+- [ ] Toolkit issues logged from Justin testing
 
 ## Credits
 
-Built by the Game Night team with input from co-designer Justin Machogu. The project uses an existing open-source browser game and a provided accessibility toolkit; their names, links, and licenses will be added here once the exact repositories are confirmed.
+Game Night team with co-designer Justin Machogu.  
+LibreCorsa code: MIT. Toolkit: Apache-2.0. Adapter code in this repository: MIT (see `LICENSE`).
 
 ## License
 
-_To be confirmed. Check the selected game's and toolkit's licenses before choosing a license for this repository._
+MIT for original Game Night adapter code. Upstream `game/` and `toolkit/` keep their own licenses.

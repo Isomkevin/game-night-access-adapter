@@ -1,6 +1,6 @@
-[submodule "AI-for-Accessibility-Toolkit"]
-	path = AI-for-Accessibility-Toolkit
-	url = https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit.git
-[submodule "librecorsa"]
-	path = librecorsa
+[submodule "game"]
+	path = game
 	url = https://github.com/KhazP/librecorsa.git
+[submodule "toolkit"]
+	path = toolkit
+	url = https://github.com/Isomkevin/AI-for-Accessibility-Toolkit.git
