@@ -93,7 +93,7 @@ npm start
 | `extension/` | Chrome MV3 remap + injection | Kevin | [extension/README.md](extension/README.md) |
 | `bridge/` | Local WebSocket hub | Omar (+ Kevin stub) | [bridge/README.md](bridge/README.md) |
 | `phone-controller/` | Gyro + big buttons | Omar / Kevin | [phone-controller/README.md](phone-controller/README.md) |
-| `camera/` | MediaPipe head tilt | **Tim** (Kevin backup) | [camera/README.md](camera/README.md) |
+| `camera/` | MediaPipe vision controller (head/face/hand/finger → remappable actions) | **Tim** (Kevin backup) | [camera/README.md](camera/README.md) |
 | `voice/` | Web Speech demo → protocol | Bunny → toolkit Controller | [voice/README.md](voice/README.md) |
 | `packages/shared/` | Action IDs + protocol | shared | [packages/shared/README.md](packages/shared/README.md) |
 | `docs/` | Onboarding, architecture, testing | team | [docs/README.md](docs/README.md) |

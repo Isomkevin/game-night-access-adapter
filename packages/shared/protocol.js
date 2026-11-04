@@ -21,7 +21,7 @@ export const DEFAULT_BRIDGE_HTTP = `http://127.0.0.1:${DEFAULT_BRIDGE_PORT}`;
  * @typedef {object} InputEvent
  * @property {'input'} type
  * @property {InputSource} source
- * @property {string} action  GameAction id
+ * @property {string} action
  * @property {InputState} state
  * @property {number} [strength] 0..1 for analog steer/throttle when supported
  * @property {number} ts       epoch ms
@@ -65,6 +65,13 @@ export function isInputEvent(msg) {
   );
 }
 
+/** @param {unknown} msg */
+export function isSetRemapEvent(msg) {
+  if (!msg || typeof msg !== 'object') return false;
+  const m = /** @type {Record<string, unknown>} */ (msg);
+  return m.type === 'setRemap' && m.entries && typeof m.entries === 'object';
+}
+
 /** Hello from a client connecting to the bridge */
 export function createHello(role) {
   return {
@@ -87,7 +94,8 @@ export function createStatus(payload) {
 
 /**
  * Default remap profile: logical input → game action.
- * Input keys are "source:logical" e.g. "camera:tiltLeft", "voice:turnLeft".
+ * Camera gestures beyond tiltLeft/tiltRight are intentionally unmapped by default
+ * so users assign them without accidental triggers.
  */
 export const DEFAULT_REMAP = Object.freeze({
   'demo:steerLeft': 'steerLeft',
@@ -119,8 +127,43 @@ export const LOGICAL_INPUTS = Object.freeze([
   { id: 'demo:brake', label: 'Demo — Brake', source: 'demo' },
   { id: 'demo:boost', label: 'Demo — Boost', source: 'demo' },
   { id: 'demo:pause', label: 'Demo — Pause', source: 'demo' },
-  { id: 'camera:tiltLeft', label: 'Camera — Head tilt left', source: 'camera' },
-  { id: 'camera:tiltRight', label: 'Camera — Head tilt right', source: 'camera' },
+
+  // Camera — head (tiltLeft/Right preserved for Milestone 1 demos; they are yaw)
+  { id: 'camera:tiltLeft', label: 'Camera — Head yaw left (legacy)', source: 'camera' },
+  { id: 'camera:tiltRight', label: 'Camera — Head yaw right (legacy)', source: 'camera' },
+  { id: 'camera:headYawLeft', label: 'Camera — Turn head left', source: 'camera' },
+  { id: 'camera:headYawRight', label: 'Camera — Turn head right', source: 'camera' },
+  { id: 'camera:headPitchUp', label: 'Camera — Raise / look up', source: 'camera' },
+  { id: 'camera:headPitchDown', label: 'Camera — Lower / look down', source: 'camera' },
+  { id: 'camera:headRollLeft', label: 'Camera — Tilt head left (roll)', source: 'camera' },
+  { id: 'camera:headRollRight', label: 'Camera — Tilt head right (roll)', source: 'camera' },
+  { id: 'camera:headCloser', label: 'Camera — Head closer (experimental)', source: 'camera' },
+  { id: 'camera:headFarther', label: 'Camera — Head farther (experimental)', source: 'camera' },
+
+  // Camera — face
+  { id: 'camera:mouthOpen', label: 'Camera — Open mouth', source: 'camera' },
+  { id: 'camera:smile', label: 'Camera — Smile', source: 'camera' },
+  { id: 'camera:browRaise', label: 'Camera — Raise eyebrows', source: 'camera' },
+  { id: 'camera:frown', label: 'Camera — Frown', source: 'camera' },
+  { id: 'camera:blinkLeft', label: 'Camera — Blink left eye', source: 'camera' },
+  { id: 'camera:blinkRight', label: 'Camera — Blink right eye', source: 'camera' },
+  { id: 'camera:blinkBoth', label: 'Camera — Blink both eyes', source: 'camera' },
+  { id: 'camera:squint', label: 'Camera — Squint', source: 'camera' },
+
+  // Camera — hands
+  { id: 'camera:handRaise', label: 'Camera — Raise hand', source: 'camera' },
+  { id: 'camera:handLeft', label: 'Camera — Move hand left', source: 'camera' },
+  { id: 'camera:handRight', label: 'Camera — Move hand right', source: 'camera' },
+  { id: 'camera:palmOpen', label: 'Camera — Open palm', source: 'camera' },
+  { id: 'camera:fist', label: 'Camera — Fist', source: 'camera' },
+  { id: 'camera:thumbUp', label: 'Camera — Thumbs up', source: 'camera' },
+  { id: 'camera:thumbDown', label: 'Camera — Thumbs down', source: 'camera' },
+  { id: 'camera:pointUp', label: 'Camera — Point up', source: 'camera' },
+
+  // Camera — fingers
+  { id: 'camera:pinch', label: 'Camera — Pinch', source: 'camera' },
+  { id: 'camera:indexPoint', label: 'Camera — Index extended', source: 'camera' },
+
   { id: 'voice:turnLeft', label: 'Voice — “turn left”', source: 'voice' },
   { id: 'voice:turnRight', label: 'Voice — “turn right”', source: 'voice' },
   { id: 'voice:go', label: 'Voice — “go” / “accelerate”', source: 'voice' },
@@ -141,7 +184,11 @@ export const LOGICAL_INPUTS = Object.freeze([
  * @returns {string|null} game action id
  */
 export function resolveRemap(remap, logicalId) {
-  if (remap && remap[logicalId]) return remap[logicalId];
+  if (remap && Object.prototype.hasOwnProperty.call(remap, logicalId)) {
+    const v = remap[logicalId];
+    if (!v) return null;
+    return v;
+  }
   if (DEFAULT_REMAP[logicalId]) return DEFAULT_REMAP[logicalId];
   return null;
 }

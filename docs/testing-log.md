@@ -51,6 +51,21 @@ Record each session before claiming a feature works.
 | Justin's feedback | — |
 | Toolkit issues filed | — |
 
+### 2026-11-05 — Vision controller foundation (developer)
+
+| Field | Value |
+| --- | --- |
+| Date | 2026-11-05 |
+| Adapter / commit | vision input system (camera modular engine) |
+| Game | LibreCorsa (manual drive test still required) |
+| Browser / OS | Chrome target / Windows + macOS |
+| Input method | camera (vision controller) |
+| Mapping used | defaults: `tiltLeft`/`tiltRight` → steer; other gestures unmapped until assigned |
+| What was attempted | Modular detection layers; face blendshapes + head pose; lazy hand Gesture Recognizer; calibration/profiles/setRemap; Options grouped by source; protocol docs |
+| Result | **code complete** — live webcam gesture reliability and LibreCorsa drive confirmation pending on device |
+| Justin's feedback | — |
+| Toolkit issues filed | — |
+
 ### Justin session 1 — _pending_
 
 _Fill in after first macOS smoke test (target: Thu/Fri check-in)._

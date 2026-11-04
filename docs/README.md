@@ -26,7 +26,7 @@ Start here if you are new to the repo:
 | Chrome extension | [`../extension/README.md`](../extension/README.md) |
 | Local bridge | [`../bridge/README.md`](../bridge/README.md) |
 | Phone controller | [`../phone-controller/README.md`](../phone-controller/README.md) |
-| Camera (MediaPipe) | [`../camera/README.md`](../camera/README.md) |
+| Camera / vision controller (MediaPipe) | [`../camera/README.md`](../camera/README.md) |
 | Voice demo | [`../voice/README.md`](../voice/README.md) |
 | Shared protocol package | [`../packages/shared/README.md`](../packages/shared/README.md) |
 

@@ -30,7 +30,7 @@ Clients should identify themselves once after connect:
 | --- | --- |
 | `extension` | Chrome extension service worker (receives `input`) |
 | `phone` | Phone controller page |
-| `camera` | Head-tracking page |
+| `camera` | Vision controller page (head / face / hand / finger) |
 | `voice` | Voice demo or toolkit Controllersender |
 
 ## Input event
@@ -63,10 +63,24 @@ Senders emit **logical** ids. The extension remaps with key `` `${source}:${acti
 
 | Source | Logical `action` values |
 | --- | --- |
-| `camera` | `tiltLeft`, `tiltRight` |
+| `camera` | See **Camera logical actions** below |
 | `voice` | `turnLeft`, `turnRight`, `go`, `stop`, `boost`, `pause` |
 | `phone` | `tiltLeft`, `tiltRight`, `throttle`, `brake`, `boost` |
 | `demo` | `steerLeft`, `steerRight`, `throttle`, `brake`, `boost`, `pause` |
+
+#### Camera logical actions
+
+Senders use gesture ids under `source: "camera"`. Only enabled gestures emit. Default remap keeps legacy yaw steering; other gestures are **unmapped until assigned**.
+
+| Group | `action` ids |
+| --- | --- |
+| Head (legacy) | `tiltLeft`, `tiltRight` — yaw aliases; default → steer |
+| Head | `headYawLeft`, `headYawRight`, `headPitchUp`, `headPitchDown`, `headRollLeft`, `headRollRight`, `headCloser`, `headFarther` (experimental) |
+| Face | `mouthOpen`, `smile`, `browRaise`, `frown`, `blinkLeft`, `blinkRight`, `blinkBoth`, `squint` |
+| Hands | `handRaise`, `handLeft`, `handRight`, `palmOpen`, `fist`, `thumbUp`, `thumbDown`, `pointUp` |
+| Fingers | `pinch`, `indexPoint` |
+
+Full catalog: [`camera/lib/catalog.js`](../camera/lib/catalog.js) and `LOGICAL_INPUTS` in shared protocol.
 
 Game actions after remap (injected as keys):
 
@@ -90,6 +104,27 @@ Always send `up` if you sent `down`, or the game will think the key is stuck.
 ```
 
 Informational; clients may ignore.
+
+## setRemap (camera → extension)
+
+Optional message so the vision controller can push bindings into the extension without editing Options by hand. Bridge fans out to `role=extension` only (same as `input`).
+
+```json
+{
+  "type": "setRemap",
+  "entries": { "camera:mouthOpen": "throttle", "camera:blinkLeft": "brake" },
+  "merge": true,
+  "v": 1,
+  "ts": 1730000000000
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `entries` | Map of logical id → game action. Empty string clears a binding. |
+| `merge` | `true` (default): merge into existing remap. `false`: start from `DEFAULT_REMAP` then apply entries. |
+
+Phone / voice / demo do not need this message. Unknown `type` values remain ignored by other clients.
 
 ## Default LibreCorsa key codes
 

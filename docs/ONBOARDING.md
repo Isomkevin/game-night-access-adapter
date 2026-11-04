@@ -10,7 +10,7 @@ Goal of this guide: on a clean machine, go from zero to **steering LibreCorsa wi
 | Kevin | [extension/README.md](../extension/README.md) | Extension, monorepo, coordination |
 | Omar | [bridge/README.md](../bridge/README.md), [phone-controller/README.md](../phone-controller/README.md) | Bridge, phone sensors |
 | Bunny | [voice/README.md](../voice/README.md), [toolkit-contribution/](toolkit-contribution/) | Toolkit voice + merges |
-| Tim | [camera/README.md](../camera/README.md) | MediaPipe head tracking |
+| Tim | [camera/README.md](../camera/README.md) | MediaPipe vision controller |
 | Testers (Justin) | Quick start below + remap UI | Feedback in [testing-log.md](testing-log.md) |
 
 ## Prerequisites
@@ -131,7 +131,7 @@ Reload the extension (or click **Reconnect bridge** in the popup). Badge should 
 | Input | Open | Notes |
 | --- | --- | --- |
 | Phone | `http://127.0.0.1:18765/phone/` or `http://<your-lan-ip>:18765/phone/` on the phone | Same Wi‑Fi; allow motion; large throttle/brake buttons |
-| Camera | `http://127.0.0.1:18765/camera/` | Allow webcam; keep tab open; tilt head to steer |
+| Camera | `http://127.0.0.1:18765/camera/` | Allow webcam; calibrate; enable gestures; map actions; keep tab open |
 | Voice | `http://127.0.0.1:18765/voice/` | Chrome + mic; say “turn left”, “go”, “stop”, … |
 
 Keep **LibreCorsa focused** while testing holds (throttle/steer). Voice uses `pulse` (short key taps).
@@ -163,7 +163,7 @@ Design rationale: [architecture.md](architecture.md).
 | Change remap defaults | `DEFAULT_REMAP` in both protocol files |
 | Change injection / tab matching | `extension/background.js`, `extension/content/` |
 | Change bridge port / routing | `bridge/server.js`, env `GNAA_PORT` |
-| Tune head-steer sensitivity | `camera/camera.js` (`YAW_DEADZONE`, `YAW_FULL`) |
+| Tune camera gestures / sensitivity | Camera page UI (thresholds, calibrate, profiles) or `camera/lib/` |
 | Add voice phrases (demo) | `voice/voice.js` (`PHRASES`) |
 | Wire toolkit Controller | See [toolkit-contribution/](toolkit-contribution/) — do not only change the Web Speech demo |
 

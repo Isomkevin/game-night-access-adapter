@@ -55,8 +55,13 @@ function broadcast(obj, except) {
   for (const [ws, meta] of clients) {
     if (ws === except) continue;
     if (ws.readyState !== 1) continue;
-    // Inputs go to extensions; status goes to everyone
-    if (obj.type === 'input' && meta.role !== 'extension') continue;
+    // Inputs + setRemap go to extensions; status goes to everyone
+    if (
+      (obj.type === 'input' || obj.type === 'setRemap') &&
+      meta.role !== 'extension'
+    ) {
+      continue;
+    }
     ws.send(raw);
   }
 }
@@ -142,6 +147,20 @@ wss.on('connection', (ws) => {
         v: msg.v || 1,
       };
       broadcast(event, ws);
+      return;
+    }
+
+    if (msg.type === 'setRemap' && msg.entries && typeof msg.entries === 'object') {
+      broadcast(
+        {
+          type: 'setRemap',
+          entries: msg.entries,
+          merge: msg.merge !== false,
+          ts: msg.ts || Date.now(),
+          v: msg.v || 1,
+        },
+        ws
+      );
       return;
     }
   });

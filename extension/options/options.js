@@ -38,11 +38,20 @@ async function save(partial) {
   }, 1500);
 }
 
+const SOURCE_LABELS = {
+  demo: 'Demo pad',
+  camera: 'Camera / vision',
+  voice: 'Voice',
+  phone: 'Phone',
+};
+
 function actionOptions(selected) {
-  return GAME_ACTIONS.map(
+  const unmapped = `<option value="" ${!selected ? 'selected' : ''}>(unmapped)</option>`;
+  const actions = GAME_ACTIONS.map(
     (id) =>
       `<option value="${id}" ${id === selected ? 'selected' : ''}>${ACTION_LABELS[id]}</option>`
   ).join('');
+  return unmapped + actions;
 }
 
 function uniqueCodes(preferred) {
@@ -50,32 +59,71 @@ function uniqueCodes(preferred) {
   return codes;
 }
 
+function resolveCurrent(remap, logicalId) {
+  if (remap && Object.prototype.hasOwnProperty.call(remap, logicalId)) {
+    return remap[logicalId] || '';
+  }
+  return DEFAULT_REMAP[logicalId] || '';
+}
+
 function renderRemap(remap) {
   const root = document.getElementById('remap-table');
   root.innerHTML = '';
+
+  /** @type {Record<string, typeof LOGICAL_INPUTS>} */
+  const bySource = {};
   for (const input of LOGICAL_INPUTS) {
-    const current = remap[input.id] || DEFAULT_REMAP[input.id] || 'steerLeft';
-    const row = document.createElement('div');
-    row.className = 'row';
-    row.setAttribute('role', 'row');
+    const src = input.source || 'other';
+    if (!bySource[src]) bySource[src] = [];
+    bySource[src].push(input);
+  }
 
-    const label = document.createElement('label');
-    label.textContent = input.label;
+  const order = ['camera', 'phone', 'voice', 'demo'];
+  const sources = [
+    ...order.filter((s) => bySource[s]),
+    ...Object.keys(bySource).filter((s) => !order.includes(s)),
+  ];
 
-    const sel = document.createElement('select');
-    sel.innerHTML = actionOptions(current);
-    sel.dataset.logical = input.id;
-    label.htmlFor = '';
-    sel.setAttribute('aria-label', input.label);
+  for (const src of sources) {
+    const section = document.createElement('section');
+    section.className = 'remap-group';
+    const h = document.createElement('h3');
+    h.textContent = SOURCE_LABELS[src] || src;
+    section.append(h);
 
-    sel.addEventListener('change', async () => {
-      const state = await load();
-      state.remap[sel.dataset.logical] = sel.value;
-      await save({ [STORAGE.remap]: state.remap });
-    });
+    if (src === 'camera') {
+      const hint = document.createElement('p');
+      hint.className = 'hint';
+      hint.textContent =
+        'Enable and calibrate gestures on the camera page, then map them here (or use Apply mappings on the camera page).';
+      section.append(hint);
+    }
 
-    row.append(label, sel);
-    root.append(row);
+    for (const input of bySource[src]) {
+      const current = resolveCurrent(remap, input.id);
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.setAttribute('role', 'row');
+
+      const label = document.createElement('label');
+      label.textContent = input.label;
+
+      const sel = document.createElement('select');
+      sel.innerHTML = actionOptions(current);
+      sel.dataset.logical = input.id;
+      sel.setAttribute('aria-label', input.label);
+
+      sel.addEventListener('change', async () => {
+        const state = await load();
+        if (sel.value) state.remap[sel.dataset.logical] = sel.value;
+        else state.remap[sel.dataset.logical] = '';
+        await save({ [STORAGE.remap]: state.remap });
+      });
+
+      row.append(label, sel);
+      section.append(row);
+    }
+    root.append(section);
   }
 }
 

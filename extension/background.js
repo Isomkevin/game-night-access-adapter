@@ -6,6 +6,7 @@ import {
   DEFAULT_BRIDGE_WS,
   DEFAULT_REMAP,
   isInputEvent,
+  isSetRemapEvent,
   createHello,
   resolveRemap,
 } from './lib/protocol.js';
@@ -76,6 +77,24 @@ async function sendToGameTabs(code, state) {
 }
 
 /**
+ * Merge or replace remap entries pushed from the camera setup page.
+ * @param {{ entries: Record<string, string>, merge?: boolean }} msg
+ */
+async function handleSetRemap(msg) {
+  const settings = await loadSettings();
+  const entries = msg.entries || {};
+  const next =
+    msg.merge === false
+      ? { ...DEFAULT_REMAP, ...entries }
+      : { ...settings.remap, ...entries };
+  // Allow clearing a binding with empty string
+  for (const [k, v] of Object.entries(entries)) {
+    if (!v) delete next[k];
+  }
+  await chrome.storage.local.set({ [STORAGE_KEYS.remap]: next });
+}
+
+/**
  * Apply a logical input event through remap → key code → game tab.
  * @param {{ source: string, action: string, state: string }} evt
  */
@@ -138,6 +157,10 @@ function connectBridge() {
     }
     if (isInputEvent(msg)) {
       handleInputEvent(msg);
+      return;
+    }
+    if (isSetRemapEvent(msg)) {
+      handleSetRemap(msg);
     }
   });
 

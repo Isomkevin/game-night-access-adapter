@@ -60,6 +60,16 @@ h2 {
   margin-bottom: 28px;
 }
 
+.remap-group {
+  margin-bottom: 20px;
+}
+
+.remap-group h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
 .row {
   display: grid;
   grid-template-columns: 1fr minmax(160px, 220px);

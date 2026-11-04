@@ -49,9 +49,13 @@ If that fails, check network access to GitHub and that you cloned with a GitHub 
 ## Camera page errors / no face
 
 1. Allow camera permission for `http://127.0.0.1:18765`
-2. Prefer Chrome; first load downloads MediaPipe WASM + model from CDNs — needs network
+2. Prefer Chrome; first load downloads MediaPipe WASM + model from CDNs — needs network (hands model loads only when Hands/Fingers are enabled)
 3. Good lighting; one face; keep the camera tab open
-4. GPU delegate failure: check console; may need a browser with WebGL
+4. GPU delegate failure: check console — face/hand detectors fall back to CPU
+5. Stuck steering: click **Pause control** (releases held keys) or leave the tab until the visibility timeout fires
+6. Gestures fire when resting: run **Calibrate neutral**, raise activation thresholds, or disable that gesture
+7. Mappings from the camera page do nothing: ensure the extension is connected to the bridge (badge `ON`), then click **Apply mappings to extension**
+8. Experimental `headCloser` / `headFarther` are unreliable (monocular scale) — leave off unless testing
 
 ## Voice demo hears nothing
 
