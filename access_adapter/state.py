@@ -97,6 +97,21 @@ class AppState:
         self.save()
         return rule
 
+    def update_mapping(self, rule_id: str, payload: dict[str, Any]) -> MappingRule:
+        data = dict(payload)
+        data["id"] = rule_id
+        rule = rule_from_dict(data)
+        with self._lock:
+            for index, existing in enumerate(self.config.rules):
+                if existing.id == rule_id:
+                    self.config.rules[index] = rule
+                    self._refresh_active_keys_locked()
+                    break
+            else:
+                raise KeyError(rule_id)
+        self.save()
+        return rule
+
     def delete_mapping(self, rule_id: str) -> None:
         with self._lock:
             kept = [rule for rule in self.config.rules if rule.id != rule_id]

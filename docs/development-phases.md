@@ -48,10 +48,24 @@ Covered:
 - Bad endpoint returns HTTP 400
 - Bind to `0.0.0.0` is rejected
 
+## Phase 4 — PySide window
+
+The main screen is the sensor mapping table. Add device scans USB and wireless phones. Tests use the offscreen Qt platform and do not move the real mouse.
+
+```bash
+QT_QPA_PLATFORM=offscreen python3 -m pytest tests/test_ui.py -q
+```
+
+Covered:
+
+- Default four mappings render in the table
+- Dominance, invert, add, and remove update the saved settings
+- Scan lists a USB serial and a wireless `host:port`, then selects the USB phone
+- A stored sample shows the key that would be held
+
 ## Later phases
 
 | Phase | Work |
 |-------|------|
-| 4 | PySide main window for mappings and Add device |
 | 5 | Live sensor bridge wired to the window and the API |
 | 6 | Windows and Linux installers |

@@ -14,11 +14,29 @@ access_adapter/
   adb_devices.py   scan USB and wireless ADB devices
   api.py           loopback JSON API
   state.py         settings, scan results, latest sample
+  ui/              PySide main window, mapping editor, Add device
   version.py       version shared with installers
 tests/             phase tests
 ```
 
-The PySide window and installers are described in [development-phases.md](development-phases.md). The HTTP API is documented in [local-api.md](local-api.md).
+The HTTP API is documented in [local-api.md](local-api.md). Installers are described in [development-phases.md](development-phases.md).
+
+## Main window
+
+The window opens on **Sensor mappings**. Each row is one sensor condition and the key combination it holds. Add, edit, or remove rows there. Dominance, invert, and “send keys” sit under the table.
+
+**Add device** scans `adb` and lists USB and wireless phones. Use a phone that is already authorized, connect to `host:port`, or pair with the 6-digit wireless debugging code. The status bar shows the selected phone.
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 -m access_adapter
+```
+
+The launch command is wired up in the next phase together with the live sensor bridge. Until then, import `MainWindow` from `access_adapter.ui.main_window`.
+
+```bash
+QT_QPA_PLATFORM=offscreen python3 -m pytest tests/test_ui.py -q
+```
 
 ## Devices
 
