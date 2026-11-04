@@ -12,9 +12,12 @@ access_adapter/
   config.py        JSON settings
   keys.py          press / release the active combination
   adb_devices.py   scan USB and wireless ADB devices
+  sensors.py       dumpsys accelerometer / gyroscope reader
+  bridge.py        poll the phone and hold the mapped keys
   api.py           loopback JSON API
   state.py         settings, scan results, latest sample
   ui/              PySide main window, mapping editor, Add device
+  __main__.py      window + local API
   version.py       version shared with installers
 tests/             phase tests
 ```
@@ -32,10 +35,10 @@ python3 -m pip install -r requirements.txt
 python3 -m access_adapter
 ```
 
-The launch command is wired up in the next phase together with the live sensor bridge. Until then, import `MainWindow` from `access_adapter.ui.main_window`.
+Focus the game window, choose **Add device**, then **Start reading**. **Send keys to the focused window** pauses injection without forgetting the mapping. `--api-only` serves the API without a window. `--version` prints the release.
 
 ```bash
-QT_QPA_PLATFORM=offscreen python3 -m pytest tests/test_ui.py -q
+QT_QPA_PLATFORM=offscreen python3 -m pytest tests/test_ui.py tests/test_bridge.py -q
 ```
 
 ## Devices

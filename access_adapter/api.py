@@ -142,6 +142,13 @@ class AdapterApiHandler(BaseHTTPRequestHandler):
 
         if method == "GET" and path == "/api/v1/sensors":
             return 200, state.sensors_dict()
+        if method == "POST" and path == "/api/v1/bridge/start":
+            state.ensure_bridge().start()
+            return 200, state.sensors_dict()
+        if method == "POST" and path == "/api/v1/bridge/stop":
+            if state.bridge is not None:
+                state.bridge.stop()
+            return 200, state.sensors_dict()
         if method == "POST" and path == "/api/v1/injection":
             if "enabled" not in body:
                 raise ValueError("enabled is required")

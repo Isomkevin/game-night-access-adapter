@@ -118,10 +118,29 @@ Proposed work areas include the repository and integration, browser extension, l
 ```text
 adapters/
   phone_tilt/          # Android tilt → keyboard adapter (working PoC)
+access_adapter/        # PySide desktop app, mappings, local API
 docs/
   phone-tilt-adapter.md
+  desktop-app.md
+  local-api.md
 README.md
 LICENSE
+```
+
+## Desktop application
+
+Configurable phone-sensor mappings, an Add device scan for USB and wireless ADB, and a local API. Windows and Linux.
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 -m access_adapter
+```
+
+The window opens on the sensor mapping table. Focus the game, then tilt the phone. Details: [docs/desktop-app.md](docs/desktop-app.md) and [docs/local-api.md](docs/local-api.md).
+
+```bash
+python3 -m access_adapter --api-only
+curl -s http://127.0.0.1:8765/api/v1/health
 ```
 
 ## Getting started (phone tilt PoC)

@@ -43,6 +43,8 @@ Errors:
 | POST | `/api/v1/devices/disconnect` | `{"serial": "192.168.1.20:5555"}` |
 | POST | `/api/v1/devices/select` | `{"serial": "..."}` stored as the phone to read |
 | GET | `/api/v1/sensors` | Latest sample, active keys, whether the bridge is running |
+| POST | `/api/v1/bridge/start` | Start reading the selected phone |
+| POST | `/api/v1/bridge/stop` | Stop reading and release every held key |
 | POST | `/api/v1/injection` | `{"enabled": false}` pauses key presses |
 
 Settings that PUT accepts: `selected_serial`, `injection_enabled`, `single_axis_only`, `axis_dominance`, `invert_x`, `invert_y`, `poll_interval`.

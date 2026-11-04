@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QCheckBox,
     QDialog,
@@ -53,6 +53,9 @@ class MainWindow(QMainWindow):
         self.device_button = QPushButton("Add device")
         self.device_button.setObjectName("addDeviceButton")
         self.device_button.clicked.connect(self.add_device)
+        self.bridge_button = QPushButton("Start reading")
+        self.bridge_button.setObjectName("bridgeButton")
+        self.bridge_button.clicked.connect(self.toggle_bridge)
 
         self.injection = QCheckBox("Send keys to the focused window")
         self.injection.setChecked(state.config.injection_enabled)
@@ -64,6 +67,7 @@ class MainWindow(QMainWindow):
         buttons.addWidget(self.remove_button)
         buttons.addStretch(1)
         buttons.addWidget(self.device_button)
+        buttons.addWidget(self.bridge_button)
 
         self.table = QTableWidget(0, 7)
         self.table.setObjectName("mappingTable")
@@ -118,6 +122,10 @@ class MainWindow(QMainWindow):
         layout.addLayout(options)
         layout.addWidget(self.live)
         self.setCentralWidget(root)
+        self._timer = QTimer(self)
+        self._timer.setInterval(200)
+        self._timer.timeout.connect(self.refresh_live)
+        self._timer.start()
         self.statusBar().showMessage(self._status_text())
         self.reload()
 
@@ -173,10 +181,27 @@ class MainWindow(QMainWindow):
         self.state.delete_mapping(rule_id)
         self.reload()
 
+    def toggle_bridge(self) -> None:
+        bridge = self.state.ensure_bridge()
+        try:
+            if self.state.bridge_running:
+                bridge.stop()
+            else:
+                bridge.start()
+        except RuntimeError as exc:
+            self.state.bridge_error = str(exc)
+        self.refresh_live()
+
     def add_device(self) -> None:
         dialog = DeviceDialog(self.state, parent=self)
         dialog.exec()
         self.refresh_live()
+
+    def closeEvent(self, event) -> None:  # noqa: N802 — Qt override
+        if self.state.bridge is not None:
+            self.state.bridge.stop()
+        self._timer.stop()
+        super().closeEvent(event)
 
     def _selected_rule_id(self) -> str:
         row = self.table.currentRow()
@@ -206,10 +231,15 @@ class MainWindow(QMainWindow):
         sensors = self.state.sensors_dict()
         sample = sensors["sample"]
         keys = ", ".join(sensors["active_keys"]) or "none"
+        verb = "Holding" if sensors["injection_enabled"] and sensors["bridge_running"] else "Matched"
+        state = "reading" if sensors["bridge_running"] else "stopped"
+        error = f"   {sensors['bridge_error']}" if sensors["bridge_error"] else ""
+        self.bridge_button.setText("Stop reading" if sensors["bridge_running"] else "Start reading")
         return (
+            f"Sensors {state}.   "
             f"Accel ({sample['ax']:.2f}, {sample['ay']:.2f}, {sample['az']:.2f})   "
             f"Gyro ({sample['gx']:.2f}, {sample['gy']:.2f}, {sample['gz']:.2f})   "
-            f"Holding: {keys}"
+            f"{verb}: {keys}{error}"
         )
 
     def _status_text(self) -> str:

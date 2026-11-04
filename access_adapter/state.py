@@ -34,7 +34,17 @@ class AppState:
         self.active_keys: list[str] = []
         self.bridge_running = False
         self.bridge_error = ""
+        self.bridge = None
+        self.api_base_url = ""
         self._lock = threading.Lock()
+
+    def ensure_bridge(self):
+        """Create the sensor bridge on first use so the API and window share it."""
+        if self.bridge is None:
+            from access_adapter.bridge import SensorBridge
+
+            self.bridge = SensorBridge(self)
+        return self.bridge
 
     def save(self) -> None:
         if self.config_path is None:

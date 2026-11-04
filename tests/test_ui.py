@@ -1,10 +1,6 @@
 """Phase 4: main window lists mappings and Add device scans ADB."""
 
-import os
-
 import pytest
-
-os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from access_adapter.adb_devices import AdbClient, AdbResult
 from access_adapter.mapping import SensorSample
@@ -13,13 +9,6 @@ from access_adapter.ui.devices_dialog import DeviceDialog
 from access_adapter.ui.main_window import MainWindow
 from access_adapter.ui.mapping_dialog import MappingDialog
 from tests.test_adb_devices import ScriptedAdb
-
-
-@pytest.fixture(scope="module")
-def qapp():
-    from PySide6.QtWidgets import QApplication
-
-    return QApplication.instance() or QApplication([])
 
 
 def test_main_window_lists_default_mappings(qapp, tmp_path):
@@ -93,7 +82,7 @@ def test_live_readout_follows_sample(qapp, tmp_path):
     window = MainWindow(state)
     state.note_sample(SensorSample(ax=-4.0, source="test"))
     window.refresh_live()
-    assert "Holding: a" in window.live.text()
+    assert "Matched: a" in window.live.text()
     window.close()
 
 

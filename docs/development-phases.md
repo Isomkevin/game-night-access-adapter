@@ -63,9 +63,25 @@ Covered:
 - Scan lists a USB serial and a wireless `host:port`, then selects the USB phone
 - A stored sample shows the key that would be held
 
+## Phase 5 — Live sensor bridge
+
+The selected phone is polled with `adb shell dumpsys sensorservice`. Matching mappings hold keys while injection is enabled. The window refreshes the live readout, and the API can start and stop the bridge.
+
+```bash
+python3 -m pytest tests/test_bridge.py -q
+python3 -m access_adapter --version
+```
+
+Covered:
+
+- Dumpsys text becomes accelerometer and gyroscope values for one serial
+- A left tilt presses `a`; pausing injection releases keys and still reports the match
+- The reader loop stops cleanly and releases keys
+- `POST /api/v1/bridge/start` on a selected phone reports the active key
+- Start reading with no phone selected explains that in the window
+
 ## Later phases
 
 | Phase | Work |
 |-------|------|
-| 5 | Live sensor bridge wired to the window and the API |
 | 6 | Windows and Linux installers |
