@@ -58,11 +58,25 @@ function applyKey(code, state) {
   }
 }
 
+function releaseAll() {
+  for (const code of [...heldCodes]) {
+    heldCodes.delete(code);
+    dispatchViaDom(code, 'keyup');
+  }
+}
+
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
-  if (!msg || msg.type !== 'gnaa-apply') return;
-  applyKey(msg.code, msg.state || 'pulse');
-  sendResponse({ ok: true });
-  return true;
+  if (!msg || !msg.type) return;
+  if (msg.type === 'gnaa-apply') {
+    applyKey(msg.code, msg.state || 'pulse');
+    sendResponse({ ok: true });
+    return true;
+  }
+  if (msg.type === 'gnaa-release-all') {
+    releaseAll();
+    sendResponse({ ok: true });
+    return true;
+  }
 });
 
 injectPageHook();

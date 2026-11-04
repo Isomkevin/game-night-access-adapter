@@ -2,33 +2,52 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Game Night Access Adapter</title>
+    <link rel="stylesheet" href="../styles/tokens.css" />
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
     <header>
-      <h1>Game Night</h1>
-      <p id="status" class="status">Checking bridge…</p>
+      <h1 class="brand">Game Night</h1>
+      <p id="status" class="status" aria-live="polite">Checking…</p>
+      <p id="status-detail" class="status-detail"></p>
     </header>
 
-    <section class="pad" aria-label="Demo controls">
-      <p class="hint">Hold a control while LibreCorsa is focused and driving.</p>
-      <div class="row">
-        <button type="button" class="hold" data-action="steerLeft" aria-label="Steer left">◀ Left</button>
-        <button type="button" class="hold" data-action="throttle" aria-label="Throttle">Throttle</button>
-        <button type="button" class="hold" data-action="steerRight" aria-label="Steer right">Right ▶</button>
-      </div>
-      <div class="row">
-        <button type="button" class="hold" data-action="brake" aria-label="Brake">Brake</button>
-        <button type="button" class="hold" data-action="boost" aria-label="Boost">Boost</button>
-        <button type="button" class="pulse" data-action="pause" aria-label="Pause">Pause</button>
+    <section class="mode-bar" aria-label="Button behavior">
+      <span class="mode-label" id="mode-label">Button mode</span>
+      <div class="mode-toggle" role="group" aria-labelledby="mode-label">
+        <button type="button" id="mode-hold" class="mode-btn" aria-pressed="true">Hold</button>
+        <button type="button" id="mode-latch" class="mode-btn" aria-pressed="false">Latch</button>
       </div>
     </section>
 
+    <section class="pad" aria-label="On-screen controls">
+      <p class="hint" id="pad-hint">Hold a control while the game is focused and driving.</p>
+      <div class="row">
+        <button type="button" class="hold" data-action="steerLeft" aria-label="Steer left" aria-pressed="false">Left</button>
+        <button type="button" class="hold" data-action="throttle" aria-label="Throttle" aria-pressed="false">Throttle</button>
+        <button type="button" class="hold" data-action="steerRight" aria-label="Steer right" aria-pressed="false">Right</button>
+      </div>
+      <div class="row">
+        <button type="button" class="hold" data-action="brake" aria-label="Brake" aria-pressed="false">Brake</button>
+        <button type="button" class="hold" data-action="boost" aria-label="Boost" aria-pressed="false">Boost</button>
+        <button type="button" class="pulse" data-action="pause" aria-label="Pause menu">Pause</button>
+      </div>
+    </section>
+
+    <div class="danger-row">
+      <button type="button" id="release-all" class="gnaa-btn gnaa-btn--danger stop-btn">
+        Stop all inputs
+      </button>
+    </div>
+
     <footer>
-      <button type="button" id="reconnect">Reconnect bridge</button>
-      <a href="#" id="open-options">Remap controls</a>
+      <button type="button" id="open-game" class="gnaa-btn gnaa-btn--amber footer-btn">Open game</button>
+      <button type="button" id="open-options" class="gnaa-btn gnaa-btn--secondary footer-btn">Setup</button>
+      <button type="button" id="reconnect" class="gnaa-btn gnaa-btn--ghost footer-btn">Reconnect</button>
     </footer>
+
     <script type="module" src="popup.js"></script>
   </body>
 </html>

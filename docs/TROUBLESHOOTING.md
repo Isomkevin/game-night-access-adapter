@@ -29,11 +29,11 @@ If that fails, check network access to GitHub and that you cloned with a GitHub 
 5. **Open DevTools on the game tab** → Console. After a demo press you should not see extension errors. On the service worker: `chrome://extensions` → Service worker → Inspect.
 6. **Known risk:** if a future LibreCorsa build ignores untrusted events, the MAIN-world `page-hook.js` path should still run via `postMessage`. Confirm `window.__gnaaHookInstalled` in the page console.
 
-## Badge stuck on `demo` / bridge won’t connect
+## Badge stuck on `OFF` / bridge won’t connect
 
 1. Is the bridge running? `cd bridge && npm start`
 2. Health: `curl http://127.0.0.1:18765/health` → `"ok": true`
-3. Popup → **Reconnect bridge**
+3. Popup → **Reconnect**
 4. Port conflict: set `GNAA_PORT=18766` when starting the bridge, then open extension **Options → Bridge connection** and save `ws://127.0.0.1:18766` (or edit storage `bridgeUrl`). Defaults remain `18765`.
 5. Firewall blocking localhost is rare; corporate proxies can break WS — try another network
 

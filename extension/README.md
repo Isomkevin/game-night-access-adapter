@@ -23,12 +23,12 @@ After every `git pull` that touches `extension/`, click **Reload** on the extens
 
 | Surface | What it does |
 | --- | --- |
-| Toolbar popup | Hold demo controls; reconnect bridge; open remap |
-| Options page | Bridge WebSocket URL; full remap table; key-code overrides; export/import JSON |
-| Badge `demo` | Bridge down — demo pad still works |
-| Badge `ON` | WebSocket to bridge is up |
+| Toolbar popup | On-screen controls (Hold or Latch), Stop all inputs, Open game, Reconnect, Setup |
+| Options page | Guided Welcome → Choose → Setup → Customize → Ready; presets; Advanced connection |
+| Badge `OFF` | Access bridge down — on-screen controls still work |
+| Badge `ON` | Access bridge connected |
 
-**Focus:** click the game canvas before holding popup buttons. The game must be in the driving phase.
+**Focus:** click the game canvas before using popup buttons. The game must be in the driving phase.
 
 ## File map
 
@@ -39,11 +39,13 @@ extension/
   content/
     inject.js            Receives gnaa-apply; dispatches keys + postMessage
     page-hook.js         MAIN-world fallback listener (web_accessible)
-  popup/                 Demo pad UI
-  options/               Remap + profile import/export
+  popup/                 Play companion (controls + status)
+  options/               Guided setup + remap + presets
+  styles/tokens.css      Shared design tokens
   lib/
     actions.js           Vendored from packages/shared/actions.js
     protocol.js          Vendored from packages/shared/protocol.js
+    status.js            Plain-language status copy
     keys.js              code ↔ KeyboardEvent helpers
   icons/                 Toolbar icons
 ```
@@ -60,9 +62,10 @@ extension/
 
 | Direction | `type` | Purpose |
 | --- | --- | --- |
-| popup → background | `gnaa-demo-input` | `{ action, state }` demo events |
+| popup → background | `gnaa-demo-input` | `{ action, state }` on-screen events |
 | background → content | `gnaa-apply` | `{ code, state }` after remap |
-| popup → background | `gnaa-get-status` / `gnaa-reconnect` | Bridge status |
+| background → content | `gnaa-release-all` | Release every held key |
+| popup → background | `gnaa-get-status` / `gnaa-reconnect` / `gnaa-release-all` / `gnaa-open-game` | Status & helpers |
 | content → background | `gnaa-content-ready` | Tab ready ping |
 
 Bridge wire format is documented in [docs/protocol.md](../docs/protocol.md).

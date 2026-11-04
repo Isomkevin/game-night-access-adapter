@@ -3,29 +3,42 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Game Night — Voice (toolkit path)</title>
+    <title>Game Night — Voice commands</title>
+    <link rel="stylesheet" href="/ui/tokens.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <header>
-      <h1>Voice commands</h1>
-      <p class="owner"><strong>Bunny</strong> owns toolkit Controller integration. This page is a Web Speech fallback / demo that speaks the shared protocol.</p>
-      <p id="status">Idle</p>
-    </header>
+    <main class="voice-page">
+      <p class="eyebrow">Game Night</p>
+      <h1 class="brand">Voice commands</h1>
+      <p class="badge gnaa-chip gnaa-chip--warn">Experimental — short taps</p>
+      <p class="lede">
+        Speak a phrase to send a quick tap to the game. Voice does not hold throttle or steering
+        continuously. Keep this tab open, allow the microphone, and keep the game focused while driving.
+      </p>
 
-    <button type="button" id="listen" class="big">Start listening</button>
-    <pre id="log" aria-live="polite"></pre>
+      <p id="status" class="status" aria-live="polite">Idle</p>
 
-    <h2>Phrases</h2>
-    <ul>
-      <li>“turn left” / “left”</li>
-      <li>“turn right” / “right”</li>
-      <li>“go” / “accelerate”</li>
-      <li>“stop” / “brake”</li>
-      <li>“boost”</li>
-      <li>“pause”</li>
-    </ul>
+      <div class="cta-row">
+        <button type="button" id="listen" class="gnaa-btn gnaa-btn--amber big">Start listening</button>
+        <button type="button" id="stop" class="gnaa-btn gnaa-btn--secondary big" disabled>Stop</button>
+      </div>
 
+      <h2>Try saying</h2>
+      <ul class="phrases">
+        <li><strong>“turn left”</strong> or <strong>“left”</strong> — short steer left</li>
+        <li><strong>“turn right”</strong> or <strong>“right”</strong> — short steer right</li>
+        <li><strong>“go”</strong> / <strong>“accelerate”</strong> — short throttle tap</li>
+        <li><strong>“stop”</strong> / <strong>“brake”</strong> — short brake tap</li>
+        <li><strong>“boost”</strong> — short boost tap</li>
+        <li><strong>“pause”</strong> — open pause menu</li>
+      </ul>
+
+      <h2>Heard</h2>
+      <pre id="log" aria-live="polite"></pre>
+
+      <p class="back"><a href="/">← All control methods</a></p>
+    </main>
     <script type="module" src="voice.js"></script>
   </body>
 </html>

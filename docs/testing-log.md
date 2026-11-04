@@ -66,6 +66,21 @@ Record each session before claiming a feature works.
 | Justin's feedback | — |
 | Toolkit issues filed | — |
 
+### 2026-11-05 — Developer smoke (UX transformation) — not Justin-verified
+
+| Field | Value |
+| --- | --- |
+| Date | 2026-11-05 |
+| Adapter / commit | product UX transformation (options shell, popup latch/stop-all, bridge hub, phone latch, voice restart) |
+| Game | LibreCorsa local (manual verify recommended) |
+| Browser / OS | Chrome / Windows (dev machine) |
+| Input method | demo / phone / camera / voice (developer pass) |
+| Mapping used | defaults + Customize UI |
+| What was attempted | Guided options journey; human remap + presets + hardened import; popup Hold/Latch + Stop all inputs; bridge `/` hub; phone latch + release on hide; voice auto-restart + experimental copy; camera plain-language status (existing release-on-lost retained) |
+| Result | **Developer implementation landed.** Live drive + Justin macOS session still required before calling features co-designer-supported. |
+| Justin's feedback | — |
+| Toolkit issues filed | — |
+
 ### Justin session 1 — _pending_
 
-_Fill in after first macOS smoke test (target: Thu/Fri check-in)._
+_Fill in after first macOS smoke test (target: Thu/Fri check-in). Developer smoke ≠ Justin verification._

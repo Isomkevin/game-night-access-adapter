@@ -3,15 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Game Night — Vision controller</title>
+    <title>Game Night — Head &amp; vision</title>
+    <link rel="stylesheet" href="/ui/tokens.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header>
-      <h1>Vision controller</h1>
-      <p id="status">Starting camera…</p>
+      <p class="eyebrow">Game Night</p>
+      <h1>Head &amp; vision</h1>
+      <p class="badge">Experimental</p>
+      <p id="status" aria-live="polite">Starting camera…</p>
       <p class="lede">
-        Detect head, face, hand, and finger movements locally, then map them to game actions.
+        Control the game with head, face, or hand movements using your webcam.
         Choose only the movements you can perform comfortably. Nothing is recorded or uploaded.
       </p>
     </header>
@@ -23,9 +26,10 @@
           <canvas id="overlay"></canvas>
         </div>
         <p class="hint">
-          Keep this tab open beside the game. Use <strong>Pause control</strong> to stop inputs immediately.
-          Calibrate while sitting in a relaxed neutral pose.
+          Keep this tab open beside the game. Sit in a relaxed pose, then calibrate.
+          Use <strong>Pause control</strong> to stop inputs immediately if something goes wrong.
         </p>
+        <p class="back"><a href="/">← All control methods</a></p>
       </div>
 
       <div id="setup"></div>

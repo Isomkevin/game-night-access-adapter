@@ -41,8 +41,8 @@ const capture = createCapture(video, { lostTimeoutMs: 2500 });
 
 const emitter = createEmitter({
   onStatus(s) {
-    if (s === 'connected') setStatus('Bridge connected — tracking…');
-    else setStatus('Bridge disconnected — retrying…');
+    if (s === 'connected') setStatus('Connected — tracking your movements');
+    else setStatus('Connection lost — retrying… On-screen controls still work in the extension.');
   },
 });
 
@@ -158,7 +158,7 @@ capture.onLost((reason) => {
 });
 
 async function main() {
-  setStatus('Loading MediaPipe face model…');
+  setStatus('Starting camera — allow permission if asked…');
   faceDetector = await createFaceDetector();
   await capture.start();
   await ensureHandDetector();
@@ -167,7 +167,7 @@ async function main() {
   canvas.height = video.videoHeight || 480;
   const drawer = new DrawingUtils(ctx);
 
-  setStatus('Camera ready — calibrate for best results');
+  setStatus('Camera ready — sit comfortably, then calibrate your neutral pose');
 
   let lastVideoTime = -1;
   let trackingLost = false;
@@ -266,5 +266,10 @@ async function main() {
 
 main().catch((err) => {
   console.error(err);
-  setStatus(`Camera error: ${err.message || err}`);
+  const msg = String(err.message || err);
+  if (/NotAllowedError|Permission/i.test(msg)) {
+    setStatus('Camera permission needed — allow access in the browser, then reload this page.');
+  } else {
+    setStatus(`Could not start the camera: ${msg}`);
+  }
 });

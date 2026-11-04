@@ -2,65 +2,181 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Remap controls — Game Night</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Night Access Adapter — Setup</title>
+    <link rel="stylesheet" href="../styles/tokens.css" />
     <link rel="stylesheet" href="options.css" />
   </head>
   <body>
-    <main>
-      <h1>Remap controls</h1>
-      <p class="lede">
-        Map any accessible input to any LibreCorsa action. Changes save on this device.
-        Large targets — click a row to change the game action.
-      </p>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-      <section>
-        <h2>Bridge connection</h2>
-        <p class="hint">
-          Local WebSocket URL for camera / phone / voice. Leave the default unless the bridge
-          runs on another port (e.g. <code>ws://127.0.0.1:18766</code>).
-        </p>
-        <div class="row bridge-row">
-          <label for="bridge-url">Bridge WebSocket URL</label>
-          <div class="bridge-fields">
-            <input
-              id="bridge-url"
-              type="url"
-              spellcheck="false"
-              autocomplete="off"
-              placeholder="ws://127.0.0.1:18765"
-              aria-describedby="bridge-hint"
-            />
-            <button type="button" id="save-bridge" class="secondary">Save &amp; reconnect</button>
-          </div>
+    <div class="app">
+      <header class="app-header">
+        <div class="brand-block">
+          <p class="eyebrow">Game Night Access Adapter</p>
+          <h1 class="brand">Play your way</h1>
         </div>
-        <p id="bridge-hint" class="hint">Saved URL is used by the extension service worker immediately.</p>
-      </section>
+        <nav class="app-nav" aria-label="Setup steps" id="app-nav">
+          <button type="button" class="nav-btn" data-view="welcome">Welcome</button>
+          <button type="button" class="nav-btn" data-view="choose">Choose</button>
+          <button type="button" class="nav-btn" data-view="setup">Setup</button>
+          <button type="button" class="nav-btn" data-view="customize">Customize</button>
+          <button type="button" class="nav-btn" data-view="ready">Ready</button>
+          <button type="button" class="nav-btn" data-view="advanced">Advanced</button>
+        </nav>
+      </header>
 
-      <section>
-        <h2>Input → action</h2>
-        <p class="hint">
-          Grouped by input source. Camera gestures beyond head yaw are unmapped until you assign them.
-          Use the vision controller page to discover, calibrate, and push mappings.
-        </p>
-        <div id="remap-table" class="table" role="table" aria-label="Control remapping"></div>
-      </section>
+      <main id="main">
+        <!-- Welcome -->
+        <section class="view" id="view-welcome" data-view-panel="welcome" hidden>
+          <div class="hero gnaa-card">
+            <p class="chip-row"><span class="gnaa-chip gnaa-chip--info">Built with co-designers</span></p>
+            <h2>Race with the controls that work for you</h2>
+            <p class="lede">
+              Game Night Access Adapter lets you play LibreCorsa without relying on a conventional
+              keyboard or mouse. Use on-screen buttons, your phone, head movement, or voice — then
+              remap anything so it matches how you move.
+            </p>
+            <p class="gnaa-hint">
+              You do not need to understand developer tools. We will walk through each step.
+            </p>
+            <div class="cta-row">
+              <button type="button" class="gnaa-btn gnaa-btn--amber" id="btn-get-started">
+                Get started
+              </button>
+              <button type="button" class="gnaa-btn gnaa-btn--secondary" data-goto="ready">
+                Skip to ready check
+              </button>
+            </div>
+          </div>
+        </section>
 
-      <section>
-        <h2>Key codes sent to the game</h2>
-        <p class="hint">Defaults match LibreCorsa. Change only if you rebound keys in the game.</p>
-        <div id="keys-table" class="table"></div>
-      </section>
+        <!-- Choose -->
+        <section class="view" id="view-choose" data-view-panel="choose" hidden>
+          <h2>Choose how you want to control the game</h2>
+          <p class="lede">Pick a starting method. You can change this later and combine methods.</p>
+          <div class="method-grid" id="method-grid" role="list"></div>
+          <div class="cta-row">
+            <button type="button" class="gnaa-btn gnaa-btn--secondary" data-goto="welcome">Back</button>
+            <button type="button" class="gnaa-btn" id="btn-choose-continue" disabled>Continue setup</button>
+          </div>
+        </section>
 
-      <section class="actions">
-        <button type="button" id="reset" class="secondary">Reset to defaults</button>
-        <button type="button" id="export">Export profile</button>
-        <label class="import">
-          Import profile
-          <input type="file" id="import" accept="application/json,.json" />
-        </label>
-        <span id="save-msg" class="save-msg" aria-live="polite"></span>
-      </section>
-    </main>
+        <!-- Setup -->
+        <section class="view" id="view-setup" data-view-panel="setup" hidden>
+          <h2 id="setup-title">Set up your controls</h2>
+          <p class="lede" id="setup-lede">Follow these short steps.</p>
+          <ol class="steps" id="setup-steps"></ol>
+          <div class="setup-actions gnaa-card" id="setup-actions"></div>
+          <div class="cta-row">
+            <button type="button" class="gnaa-btn gnaa-btn--secondary" data-goto="choose">Back</button>
+            <button type="button" class="gnaa-btn" data-goto="customize">Customize mappings</button>
+            <button type="button" class="gnaa-btn gnaa-btn--amber" data-goto="ready">I'm set up</button>
+          </div>
+        </section>
+
+        <!-- Customize -->
+        <section class="view" id="view-customize" data-view-panel="customize" hidden>
+          <h2>Customize your controls</h2>
+          <p class="lede">
+            Choose a game action for each input. Changes save on this device. Use Test to send a
+            short pulse through the real control path (focus the game while driving).
+          </p>
+
+          <div class="preset-bar gnaa-card">
+            <label for="preset-select">Saved preset</label>
+            <div class="preset-fields">
+              <select id="preset-select" aria-label="Saved preset"></select>
+              <button type="button" class="gnaa-btn gnaa-btn--secondary" id="preset-load">Load</button>
+              <button type="button" class="gnaa-btn gnaa-btn--secondary" id="preset-save">Save as…</button>
+              <button type="button" class="gnaa-btn gnaa-btn--ghost" id="preset-delete">Delete</button>
+            </div>
+          </div>
+
+          <div id="remap-table" class="remap-root" role="region" aria-label="Control remapping"></div>
+
+          <details class="advanced-block">
+            <summary>Advanced: match keys rebound in the game</summary>
+            <p class="gnaa-hint">
+              Only change these if you remapped keys inside LibreCorsa itself. Defaults already match the game.
+            </p>
+            <div id="keys-table" class="table" role="region" aria-label="Key codes sent to the game"></div>
+          </details>
+
+          <div class="actions-bar">
+            <button type="button" class="gnaa-btn gnaa-btn--ghost" id="reset">Reset to defaults</button>
+            <button type="button" class="gnaa-btn gnaa-btn--secondary" id="export">Export settings (JSON)</button>
+            <label class="import gnaa-btn gnaa-btn--secondary">
+              Import settings (JSON)
+              <input type="file" id="import" accept="application/json,.json" />
+            </label>
+            <span id="save-msg" class="save-msg" aria-live="polite"></span>
+          </div>
+
+          <div class="cta-row">
+            <button type="button" class="gnaa-btn gnaa-btn--secondary" data-goto="setup">Back</button>
+            <button type="button" class="gnaa-btn gnaa-btn--amber" data-goto="ready">Continue</button>
+          </div>
+        </section>
+
+        <!-- Ready -->
+        <section class="view" id="view-ready" data-view-panel="ready" hidden>
+          <h2>Ready to play?</h2>
+          <p class="lede">Check each item, then open the game and use your controls while driving.</p>
+          <ul class="checklist" id="ready-checklist" aria-live="polite"></ul>
+          <div class="cta-row">
+            <button type="button" class="gnaa-btn gnaa-btn--amber" id="btn-open-game">Open game</button>
+            <button type="button" class="gnaa-btn" id="btn-finish-onboarding">Mark setup complete</button>
+            <button type="button" class="gnaa-btn gnaa-btn--secondary" data-goto="customize">Edit controls</button>
+          </div>
+          <p class="gnaa-hint">
+            Tip: pin the extension, then use the popup for large on-screen buttons, latch mode, and Stop all inputs.
+          </p>
+        </section>
+
+        <!-- Advanced -->
+        <section class="view" id="view-advanced" data-view-panel="advanced" hidden>
+          <h2>Advanced &amp; diagnostics</h2>
+          <p class="lede">Technical connection settings. Most players can leave these alone.</p>
+
+          <div class="gnaa-card">
+            <h3>Access bridge connection</h3>
+            <p class="gnaa-hint" id="bridge-hint">
+              Local connection address for phone, camera, and voice. Change only if the bridge uses another port.
+            </p>
+            <div class="bridge-fields">
+              <label for="bridge-url">Connection address</label>
+              <input
+                id="bridge-url"
+                type="url"
+                spellcheck="false"
+                autocomplete="off"
+                placeholder="ws://127.0.0.1:18765"
+                aria-describedby="bridge-hint"
+              />
+              <button type="button" class="gnaa-btn gnaa-btn--secondary" id="save-bridge">
+                Save &amp; reconnect
+              </button>
+            </div>
+            <p id="diag-status" class="diag" aria-live="polite"></p>
+          </div>
+
+          <div class="cta-row">
+            <button type="button" class="gnaa-btn gnaa-btn--secondary" data-goto="ready">Back to ready</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title">
+      <h3 id="confirm-title">Confirm</h3>
+      <p id="confirm-body"></p>
+      <div class="cta-row">
+        <button type="button" class="gnaa-btn gnaa-btn--ghost" id="confirm-cancel">Cancel</button>
+        <button type="button" class="gnaa-btn gnaa-btn--danger" id="confirm-ok">Confirm</button>
+      </div>
+    </dialog>
+
     <script type="module" src="options.js"></script>
   </body>
 </html>

@@ -1,13 +1,13 @@
 :root {
-  --bg: #0f1419;
-  --panel: #171e27;
-  --fg: #eef2f6;
-  --muted: #9aa7b5;
-  --accent: #7eb6ff;
-  --ok: #9fe870;
-  --danger: #e86a6a;
-  --border: #2a3544;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  --bg: #072e2c;
+  --panel: #0b3d3a;
+  --fg: #f3ede3;
+  --muted: #c5d4d1;
+  --accent: #e08a1e;
+  --ok: #8fdfb5;
+  --danger: #ffb4ab;
+  --border: #1f5c57;
+  font-family: var(--gnaa-font, 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif);
 }
 
 * {
@@ -22,9 +22,39 @@ body {
   min-height: 100vh;
 }
 
+.eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.badge {
+  display: inline-flex;
+  margin: 0 0 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #fff4d6;
+  color: #9a6700;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
 h1 {
-  margin: 0 0 6px;
+  margin: 4px 0 6px;
+  font-family: var(--gnaa-display, inherit);
   font-size: 1.75rem;
+}
+
+.back {
+  margin-top: 16px;
+}
+
+.back a {
+  color: var(--accent);
+  font-weight: 700;
 }
 
 h2 {

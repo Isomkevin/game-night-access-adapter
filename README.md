@@ -64,10 +64,10 @@ Open `http://localhost:3000` and get into a **driving** session (keyboard is ign
 ### 2. Chrome extension
 
 1. `chrome://extensions` → Developer mode → **Load unpacked** → select `extension/`
-2. Pin the extension. Use the popup demo pad (hold Left / Throttle / Right…) while the game tab is focused.
-3. **Remap controls** from the popup link (large-target options page).
+2. Pin the extension. Open **Setup** (options) for the guided Welcome → Choose → Customize → Ready flow.
+3. Use the popup for on-screen controls (Hold or Latch), **Stop all inputs**, and **Open game**.
 
-Badge `demo` = bridge offline (demo still works). Badge `ON` = bridge connected.
+Badge `OFF` = access bridge offline (on-screen controls still work). Badge `ON` = bridge connected.
 
 ### 3. Bridge (optional — camera / phone / voice)
 
@@ -79,6 +79,7 @@ npm start
 
 | UI | URL |
 | --- | --- |
+| Control hub | `http://127.0.0.1:18765/` |
 | Phone | `http://127.0.0.1:18765/phone/` (or `http://<lan-ip>:18765/phone/`) |
 | Camera | `http://127.0.0.1:18765/camera/` |
 | Voice | `http://127.0.0.1:18765/voice/` |
