@@ -80,8 +80,29 @@ Covered:
 - `POST /api/v1/bridge/start` on a selected phone reports the active key
 - Start reading with no phone selected explains that in the window
 
-## Later phases
+## Phase 6 — Windows and Linux installers
 
-| Phase | Work |
-|-------|------|
-| 6 | Windows and Linux installers |
+A `.deb`, a Windows zip, and a self-extracting `setup.exe` install the app into a virtual environment and register a login shortcut. The package is not a system service: keystrokes have to come from the signed-in session. See [installers.md](installers.md).
+
+```bash
+bash packaging/build-installers.sh
+```
+
+Covered:
+
+- Shell syntax of the build scripts
+- Deb control version, launcher, menu entry, autostart entry, and virtualenv `postinst`
+- PowerShell files are UTF-8 with a BOM and do not use an en dash or em dash
+- `install.bat` changes to its own directory
+- Zip and `setup.exe` contain the installer scripts and `access_adapter`
+- `manifest.json` names match the version
+- Project sources do not reuse another product's service name
+
+## Phase status
+
+Phases 1 through 6 are implemented. Re-run everything with:
+
+```bash
+QT_QPA_PLATFORM=offscreen python3 -m pytest -q
+bash packaging/build-installers.sh
+```

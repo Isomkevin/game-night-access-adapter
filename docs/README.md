@@ -5,6 +5,7 @@
 | [phone-tilt-adapter.md](phone-tilt-adapter.md) | Android tilt → keyboard adapter: setup, architecture, tuning, limitations |
 | [desktop-app.md](desktop-app.md) | PySide desktop app: sensor mappings, devices, how to run |
 | [local-api.md](local-api.md) | Loopback JSON API for mappings, settings, and ADB scan |
+| [installers.md](installers.md) | Linux deb, Windows zip, and self-extracting setup.exe |
 | [development-phases.md](development-phases.md) | Phase plan and the tests that close each phase |
 
 Add a short doc for each new input adapter before opening a merge request, including: how to run it, what was tested (OS / browser / device), and known accessibility limitations.

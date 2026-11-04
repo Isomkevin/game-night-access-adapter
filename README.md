@@ -136,7 +136,7 @@ python3 -m pip install -r requirements.txt
 python3 -m access_adapter
 ```
 
-The window opens on the sensor mapping table. Focus the game, then tilt the phone. Details: [docs/desktop-app.md](docs/desktop-app.md) and [docs/local-api.md](docs/local-api.md).
+The window opens on the sensor mapping table. Focus the game, then tilt the phone. Details: [docs/desktop-app.md](docs/desktop-app.md), [docs/local-api.md](docs/local-api.md), and [docs/installers.md](docs/installers.md).
 
 ```bash
 python3 -m access_adapter --api-only

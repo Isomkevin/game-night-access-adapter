@@ -22,7 +22,7 @@ access_adapter/
 tests/             phase tests
 ```
 
-The HTTP API is documented in [local-api.md](local-api.md). Installers are described in [development-phases.md](development-phases.md).
+The HTTP API is documented in [local-api.md](local-api.md). Windows and Linux packages are documented in [installers.md](installers.md).
 
 ## Main window
 

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Game Night Access Adapter
+Comment=Map phone sensors to keyboard combinations
+Exec=game-night-access-adapter
+Icon=input-gaming
+Terminal=false
+Categories=Utility;Accessibility;
+StartupNotify=true

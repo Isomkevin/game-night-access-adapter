@@ -6,6 +6,7 @@ __pycache__/
 .eggs/
 dist/
 build/
+packaging/windows/vendor/
 .venv/
 venv/
 .env
