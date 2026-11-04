@@ -8,14 +8,30 @@ The earlier phone-tilt proof of concept under `adapters/phone_tilt/` is unchange
 
 ```text
 access_adapter/
-  mapping.py     sensor sample → key combination
-  config.py      JSON settings
-  keys.py        press / release the active combination
-  version.py     version shared with installers
-tests/           phase tests
+  mapping.py       sensor sample → key combination
+  config.py        JSON settings
+  keys.py          press / release the active combination
+  adb_devices.py   scan USB and wireless ADB devices
+  api.py           loopback JSON API
+  state.py         settings, scan results, latest sample
+  version.py       version shared with installers
+tests/             phase tests
 ```
 
-Later phases add device scanning, the local API, the PySide window, and installers. See [development-phases.md](development-phases.md).
+The PySide window and installers are described in [development-phases.md](development-phases.md). The HTTP API is documented in [local-api.md](local-api.md).
+
+## Devices
+
+Scan runs `adb devices -l`.
+
+| Serial shape | Transport |
+|--------------|-----------|
+| Plain hardware serial (`R58M123ABC`) | USB |
+| `emulator-5554` | USB |
+| `192.168.0.104:38667` or `phone.local:5555` | Wireless |
+| Name containing `adb-tls` | Wireless |
+
+`adb mdns services` lists phones that are advertising wireless debugging but are not connected yet. Pair with the 6-digit code from the phone (`adb pair host:port code`), then connect to the address on the wireless debugging screen (`adb connect host:port`). USB phones show up after the cable is plugged in and the PC is authorized.
 
 ## Settings file
 
