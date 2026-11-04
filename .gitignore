@@ -12,3 +12,7 @@ game/out/
 toolkit/node_modules/
 .vscode/
 .idea/
+
+# Accidental local clones — use git submodules `game/` and `toolkit/` instead
+/librecorsa-game/
+/AI-for-Accessibility-Toolkit/

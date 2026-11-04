@@ -50,6 +50,8 @@ Confirm:
 ls game/package.json toolkit/README.md extension/manifest.json
 ```
 
+Canonical paths are **`game/`** (LibreCorsa) and **`toolkit/`** (AI-for-Accessibility fork) via git submodules. Do not use ad-hoc folders like `librecorsa-game/` or a second toolkit clone at the repo root — those are ignored local duplicates if present.
+
 ## 2. Minimum path (no bridge) — prove the extension works
 
 ### 2a. Start LibreCorsa
