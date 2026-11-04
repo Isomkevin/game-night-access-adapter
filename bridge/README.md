@@ -1,12 +1,24 @@
 # Local bridge (Omar)
 
-Node WebSocket hub that fans camera / voice / phone inputs to the Chrome extension.
+Node.js **HTTP + WebSocket** hub on port **18765**.
+
+- Fans `input` events from phone / camera / voice → extension clients
+- Serves static UIs for those inputs over LAN
+
+Kevin owns the stub; Omar owns hardening, reconnect UX, and any optional OS-level key simulation (prefer extension injection for macOS).
 
 ## Why WebSocket (not ADB)
 
-- Challenge rule: no extra hardware
-- Justin uses macOS — ADB friction is high
-- Phone is a **software controller**: open a LAN page, stream sensors
+| Concern | Approach |
+| --- | --- |
+| No extra hardware rule | Phone is a web page |
+| Justin on macOS | No ADB / Windows-only helpers required |
+| Latency | Localhost / LAN only — not cloud |
+
+## Prerequisites
+
+- Node.js 18+
+- Free TCP port 18765 (or set `GNAA_PORT`)
 
 ## Run
 
@@ -16,18 +28,76 @@ npm install
 npm start
 ```
 
-Default port **18765** (`GNAA_PORT` to override).
+Dev auto-reload (optional):
 
-- Extension connects to `ws://127.0.0.1:18765`
-- Phone: `http://<lan-ip>:18765/phone/`
-- Camera: `http://127.0.0.1:18765/camera/`
+```bash
+npm run dev
+```
 
-## Protocol
+### Expected console output
 
-See [`docs/protocol.md`](../docs/protocol.md).
+```text
+Game Night bridge on http://127.0.0.1:18765
+  WebSocket  ws://127.0.0.1:18765
+  Phone UI   http://127.0.0.1:18765/phone/
+  Camera UI  http://127.0.0.1:18765/camera/
+  Voice UI   http://127.0.0.1:18765/voice/
+  Phone LAN  http://<your-lan-ip>:18765/phone/
+```
 
-## Ownership
+### Health check
 
-- **Stub + HTTP/WS fan-out:** in this folder (Kevin)
-- **Hardening, reconnect UX, optional OS key injection:** Omar
-- Prefer extension keystroke injection so macOS stays first-class
+```bash
+curl http://127.0.0.1:18765/health
+```
+
+```json
+{ "ok": true, "clients": { "extension": 1, "phone": 0 } }
+```
+
+## HTTP routes
+
+| Path | Serves |
+| --- | --- |
+| `/health` | JSON status |
+| `/phone/`, `/phone/*` | [`../phone-controller/`](../phone-controller/) |
+| `/camera/`, `/camera/*` | [`../camera/`](../camera/) |
+| `/voice/`, `/voice/*` | [`../voice/`](../voice/) |
+| `/shared/*` | [`../packages/shared/`](../packages/shared/) (optional debug) |
+
+## WebSocket behaviour
+
+1. Client connects and sends `{ "type":"hello", "role":"extension"|"phone"|"camera"|"voice", "v":1 }`
+2. Client may send `{ "type":"input", ... }` (see [docs/protocol.md](../docs/protocol.md))
+3. Bridge broadcasts `input` frames **only to** clients with `role === "extension"`
+4. `status` frames go to all connected clients
+
+## Files
+
+| File | Role |
+| --- | --- |
+| `server.js` | HTTP static + `ws` hub |
+| `package.json` | `ws` dependency, `npm start` |
+
+## Configuration
+
+| Env | Default | Meaning |
+| --- | --- | --- |
+| `GNAA_PORT` | `18765` | Listen port (HTTP and WS) |
+
+Bind address is `0.0.0.0` so phones on LAN can connect. Use trusted Wi‑Fi only.
+
+If you change the port, the extension must use the matching `ws://127.0.0.1:<port>` (`DEFAULT_BRIDGE_PORT` in shared/extension protocol, or future options UI).
+
+## Omar backlog (suggested)
+
+- [ ] Heartbeats / clearer disconnect reasons
+- [ ] Rate-limit abusive input spam
+- [ ] Optional TLS for hostile networks (not required for Saturday LAN demo)
+- [ ] Only if extension injection fails on a platform: OS key simulation — document OS matrix first
+
+## Related
+
+- [docs/ONBOARDING.md](../docs/ONBOARDING.md)
+- [docs/TROUBLESHOOTING.md](../docs/TROUBLESHOOTING.md)
+- [phone-controller/README.md](../phone-controller/README.md)

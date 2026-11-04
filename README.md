@@ -2,7 +2,10 @@
 
 Proof-of-concept accessibility adapter for **[LibreCorsa](https://github.com/KhazP/librecorsa)** so players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — can remap camera, voice, and phone inputs onto the keyboard actions the game already understands.
 
-> **Status:** Phase A scaffold + extension demo path landed. Test features with Justin before calling them supported. See [`docs/testing-log.md`](docs/testing-log.md).
+> **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → game → extension demo pad → optional bridge).  
+> Full doc index: **[docs/README.md](docs/README.md)**.
+
+> **Status:** Phase A scaffold + extension demo path landed. Test with Justin before calling features supported — see [`docs/testing-log.md`](docs/testing-log.md).
 
 ## Problem
 
@@ -23,6 +26,14 @@ Camera / voice / phone / demo UI
 - **No extra hardware.** Phone is a LAN web page (software controller), not USB/ADB — works on Justin’s MacBook.
 - **Toolkit:** [AI for Accessibility Toolkit](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit) via fork [Isomkevin/AI-for-Accessibility-Toolkit](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit). Contribution pack: [`docs/toolkit-contribution/`](docs/toolkit-contribution/).
 
+## Prerequisites
+
+| Tool | Notes |
+| --- | --- |
+| Git | Submodule support |
+| Node.js 18+ | 20 LTS recommended |
+| Chrome / Chromium | MV3 extension + best MediaPipe / Web Speech support |
+
 ## Clone
 
 ```bash
@@ -37,6 +48,8 @@ git submodule update --init --recursive
 ```
 
 ## Quick start
+
+For the full walkthrough (driving phase, badge meanings, verify checklist), use [docs/ONBOARDING.md](docs/ONBOARDING.md).
 
 ### 1. Game (LibreCorsa)
 
@@ -56,7 +69,7 @@ Open `http://localhost:3000` and get into a **driving** session (keyboard is ign
 
 Badge `demo` = bridge offline (demo still works). Badge `ON` = bridge connected.
 
-### 3. Bridge (optional, for camera / phone / voice)
+### 3. Bridge (optional — camera / phone / voice)
 
 ```bash
 cd bridge
@@ -69,40 +82,47 @@ npm start
 | Phone | `http://127.0.0.1:18765/phone/` (or `http://<lan-ip>:18765/phone/`) |
 | Camera | `http://127.0.0.1:18765/camera/` |
 | Voice | `http://127.0.0.1:18765/voice/` |
+| Health | `http://127.0.0.1:18765/health` |
 
 ## Repo layout
 
-| Path | Role | Owner |
-| --- | --- | --- |
-| `game/` | LibreCorsa submodule | upstream |
-| `toolkit/` | AI-for-Accessibility fork submodule | Bunny / Kevin |
-| `extension/` | Chrome MV3 remap + injection | Kevin |
-| `bridge/` | Local WebSocket hub | Omar (+ Kevin stub) |
-| `phone-controller/` | Gyro + big buttons | Omar / Kevin |
-| `camera/` | MediaPipe head tilt | **Tim** (Kevin backup) |
-| `voice/` | Web Speech demo → protocol | Bunny wraps with toolkit Controller |
-| `packages/shared/` | Action IDs + protocol | shared |
-| `docs/` | Architecture, protocol, testing, write-up | team |
+| Path | Role | Owner | Docs |
+| --- | --- | --- | --- |
+| `game/` | LibreCorsa submodule | upstream | upstream README |
+| `toolkit/` | AI-for-Accessibility fork | Bunny / Kevin | [toolkit-contribution](docs/toolkit-contribution/) |
+| `extension/` | Chrome MV3 remap + injection | Kevin | [extension/README.md](extension/README.md) |
+| `bridge/` | Local WebSocket hub | Omar (+ Kevin stub) | [bridge/README.md](bridge/README.md) |
+| `phone-controller/` | Gyro + big buttons | Omar / Kevin | [phone-controller/README.md](phone-controller/README.md) |
+| `camera/` | MediaPipe head tilt | **Tim** (Kevin backup) | [camera/README.md](camera/README.md) |
+| `voice/` | Web Speech demo → protocol | Bunny → toolkit Controller | [voice/README.md](voice/README.md) |
+| `packages/shared/` | Action IDs + protocol | shared | [packages/shared/README.md](packages/shared/README.md) |
+| `docs/` | Onboarding, architecture, testing | team | [docs/README.md](docs/README.md) |
 
-## Documentation
+## Documentation map
 
-- [`docs/architecture.md`](docs/architecture.md) — design + keystroke spike notes
-- [`docs/protocol.md`](docs/protocol.md) — WebSocket contract
-- [`docs/writeup.md`](docs/writeup.md) — short challenge write-up
-- [`docs/testing-log.md`](docs/testing-log.md) — Justin sessions
-- [`docs/presentation-checklist.md`](docs/presentation-checklist.md) — Saturday demo / slides
-- [`docs/toolkit-contribution/`](docs/toolkit-contribution/) — upstream PR pack
+| Doc | When to read |
+| --- | --- |
+| [docs/ONBOARDING.md](docs/ONBOARDING.md) | First day — get a working demo |
+| [docs/architecture.md](docs/architecture.md) | Understand data flow / injection |
+| [docs/protocol.md](docs/protocol.md) | Before changing inputs or remap |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Before your first push |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | When something fails |
+| [docs/writeup.md](docs/writeup.md) | Challenge short write-up |
+| [docs/testing-log.md](docs/testing-log.md) | Justin / smoke-test records |
+| [docs/presentation-checklist.md](docs/presentation-checklist.md) | Saturday demo / slides |
+| [docs/demo-video.md](docs/demo-video.md) | Video shot list |
+| [docs/toolkit-contribution/](docs/toolkit-contribution/) | Upstream toolkit PR |
 
 ## Team workflow
 
-- Branch per person; document **before** push; notify WhatsApp after push
+- Branch per person; **document before push** (see [CONTRIBUTING.md](docs/CONTRIBUTING.md)); notify WhatsApp after each push
 - Check-ins Wed–Fri **20:30**
 - Bunny: merges; Kevin: backup merges + AWS if cloud hosting is needed
 
 ## Challenge deliverables
 
 - [x] Working code in a public repository (this repo)
-- [ ] Pull request to the toolkit — fork branch ready: [Isomkevin:feat/game-night-librecorsa-example](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit/tree/feat/game-night-librecorsa-example) → open compare vs upstream ([compare link](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/compare/main...Isomkevin:AI-for-Accessibility-Toolkit:feat/game-night-librecorsa-example)) (needs Collective collaborator rights to submit)
+- [ ] Pull request to the toolkit — fork branch ready: [Isomkevin:feat/game-night-librecorsa-example](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit/tree/feat/game-night-librecorsa-example) → [compare vs upstream](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/compare/main...Isomkevin:AI-for-Accessibility-Toolkit:feat/game-night-librecorsa-example) (needs Collective collaborator rights to submit)
 - [x] README + short write-up
 - [ ] Short demo video
 - [ ] Presentation

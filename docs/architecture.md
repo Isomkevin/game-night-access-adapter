@@ -2,19 +2,22 @@
 
 ## Goal
 
-Adapt [LibreCorsa](https://github.com/KhazP/librecorsa) so Justin (limited finger mobility) can remap camera, voice, and phone inputs onto the keyboard actions the game already understands — with no extra hardware.
+Adapt [LibreCorsa](https://github.com/KhazP/librecorsa) so Justin (limited finger mobility) can remap camera, voice, and phone inputs onto the keyboard actions the game already understands — with **no extra hardware**.
+
+New developers: [ONBOARDING.md](ONBOARDING.md).
 
 ## Components
 
 | Path | Owner | Role |
 | --- | --- | --- |
-| `extension/` | Kevin | Chrome MV3: remap UI, WebSocket client, keystroke injection into LibreCorsa |
-| `bridge/` | Omar (+ Kevin stub) | Local Node WebSocket hub; serves phone controller over LAN |
+| `extension/` | Kevin | Chrome MV3: remap UI, WebSocket client, keystroke injection |
+| `bridge/` | Omar (+ Kevin stub) | Local Node WebSocket hub; serves phone/camera/voice over LAN |
 | `phone-controller/` | Omar / Kevin | DeviceOrientation → protocol events |
-| `camera/` | Tim (or Kevin backup) | MediaPipe head tilt → protocol events |
-| `toolkit/` submodule | Bunny / Kevin | AI-for-Accessibility fork; voice via Controller → bridge |
+| `camera/` | Tim (Kevin backup) | MediaPipe head tilt → protocol events |
+| `voice/` | Bunny (demo); toolkit Controller for real integration | Speech → protocol events |
+| `toolkit/` submodule | Bunny / Kevin | AI-for-Accessibility fork |
 | `game/` submodule | upstream | LibreCorsa (unchanged for PoC) |
-| `packages/shared/` | shared | Action IDs + protocol |
+| `packages/shared/` | shared | Action IDs + protocol (vendored into extension) |
 
 ## Data flow
 
@@ -23,33 +26,71 @@ Camera / Voice / Phone / Demo UI
           ↓  (JSON input events)
    Local bridge :18765
           ↓  WebSocket
-   Chrome extension (remap table)
+   Chrome extension (remap table in chrome.storage)
           ↓  KeyboardEvent.code on window
-   LibreCorsa tab
+   LibreCorsa tab (driving phase only)
 ```
 
-Demo mode in the extension works **without** the bridge so remapping can be tested on day one.
+```mermaid
+flowchart LR
+  subgraph sources [Inputs]
+    Demo[Extension demo pad]
+    Cam[Camera MediaPipe]
+    Voice[Voice / toolkit]
+    Phone[Phone gyro page]
+  end
+  Bridge[Bridge WS :18765]
+  Ext[Extension background]
+  Remap[chrome.storage remap]
+  CS[Content script]
+  Game[LibreCorsa]
+  Demo --> Ext
+  Cam --> Bridge
+  Voice --> Bridge
+  Phone --> Bridge
+  Bridge --> Ext
+  Remap --> Ext
+  Ext --> CS
+  CS --> Game
+```
+
+Demo mode works **without** the bridge so day-one testing does not block on Omar.
 
 ## Keystroke injection (spike result)
 
-LibreCorsa (`LibreCorsaSimulator.tsx`) listens for `window` `keydown` / `keyup` and maps `e.code` through `buildKeyLookup`. It does **not** check `event.isTrusted`.
+LibreCorsa (`game/src/components/LibreCorsaSimulator.tsx`) listens for `window` `keydown` / `keyup` and maps `e.code` through `buildKeyLookup` (`game/src/lib/input/bindings.ts`). It does **not** check `event.isTrusted`.
 
-**Primary path:** content script dispatches `new KeyboardEvent('keydown'|'keyup', { code, key, bubbles: true })` on `window`.
+| Path | Mechanism |
+| --- | --- |
+| Primary | Content script `dispatchEvent(new KeyboardEvent(...))` on `window` |
+| Fallback | `page-hook.js` in the page MAIN world listens for `postMessage` from the content script |
 
-**Fallback (if a future game build ignores untrusted events):** inject a MAIN-world script that listens for `window.postMessage({ source: 'gnaa', ... })` and dispatches events from the page context. See `extension/content/page-hook.js`.
+Validated against LibreCorsa source on 2026-11-04 (codes like `KeyW`, `KeyA`, `Space`, `Escape`).
 
-Validated against LibreCorsa source on 2026-11-04 (bindings use codes like `KeyW`, `KeyA`, `Space`, `Escape`).
-
-## Why not the toolkit adapter runtime?
-
-The toolkit's `extension/` runs accessibility **page adapters** (DOM/CSS). Continuous racing input needs a dedicated content script + remap store. Voice still uses the toolkit **Controller**; Bunny maps phrases to bridge `input` events.
-
-## Cross-platform
-
-- Extension + in-browser MediaPipe + WebSocket phone: Chrome on Windows and macOS.
-- Prefer no OS-level keystroke simulation so Justin's MacBook stays first-class.
-- ADB/USB phone path is out of scope for the Saturday PoC.
+**Phase gate:** injection only matters while the sim phase is `driving`. Menus own the keyboard otherwise.
 
 ## Remapping
 
-Players edit mappings in the extension Options page (`chrome.storage.local`). Any logical input (`camera:tiltLeft`, `voice:go`, …) can target any game action. Profiles can be exported/imported as JSON.
+1. Input source sends logical `action` + `source` (e.g. phone + `tiltLeft`)
+2. Extension builds key `phone:tiltLeft`
+3. Looks up player remap → game action `steerLeft`
+4. Looks up key code `KeyA` (or override)
+5. Sends `{ type: "gnaa-apply", code, state }` to content scripts
+
+Profiles live in `chrome.storage.local` and can be exported as JSON from Options.
+
+## Why not the toolkit adapter runtime?
+
+The toolkit’s `extension/` runs accessibility **page adapters** (DOM/CSS). Continuous racing input needs a dedicated content script + remap store. Voice still uses the toolkit **Controller**; Bunny maps phrases to bridge `input` events ([toolkit-contribution/](toolkit-contribution/)).
+
+## Cross-platform
+
+- Target: Chrome on Windows **and** macOS
+- Prefer WebSocket + getUserMedia + Web Speech — no OS key hooks for the PoC
+- ADB/USB phone path is out of scope for Saturday
+
+## Deployment
+
+Default: everything local (game `npm run dev`, bridge, Load unpacked).
+
+Cloud (AWS / Render) only if needed to host a static phone page or demo — not required for latency-sensitive control. Localhost wins for the live co-designer test.
