@@ -1,0 +1,39 @@
+diff --git a/next.config.ts b/next.config.ts
+index 5c792bd..0c00ec8 100644
+--- a/next.config.ts
++++ b/next.config.ts
+@@ -1,4 +1,5 @@
+ import type { NextConfig } from "next";
++import path from "node:path";
+ 
+ const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || "").replace(/\/+$/, "");
+ 
+@@ -9,6 +10,9 @@ const nextConfig: NextConfig = {
+   reactStrictMode: true,
+   ...(devOrigins.length ? { allowedDevOrigins: devOrigins } : {}),
+   output: "export",
++  turbopack: {
++    root: path.join(__dirname, ".."),
++  },
+   images: {
+     unoptimized: true,
+   },
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index 3dc65d5..392890c 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -1,5 +1,6 @@
+ import type { Metadata } from "next";
+ import localFont from "next/font/local";
++import GameVoice from "../../../voice/game-voice.js";
+ import "./globals.css";
+ import { withBasePath } from "@/lib/base-path";
+ 
+@@ -63,6 +64,7 @@ export default function RootLayout({
+     >
+       <body className="antialiased bg-[#08090D] text-[#F5F7FA] selection:bg-[#CCFF00] selection:text-[#08090D]">
+         {children}
++        {process.env.NODE_ENV === "development" && <GameVoice />}
+       </body>
+     </html>
+   );
