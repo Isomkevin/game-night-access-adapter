@@ -96,6 +96,24 @@ else
   pass 'python-bootstrap.ps1 helper present'
 fi
 
+if ! grep -q 'Install-AdapterPython' "$WIN/python-bootstrap.ps1"; then
+  fail 'python-bootstrap.ps1 must auto-install Python when missing'
+else
+  pass 'python-bootstrap.ps1 auto-installs Python'
+fi
+
+if ! grep -q 'Ensure-AdapterPython' "$WIN/python-bootstrap.ps1"; then
+  fail 'python-bootstrap.ps1 missing Ensure-AdapterPython'
+else
+  pass 'python-bootstrap.ps1 ensures Python before venv'
+fi
+
+if ! grep -q 'python.org/ftp/python' "$WIN/python-bootstrap.ps1"; then
+  fail 'python-bootstrap.ps1 must fall back to the python.org installer'
+else
+  pass 'python-bootstrap.ps1 has python.org fallback'
+fi
+
 if ! grep -Fq "__version__ = \"${VERSION}\"" "$ROOT/access_adapter/version.py"; then
   fail "version.py is not ${VERSION}"
 else

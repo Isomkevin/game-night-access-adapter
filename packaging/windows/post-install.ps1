@@ -152,9 +152,11 @@ try {
 
     $venvPython = Join-Path $InstallDir 'venv\Scripts\python.exe'
     if (-not (Test-Path -LiteralPath $venvPython)) {
+        Write-Log 'Ensuring Python 3 is available (installs automatically if missing)...'
         Write-Log 'Creating Python virtual environment...'
         $created = New-AdapterVirtualEnv -InstallDir $InstallDir
         $venvPython = $created.VenvPython
+        Write-Log "Virtual environment ready: $venvPython"
     }
 
     Write-Log 'Installing Python dependencies...'

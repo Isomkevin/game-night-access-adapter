@@ -15,7 +15,7 @@ if exist "%PY%" (
 echo.
 echo Game Night Access Adapter could not start.
 echo Expected: %PY%
-echo Re-run setup.exe or install.bat as Administrator after installing Python 3 from python.org.
+echo Re-run setup.exe or install.bat as Administrator. Setup installs Python automatically when needed.
 echo.
 pause
 exit /b 1

@@ -41,7 +41,7 @@ Two artifacts, plus an Inno Setup script you can compile on Windows with Inno Se
 | `game-night-access-adapter-<version>-setup.exe` | 7-Zip SFX. It runs `install.bat` after extract. The builder downloads `7zSD.sfx` from the 7-Zip LZMA SDK (`https://www.7-zip.org/a/lzma2501.7z`) |
 | `packaging/windows/game-night-access-adapter.iss` | Compile with `iscc` on Windows |
 
-Prefer the `.msi` on Windows. It opens the usual installer wizard (license, install, finish). Python 3 from python.org and `adb` still need to be installed first. The MSI keeps the `access_adapter/` package folders intact so sensor reads do not open a console window on every ADB poll. `post-install.ps1` also repairs older flattened MSI layouts.
+Prefer the `.msi` on Windows. It opens the usual installer wizard (license, install, finish). If Python 3 is missing, `post-install.ps1` installs it automatically (winget when available, otherwise the official python.org silent installer for all users). `adb` still needs to be on `PATH` separately. The MSI keeps the `access_adapter/` package folders intact so sensor reads do not open a console window on every ADB poll. `post-install.ps1` also repairs older flattened MSI layouts.
 
 `setup.exe` unpacks to a temporary folder that disappears when the installer exits. `post-install.ps1` copies the payload to `C:\Program Files\Game Night Access Adapter` before it creates the virtual environment. Do not run `install.bat` from inside an archive preview; extract the full zip first, or use `setup.exe`.
 
@@ -57,7 +57,7 @@ If the window does not appear, run `C:\Program Files\Game Night Access Adapter\r
 
 Uninstall from that copy's `uninstall.bat`, or from Apps & Features. Settings remain in `%APPDATA%\GameNightAccessAdapter`.
 
-Install Python 3 from python.org for all users before running the Windows installer. Android platform-tools (`adb`) must be on `PATH` as well. The installer does not download the Android SDK.
+You do not need to install Python first on Windows — the installer does that when needed. Android platform-tools (`adb`) must still be on `PATH`. The installer does not download the Android SDK.
 
 ## Tests
 

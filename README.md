@@ -103,7 +103,7 @@ Configurable phone-sensor mappings, an Add device scan for USB and wireless ADB,
 - Linux: [game-night-access-adapter_0.2.0_all.deb](releases/game-night-access-adapter_0.2.0_all.deb)
 - Windows: [MSI installer](releases/game-night-access-adapter-0.2.0.msi) · [setup.exe](releases/game-night-access-adapter-0.2.0-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.0-windows.zip)
 
-Install Python 3 and `adb` first. On Linux: `sudo apt install ./game-night-access-adapter_0.2.0_all.deb`. On Windows: run `setup.exe` (or extract the zip and run `install.bat`).
+On Windows the installer installs Python automatically if it is missing; put `adb` on `PATH` separately. On Linux: `sudo apt install ./game-night-access-adapter_0.2.0_all.deb` (Python 3 required). Or run Windows `setup.exe` / extract the zip and run `install.bat`.
 
 ```bash
 python3 -m pip install -r requirements.txt
