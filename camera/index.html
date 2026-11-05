@@ -9,21 +9,39 @@
   <body>
     <header>
       <h1>Head tracking</h1>
-      <p id="status">Starting camera…</p>
+      <p id="status" role="status" aria-live="polite">Loading camera controls…</p>
+      <p id="bridge-status" role="status" aria-live="polite">Bridge: connecting…</p>
       <p class="owner">Owner: <strong>Tim</strong> (Kevin backup). Milestone 1 — MediaPipe in-browser, no native deps.</p>
     </header>
+
+    <p>Camera images are processed in this browser. This page requests no microphone access.</p>
+    <div class="controls" aria-label="Camera controls">
+      <button id="start" type="button">Start camera</button>
+      <button id="stop" type="button" disabled>Stop camera</button>
+      <button id="recenter" type="button" disabled>Recenter</button>
+    </div>
 
     <div class="stage">
       <video id="video" playsinline autoplay muted></video>
       <canvas id="overlay"></canvas>
     </div>
 
-    <div class="gauge">
-      <span>Yaw (steer)</span>
+    <div class="gauge" aria-hidden="true">
+      <span>Yaw from resting position</span>
       <strong id="yaw">—</strong>
+      <span id="direction">Released</span>
     </div>
 
-    <p class="hint">Tilt your head left/right to steer. Works without a phone. Keep this tab open beside LibreCorsa.</p>
+    <fieldset>
+      <legend>Steering settings (for this page session)</legend>
+      <label>Dead zone <input id="deadzone" type="number" min="0" max="0.99" step="0.01" value="0.08" /></label>
+      <label>Full steering <input id="full" type="number" min="0.01" max="1" step="0.01" value="0.28" /></label>
+      <label><input id="invert" type="checkbox" /> Reverse left and right</label>
+      <p>Values are normalized ratios. Full steering must be greater than the dead zone. Changing settings recalibrates your resting position.</p>
+      <p id="settings-error" role="alert"></p>
+    </fieldset>
+
+    <p class="hint">Turn your face left/right to steer. Works without a phone or voice. Open this page in a separate, visible Chrome window beside LibreCorsa. Hiding the camera page releases steering; returning recalibrates it.</p>
 
     <script type="module" src="camera.js"></script>
   </body>

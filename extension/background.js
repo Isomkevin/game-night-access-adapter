@@ -10,6 +10,7 @@ import {
   resolveRemap,
 } from './lib/protocol.js';
 import { DEFAULT_KEY_CODES, HOLD_ACTIONS } from './lib/actions.js';
+import { CameraKeys } from './lib/camera-keys.js';
 
 const STORAGE_KEYS = {
   remap: 'remap',
@@ -22,6 +23,8 @@ let socket = null;
 let reconnectTimer = null;
 let bridgeUrl = DEFAULT_BRIDGE_WS;
 let bridgeStatus = 'disconnected';
+let bridgeGeneration = 0;
+const cameraKeys = new CameraKeys(sendToGameTabs);
 
 async function loadSettings() {
   const data = await chrome.storage.local.get([
@@ -80,7 +83,9 @@ async function sendToGameTabs(code, state) {
  * @param {{ source: string, action: string, state: string }} evt
  */
 async function handleInputEvent(evt) {
+  const generation = bridgeGeneration;
   const settings = await loadSettings();
+  if (evt.source === 'camera' && (generation !== bridgeGeneration || bridgeStatus !== 'connected')) return;
   const logicalId = `${evt.source}:${evt.action}`;
   let gameAction = resolveRemap(settings.remap, logicalId);
 
@@ -92,6 +97,11 @@ async function handleInputEvent(evt) {
 
   const code = settings.keyCodes[gameAction] || DEFAULT_KEY_CODES[gameAction];
   if (!code) return;
+
+  if (evt.source === 'camera') {
+    // Ups use the code held at keydown, even if the user remapped meanwhile.
+    return cameraKeys.apply(evt.action, code, evt.state);
+  }
 
   let state = evt.state;
   if (state === 'pulse' && HOLD_ACTIONS.has(gameAction)) {
@@ -142,6 +152,8 @@ function connectBridge() {
   });
 
   socket.addEventListener('close', () => {
+    bridgeGeneration++;
+    cameraKeys.releaseAll();
     bridgeStatus = 'disconnected';
     updateBadge();
     socket = null;

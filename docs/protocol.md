@@ -83,6 +83,20 @@ Defaults live in `DEFAULT_REMAP` / `DEFAULT_KEY_CODES` in shared code.
 
 Always send `up` if you sent `down`, or the game will think the key is stuck.
 
+### Camera refresh and partial steering
+
+The camera implements proportional steering by sending `down`/`up` over a
+150 ms duty cycle. `strength` remains informational to the current injector;
+the camera sender determines how long the mapped key is held. No direct
+game keys or new action IDs are emitted by the camera.
+
+Continuous camera holds repeat `down` at least every 100 ms. The extension
+expires camera holds after 800 ms without refresh and releases them on
+bridge disconnect. Neutral, missing face, Stop, and hiding the camera page
+send releases. On reconnect the camera sends `hello`, releases both logical
+actions, and recalibrates. These rules apply to camera input only; the v1
+message shape and other senders are unchanged. See [camera/README.md](../camera/README.md).
+
 ## Status broadcast
 
 ```json
