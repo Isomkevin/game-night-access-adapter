@@ -4,6 +4,7 @@
 
 Adapt [LibreCorsa](https://github.com/KhazP/librecorsa) so Justin (limited finger mobility) can remap camera, voice, and phone inputs onto the keyboard actions the game already understands — with **no extra hardware**.
 
+Product intent (what this is supposed to be and do): [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).  
 New developers: [ONBOARDING.md](ONBOARDING.md).
 
 ## Components

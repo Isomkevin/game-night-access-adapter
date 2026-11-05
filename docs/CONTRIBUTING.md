@@ -4,9 +4,10 @@ Judging rewards **working code + documentation**. Treat docs as part of the feat
 
 ## Before you write code
 
-1. Complete [ONBOARDING.md](ONBOARDING.md) once on your machine.
-2. Read [protocol.md](protocol.md) if you touch inputs, remap, or the bridge.
-3. Confirm ownership (do not silently rewrite someone else’s component):
+1. Read [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) so the product intent is clear.
+2. Complete [ONBOARDING.md](ONBOARDING.md) once on your machine.
+3. Read [protocol.md](protocol.md) if you touch inputs, remap, or the bridge.
+4. Confirm ownership (do not silently rewrite someone else’s component):
 
 | Area | Primary | Backup |
 | --- | --- | --- |

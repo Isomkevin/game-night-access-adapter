@@ -2,6 +2,8 @@
 
 Shared contract between the Chrome extension, local bridge, camera, voice, and phone controller.
 
+Why these messages exist (product intent): [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
+
 **Code source of truth:**
 
 - [`packages/shared/protocol.js`](../packages/shared/protocol.js)

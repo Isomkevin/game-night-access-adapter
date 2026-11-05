@@ -2,6 +2,8 @@
 
 Goal of this guide: on a clean machine, go from zero to **steering LibreCorsa with the extension demo pad** in under 30 minutes, then optionally add bridge inputs (phone / camera / voice).
 
+Before you dig into commands, skim **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** for what the adapter is supposed to be and do (problem, inputs, remap, status).
+
 ## Who this project is for
 
 | Role | Read first | Then own |
