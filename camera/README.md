@@ -13,6 +13,13 @@ Processing is **local** (WASM in the camera tab). Camera frames are not uploaded
 
 Legacy Milestone 1 steering still works: `tiltLeft` / `tiltRight` are yaw aliases (nose vs cheeks) and default-remap to steer.
 
+For the calibrated, proportional head-only controller from issue #11, open
+**http://127.0.0.1:18765/camera/head-steering.html** or follow **Use head-only
+steering** on this page. It retains Start, Stop, Recenter, direction reversal,
+and live dead-zone/full-steering controls. Setup, permissions, tuning, and
+the manual test checklist are in [head-steering.md](head-steering.md).
+Use one camera controller at a time, in a separate visible window beside the game.
+
 ## Run
 
 1. Start LibreCorsa + load the extension (see [docs/ONBOARDING.md](../docs/ONBOARDING.md))
@@ -35,6 +42,8 @@ Camera-only must work **without** the phone (redundancy).
 | --- | --- |
 | `index.html` / `style.css` | Setup UI shell |
 | `camera.js` | Orchestrator (capture → detect → interpret → emit) |
+| `head-steering.html` / `head-steering.js` | Independent head-only steering with explicit camera lifecycle |
+| `steering.js` | Head-only yaw geometry, calibration, smoothing, and proportional key timing |
 | `lib/catalog.js` | Supported gesture definitions |
 | `lib/capture.js` | getUserMedia, pause, lost-tracking timeout |
 | `lib/detectors/face.js` | Face Landmarker (blendshapes + matrix) |
@@ -82,6 +91,25 @@ Defaults enable **only** `tiltLeft` / `tiltRight` so existing demos keep working
 - Per-gesture activate / release hysteresis, EMA smoothing, cooldown
 - Held inputs released on face/hand loss, Pause, tab hide timeout, or bridge disconnect
 - Category toggles skip unused models (hands load only when Hands/Fingers enabled)
+- Held and toggle gestures refresh the extension's 800 ms camera lease only
+  after valid detection frames; a stalled page cannot keep refreshing a hold
+- Camera pulse events retain a bounded 120 ms press. Extension Stop all
+  clears pending camera leases as well as releasing game keys
+- The vision setup, gesture profiles, `setRemap`, and the separate head-only
+  controller all use the existing bridge and extension remap table
+
+## Automated checks
+
+After installing the bridge dependency, run from the repository root with Node 22:
+
+```powershell
+node --experimental-vm-modules --test camera/tests/steering.test.mjs camera/tests/runtime.test.mjs camera/tests/bridge.test.mjs extension/tests/camera-keys.test.mjs
+```
+
+The 23 checks include head-only lifecycle/steering, real bridge serving and relay,
+the merged extension's status/Stop all/`setRemap` paths, camera pulse handling,
+and frame-driven refresh of vision toggle gestures. Browser APIs are simulated
+in runtime tests. Real webcam driving and Chrome/macOS testing remain manual.
 
 ## Dependencies (CDN)
 

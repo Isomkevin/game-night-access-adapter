@@ -97,6 +97,24 @@ Defaults live in `DEFAULT_REMAP` / `DEFAULT_KEY_CODES` in shared code.
 
 Always send `up` if you sent `down`, or the game will think the key is stuck.
 
+### Camera refresh and partial steering
+
+The head-only camera controller implements proportional steering by sending `down`/`up` over a
+150 ms duty cycle. `strength` remains informational to the current injector;
+the camera sender determines how long the mapped key is held. No direct
+game keys or new action IDs are emitted by the camera.
+
+The head-only sender refreshes continuous holds every 100 ms. The vision
+controller also refreshes held/toggle actions after fresh valid detection
+frames (at most every 100 ms). Camera `pulse` events become 120 ms presses.
+The extension
+expires camera holds after 800 ms without refresh and releases them on
+bridge disconnect. Neutral, missing face, Stop, and hiding the camera page
+send releases. On reconnect the head-only controller sends `hello`, releases
+both steering actions, and recalibrates. The vision controller retains its
+profile/calibration flow. The v1 message shape and other senders are unchanged.
+See [camera/README.md](../camera/README.md) and [head-only setup](../camera/head-steering.md).
+
 ## Status broadcast
 
 ```json

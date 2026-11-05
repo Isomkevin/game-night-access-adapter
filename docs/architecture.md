@@ -79,6 +79,18 @@ Validated against LibreCorsa source on 2026-11-04 (codes like `KeyW`, `KeyA`, `S
 
 Profiles live in `chrome.storage.local` and can be exported as JSON from Options.
 
+### Camera steering and recovery
+
+The head-only page (`/camera/head-steering.html`) calibrates a resting head yaw, smooths active motion, and
+pulses the existing logical down/up events for partial steering. It does
+not bypass the remap table or inject keys directly. The extension's
+camera-only receiver tracks original mapped key codes, expires unrefreshed
+holds after 800 ms, and releases camera keys when the bridge disconnects.
+The camera UI separates bridge status from tracker status and provides
+Start, Stop, Recenter, sensitivity, and direction controls. Keep it in a
+separate visible window beside the game; a hidden camera page releases
+steering. Details and manual checks: [camera/README.md](../camera/README.md).
+
 ### Vision controller layers
 
 ```text
@@ -91,6 +103,12 @@ getUserMedia
 ```
 
 Camera detection profiles (enabled gestures, thresholds, calibration) live in the page `localStorage`. Game remapping stays in the extension (Options UI and/or `setRemap` from the camera page).
+
+The vision controller remains the `/camera/` entry point. Its link to
+`head-steering.html` exposes the independent head-only controller without
+replacing gesture profiles or hand/face detection. Fresh valid vision frames
+refresh toggle holds; camera pulses release after 120 ms. Both paths share
+the camera receiver's expiry and the updated extension payload format.
 
 ## Why not the toolkit adapter runtime?
 

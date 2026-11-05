@@ -16,6 +16,7 @@ export function createEmitter(opts = {}) {
   /** @type {Set<string>} */
   const held = new Set();
   let closed = false;
+  let lastRefreshAt = -Infinity;
 
   function send(msg) {
     if (socket && socket.readyState === WebSocket.OPEN) {
@@ -83,6 +84,16 @@ export function createEmitter(opts = {}) {
     held.clear();
   }
 
+  // Called only after a fresh, valid detection frame. Toggle-mode gestures
+  // otherwise emit just once and would expire at the camera receiver.
+  function refresh(now = performance.now()) {
+    if (now - lastRefreshAt < 100) return;
+    lastRefreshAt = now;
+    for (const action of held) {
+      send({ type: 'input', source: 'camera', action, state: 'down', strength: 1, ts: Date.now(), v: 1 });
+    }
+  }
+
   /**
    * Push remap entries to the extension via the bridge.
    * @param {Record<string, string>} entries  e.g. { "camera:mouthOpen": "throttle" }
@@ -112,6 +123,7 @@ export function createEmitter(opts = {}) {
 
   return {
     emit,
+    refresh,
     releaseAll,
     setRemap,
     dispose,

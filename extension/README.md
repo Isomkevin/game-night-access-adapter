@@ -47,6 +47,7 @@ extension/
     protocol.js          Vendored from packages/shared/protocol.js
     status.js            Plain-language status copy
     keys.js              code ↔ KeyboardEvent helpers
+    camera-keys.js       Camera hold expiry and original-code release
   icons/                 Toolbar icons
 ```
 
@@ -69,6 +70,15 @@ extension/
 | content → background | `gnaa-content-ready` | Tab ready ping |
 
 Bridge wire format is documented in [docs/protocol.md](../docs/protocol.md).
+
+Camera holds refresh every 100 ms and expire after 800 ms without refresh.
+Bridge disconnect releases camera keys as well. Releases retain the key code
+used at keydown even if the remap changes during a hold or is cleared.
+Camera pulse gestures press for 120 ms; toggle gestures refresh on fresh
+vision frames. Stop all also clears the camera leases. Partial steering is
+pulsed by the head-only camera sender, so existing remapping continues to apply.
+Reload the extension and game tab when testing these changes; keep the camera
+page in a separate visible window. See [camera setup](../camera/README.md).
 
 ## Editing shared protocol
 

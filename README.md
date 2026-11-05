@@ -82,6 +82,7 @@ npm start
 | Control hub | `http://127.0.0.1:18765/` |
 | Phone | `http://127.0.0.1:18765/phone/` (or `http://<lan-ip>:18765/phone/`) |
 | Camera | `http://127.0.0.1:18765/camera/` |
+| Head-only steering | `http://127.0.0.1:18765/camera/head-steering.html` |
 | Voice | `http://127.0.0.1:18765/voice/` |
 | Health | `http://127.0.0.1:18765/health` |
 

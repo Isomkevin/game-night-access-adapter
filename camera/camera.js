@@ -259,6 +259,7 @@ async function main() {
     }
 
     for (const id of emitter.getHeld()) activeIds.push(id);
+    emitter.refresh(ts);
     ui.updateLive(relative, [...new Set(activeIds)]);
   };
   loop();
@@ -272,4 +273,12 @@ main().catch((err) => {
   } else {
     setStatus(`Could not start the camera: ${msg}`);
   }
+});
+
+window.addEventListener('pagehide', () => {
+  interpreter.releaseAll();
+  emitter.dispose();
+  capture.dispose();
+  faceDetector?.close();
+  handDetector?.close();
 });

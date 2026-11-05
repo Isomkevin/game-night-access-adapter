@@ -11,6 +11,7 @@ import {
   resolveRemap,
 } from './lib/protocol.js';
 import { DEFAULT_KEY_CODES, HOLD_ACTIONS } from './lib/actions.js';
+import { CameraKeys } from './lib/camera-keys.js';
 import { badgeForBridge, GAME_TAB_URLS } from './lib/status.js';
 
 const STORAGE_KEYS = {
@@ -24,6 +25,9 @@ let socket = null;
 let reconnectTimer = null;
 let bridgeUrl = DEFAULT_BRIDGE_WS;
 let bridgeStatus = 'disconnected';
+let bridgeGeneration = 0;
+let cameraInputQueue = Promise.resolve();
+const cameraKeys = new CameraKeys((code, state) => sendToGameTabs({ type: 'gnaa-apply', code, state }));
 
 async function loadSettings() {
   const data = await chrome.storage.local.get([
@@ -95,7 +99,10 @@ async function handleSetRemap(msg) {
  * @param {{ source: string, action: string, state: string }} evt
  */
 async function handleInputEvent(evt) {
+  const generation = bridgeGeneration;
+  if (evt.source === 'camera' && evt.state === 'up') return cameraKeys.release(evt.action);
   const settings = await loadSettings();
+  if (evt.source === 'camera' && (generation !== bridgeGeneration || bridgeStatus !== 'connected')) return;
   const logicalId = `${evt.source}:${evt.action}`;
   let gameAction = resolveRemap(settings.remap, logicalId);
 
@@ -107,6 +114,11 @@ async function handleInputEvent(evt) {
   const code = settings.keyCodes[gameAction] || DEFAULT_KEY_CODES[gameAction];
   if (!code) return;
 
+  if (evt.source === 'camera') {
+    // Ups use the code held at keydown, even if the user remapped meanwhile.
+    return cameraKeys.apply(evt.action, code, evt.state);
+  }
+
   let state = evt.state;
   if (state === 'pulse' && HOLD_ACTIONS.has(gameAction)) {
     // content script handles pulse
@@ -115,6 +127,8 @@ async function handleInputEvent(evt) {
 }
 
 async function releaseAllInputs() {
+  await cameraInputQueue;
+  await cameraKeys.releaseAll();
   await sendToGameTabs({ type: 'gnaa-release-all' });
 }
 
@@ -155,7 +169,15 @@ function connectBridge() {
       return;
     }
     if (isInputEvent(msg)) {
-      handleInputEvent(msg);
+      if (msg.source === 'camera') {
+        const generation = bridgeGeneration;
+        cameraInputQueue = cameraInputQueue.then(() => {
+          if (generation !== bridgeGeneration || bridgeStatus !== 'connected') return;
+          return handleInputEvent(msg);
+        }).catch((error) => console.error('[Camera] Input handling failed', error));
+      } else {
+        handleInputEvent(msg);
+      }
       return;
     }
     if (isSetRemapEvent(msg)) {
@@ -164,6 +186,8 @@ function connectBridge() {
   });
 
   socket.addEventListener('close', () => {
+    bridgeGeneration++;
+    cameraKeys.releaseAll();
     bridgeStatus = 'disconnected';
     updateBadge();
     socket = null;
