@@ -2,7 +2,7 @@
 
 Windows and Linux packages install the desktop app, a Python virtual environment, and a shortcut that opens at login. The app runs in the signed-in user session. That is required so the keys it holds are delivered to the focused game. It is not a background system service.
 
-Installer **scripts** live in `packaging/`. Built files go to `dist/installers/` (not committed). `manifest.json` in that folder records the file names and sizes. Each package copies the current `access_adapter` tree, including the live-tilt window.
+Installer **scripts** live in `packaging/`. Built files go to `dist/installers/` (gitignored). A copy of the current Windows zip and `setup.exe` is in [`releases/`](../releases/) so they can be downloaded from the branch. Each package copies the current `access_adapter` tree, including the live-tilt window.
 
 ```bash
 bash packaging/build-installers.sh

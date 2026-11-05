@@ -131,12 +131,16 @@ LICENSE
 
 Configurable phone-sensor mappings, an Add device scan for USB and wireless ADB, and a local API. Windows and Linux.
 
+**Windows download (this branch, v0.2.0):** [setup.exe](releases/game-night-access-adapter-0.2.0-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.0-windows.zip)
+
+Install Python 3 and `adb` first, then run `setup.exe` (or extract the zip and run `install.bat`).
+
 ```bash
 python3 -m pip install -r requirements.txt
 python3 -m access_adapter
 ```
 
-The window opens on the sensor mapping table. Focus the game, then tilt the phone. Details: [docs/desktop-app.md](docs/desktop-app.md), [docs/local-api.md](docs/local-api.md), and [docs/installers.md](docs/installers.md).
+The window opens on live phone tilt and the mapping table. Focus the game, then tilt the phone. Details: [docs/desktop-app.md](docs/desktop-app.md), [docs/local-api.md](docs/local-api.md), and [docs/installers.md](docs/installers.md).
 
 ```bash
 python3 -m access_adapter --api-only
