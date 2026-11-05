@@ -1,0 +1,17 @@
+# Game Night Access Adapter — Render Blueprint
+# Deploys the local bridge (HTTP + WebSocket hub + phone/camera/voice UIs).
+# Dashboard: https://dashboard.render.com/blueprint/new?repo=https://github.com/Isomkevin/game-night-access-adapter
+
+services:
+  - type: web
+    name: game-night-bridge
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: bridge
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production

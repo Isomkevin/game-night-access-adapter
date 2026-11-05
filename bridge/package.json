@@ -1,0 +1,17 @@
+{
+  "name": "@game-night/bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local WebSocket hub for Game Night Access Adapter inputs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

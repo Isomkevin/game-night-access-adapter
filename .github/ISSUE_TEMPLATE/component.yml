@@ -1,0 +1,43 @@
+name: Component task
+description: Work item for a Game Night component
+title: "[component] "
+labels: []
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - extension
+        - bridge
+        - phone-controller
+        - camera
+        - voice-toolkit
+        - docs-testing
+        - coordination
+    validations:
+      required: true
+  - type: dropdown
+    id: owner
+    attributes:
+      label: Owner
+      options:
+        - Kevin
+        - Omar
+        - Bunny
+        - Tim
+        - Unassigned
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What needs to happen, and how teammates will know it is done.
+    validations:
+      required: true
+  - type: textarea
+    id: os
+    attributes:
+      label: OS / browser to test
+      value: "Chrome on Windows and macOS (Justin)"

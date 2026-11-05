@@ -1,0 +1,83 @@
+.voice-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 28px 18px 64px;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gnaa-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.brand {
+  margin: 6px 0 10px;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  color: var(--gnaa-teal-deep);
+}
+
+.badge {
+  margin-bottom: 12px;
+}
+
+.lede {
+  margin: 0 0 16px;
+  color: var(--gnaa-muted);
+  max-width: 40rem;
+}
+
+.status {
+  margin: 0 0 16px;
+  font-weight: 700;
+  min-height: 1.4em;
+}
+
+.cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.big {
+  min-height: 56px;
+  font-size: 1.05rem;
+}
+
+h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.phrases {
+  margin: 0 0 24px;
+  padding-left: 1.2rem;
+}
+
+.phrases li {
+  margin-bottom: 8px;
+}
+
+#log {
+  min-height: 120px;
+  max-height: 240px;
+  overflow: auto;
+  padding: 12px;
+  background: var(--gnaa-card);
+  border: 1px solid var(--gnaa-border);
+  border-radius: var(--gnaa-radius-sm);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+.back {
+  margin-top: 28px;
+}
+
+.back a {
+  color: var(--gnaa-teal);
+  font-weight: 700;
+}

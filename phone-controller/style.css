@@ -1,0 +1,187 @@
+:root {
+  color-scheme: dark;
+  --phone-bg: #072e2c;
+  --phone-fg: #f3ede3;
+  --phone-btn: #134e4a;
+  --phone-accent: #e08a1e;
+  --phone-danger: #b42318;
+}
+
+html {
+  font-family: var(--gnaa-font, 'Atkinson Hyperlegible', system-ui, sans-serif);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
+  background:
+    radial-gradient(ellipse at top, rgba(224, 138, 30, 0.15), transparent 50%),
+    var(--phone-bg);
+  color: var(--phone-fg);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+h1 {
+  margin: 4px 0 6px;
+  font-family: var(--gnaa-display, inherit);
+  font-size: 1.6rem;
+}
+
+.status {
+  margin: 0 0 12px;
+  font-weight: 700;
+}
+
+.hint {
+  margin: 0 0 12px;
+  opacity: 0.85;
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.mode-label {
+  font-weight: 700;
+}
+
+.mode-toggle {
+  display: inline-flex;
+  border: 1px solid rgba(243, 237, 227, 0.35);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mode-btn {
+  min-height: 44px;
+  min-width: 72px;
+  border: 0;
+  background: transparent;
+  color: var(--phone-fg);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mode-btn[aria-pressed='true'] {
+  background: var(--phone-accent);
+  color: #1a1408;
+}
+
+.gauge {
+  margin: 18px 0 22px;
+}
+
+.bar {
+  height: 18px;
+  margin: 8px 0;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bar i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 5px;
+  background: var(--phone-accent);
+  transform: translateX(-50%);
+  transition: left 0.05s linear;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.big {
+  grid-row: span 2;
+  min-height: 140px;
+}
+
+button.hold,
+button.enable,
+button.stop {
+  min-height: 64px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--phone-btn);
+  color: var(--phone-fg);
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: inherit;
+  touch-action: none;
+  cursor: pointer;
+}
+
+button.hold:active,
+button.hold.active,
+button.hold[aria-pressed='true'] {
+  background: var(--phone-accent);
+  color: #1a1408;
+}
+
+#brake:active,
+#brake.active,
+#brake[aria-pressed='true'] {
+  background: var(--phone-danger);
+  color: #fff;
+}
+
+.enable,
+.stop {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.stop {
+  background: var(--phone-danger);
+}
+
+.enable {
+  background: #1f6f68;
+}
+
+.motion-help {
+  margin-top: 10px;
+}
+
+.back {
+  margin-top: 24px;
+}
+
+.back a {
+  color: var(--phone-accent);
+  font-weight: 700;
+}
+
+:focus-visible {
+  outline: 3px solid var(--phone-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar i {
+    transition: none;
+  }
+}

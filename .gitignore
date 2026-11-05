@@ -1,4 +1,14 @@
-# Python
+# Node / web stack
+node_modules/
+bridge/node_modules/
+game/node_modules/
+game/.next/
+game/out/
+toolkit/node_modules/
+*.log
+Thumbs.db
+
+# Python / desktop adapter
 __pycache__/
 *.py[cod]
 *$py.class
@@ -9,11 +19,16 @@ build/
 packaging/windows/vendor/
 .venv/
 venv/
-.env
-
-# Test and tool caches
 .pytest_cache/
 .mypy_cache/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+!/.env.example
+*.pem
+secrets/
 
 # Editors / OS
 .idea/
@@ -21,8 +36,6 @@ venv/
 *.swp
 .DS_Store
 
-# Local secrets — never commit tokens or device pairing codes
-*.pem
-secrets/
-.env.*
-!/.env.example
+# Accidental local clones — use git submodules `game/` and `toolkit/` instead
+/librecorsa-game/
+/AI-for-Accessibility-Toolkit/

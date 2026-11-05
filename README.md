@@ -1,137 +1,105 @@
 # Game Night Access Adapter
 
-A proof-of-concept accessibility adapter for an open-source browser racing game. The goal is to let players map controls that work for them—such as head movement, voice commands, or phone input—to the keyboard actions a game expects.
+Proof-of-concept accessibility adapter so players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — can remap camera, voice, and phone inputs onto the keyboard actions a browser game already understands. **[LibreCorsa](https://github.com/KhazP/librecorsa)** is the default demo; pin any `http(s)` game tab with **Use this tab** in the extension popup and retune key codes in Setup.
 
-> **Project status:** In development. One phone-tilt input path is implemented under `adapters/phone_tilt/` and has been exercised on Linux + a Samsung Galaxy A25. Camera, voice, browser-extension bridge, and cross-platform co-designer testing are still pending.
+> **What is this supposed to be and do?** Full narrative: **[docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)**.  
+> **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → game → extension demo pad → optional bridge).  
+> Full doc index: **[docs/README.md](docs/README.md)**.
 
-## The problem
+> **Status:** Phase A scaffold + extension demo path landed. A phone-tilt desktop path is also implemented under `adapters/phone_tilt/` and `access_adapter/` (Linux + Samsung Galaxy A25). Test with Justin before calling features supported — see [`docs/testing-log.md`](docs/testing-log.md).
 
-Browser games often assume players can see the screen, use a mouse or standard keyboard, react quickly, and play continuously without pauses. Those assumptions can prevent people with different access needs from playing alongside friends and family.
+## Problem
 
-Our co-designer described a specific motor-access barrier: limited finger mobility makes multi-key combinations and some gamepad buttons difficult to use. He already adapts how he uses his laptop through remapped controls, extensions, and voice commands. This project explores whether the same principle—**make the input fit the player**—can make a browser game easier to play.
+Browser games often assume players can use a mouse, multi-key chords, and continuous play. That excludes many people from playing with friends and family. Justin’s core ask: **fully remappable controls**.
 
-Our challenge is:
-
-> How might we adapt one open-source browser game so people with different access needs can play together using the controls, pace, and feedback that work for them?
-
-## Proposed solution
-
-Game Night Access Adapter is designed as a configurable layer between the player and a browser game:
+## Solution
 
 ```text
-Player input → configurable action mapping → game keyboard input
+Camera / voice / phone / demo UI
+        ↓
+ Local bridge (WebSocket :18765)
+        ↓
+ Chrome extension (remap table → pinned game tab)
+        ↓
+ KeyboardEvent.code (LibreCorsa defaults: KeyW/A/S/D, …)
 ```
 
-Instead of requiring the player to use the game's default controls, the adapter would translate an accessible input into an action the game already understands. For example, a player might map a head movement to steering left.
+- **No extra hardware for the web phone path.** The LAN web page controller works on Justin’s MacBook without USB/ADB.
+- **Desktop phone tilt (ADB).** Wireless ADB can also read motion sensors and map tilt to OS keystrokes aimed at the focused game window — see [Phone-tilt desktop adapter](#phone-tilt-desktop-adapter).
+- **Remap without code.** Extension Options / Setup maps logical inputs (`phone:tiltLeft`, `voice:go`, …) onto game actions and key codes; profiles export/import as JSON.
+- **Toolkit:** [AI for Accessibility Toolkit](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit) via fork [Isomkevin/AI-for-Accessibility-Toolkit](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit). Contribution pack: [`docs/toolkit-contribution/`](docs/toolkit-contribution/).
 
-The immediate goal is **one playable racing-game proof of concept**, tested with our co-designer. A reusable adapter for other games is a longer-term direction, not a claim about the current build.
+Intended inputs, remapping rules, piece-by-piece roles, and “done” criteria: [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md).
 
-### Input methods under exploration
+## Prerequisites
 
-| Method | Status | Notes |
-|--------|--------|-------|
-| **Phone tilt** (accelerometer → WASD) | **Implemented (PoC)** | See [`adapters/phone_tilt/`](adapters/phone_tilt/) and [`docs/phone-tilt-adapter.md`](docs/phone-tilt-adapter.md) |
-| **Camera** (head movement) | Planned | Steering via camera; needs fallback |
-| **Voice** | Planned | Through the accessibility toolkit |
-| **Combined controls** | Planned | Mix methods per player preference |
+| Tool | Notes |
+| --- | --- |
+| Git | Submodule support |
+| Node.js 18+ | 20 LTS recommended |
+| Chrome / Chromium | MV3 extension + best MediaPipe / Web Speech support |
+| Python 3.10+ + `adb` | Only for the optional phone-tilt desktop app / installers |
 
-All mappings should be configurable rather than fixed to a particular gesture, command, or disability profile. An input method should also have a fallback where possible—for example, the camera should not be the only way to steer.
+## Clone
 
-## Architecture
-
-```text
-Camera / voice / phone
-          ↓
-   Input adapters   ←  adapters/phone_tilt is the first concrete adapter
-          ↓
- Configurable action mapping
-          ↓
- Browser extension and/or local bridge
-          ↓
- Open-source browser racing game
+```bash
+git clone --recurse-submodules https://github.com/Isomkevin/game-night-access-adapter.git
+cd game-night-access-adapter
 ```
 
-**Current phone path (local bridge):** Wireless ADB reads motion sensors on the phone; a small Python service maps tilt to OS keystrokes aimed at the focused game window. A browser extension is still planned for tighter in-page integration; the keystroke bridge is enough to prove the accessibility idea end-to-end.
+If you already cloned without submodules:
 
-```text
-Phone sensors ──ADB──► sensor_reader ──► tilt mapping ──► keystrokes ──► racing game
+```bash
+git submodule update --init --recursive
 ```
 
-## Scope
+## Quick start
 
-### Proof of concept
+For the full walkthrough (driving phase, badge meanings, verify checklist), use [docs/ONBOARDING.md](docs/ONBOARDING.md).
 
-1. Select and document the open-source browser racing game used for testing.
-2. Identify its essential actions and default controls.
-3. Implement at least one accessible alternative input.
-4. Let the player map that input to a game action.
-5. Test the complete flow with the co-designer.
-6. Record usability findings, limitations, and toolkit issues.
+### 1. Game (LibreCorsa)
 
-### Future direction
-
-- Additional input methods and combinations
-- Profiles that players can save and reuse
-- Support for more browser games
-- More complete coverage of the challenge's pace and feedback needs
-
-**Out of scope for the initial proof of concept:** claiming that the adapter supports every game, access need, or operating system.
-
-## Accessibility and co-design
-
-This project is being developed with a co-designer who has limited finger mobility and plays games with others. His experience informs the choice of controls and the usability tests; it should not be treated as a substitute for testing with people who have other access needs.
-
-We will evaluate questions such as:
-
-- Can the player set up controls without difficult multi-key actions?
-- Can they steer and perform other essential actions reliably?
-- Can they change a mapping when an input is uncomfortable?
-- What happens if camera tracking or phone input becomes unreliable?
-- Does the adapter work on the device and operating system used for testing?
-
-Findings should be recorded as observations, not assumed from a successful technical demo.
-
-## Constraints
-
-- The challenge calls for adapting an **existing open-source browser game**, not building a new game.
-- The solution is expected to run on laptops and phones **without extra hardware**.
-- The provided accessibility toolkit must be used and extended.
-- Phone-based input and any proposed connection method need to be checked against the hardware constraint.
-- Cross-platform behavior, particularly macOS support for co-designer testing, needs verification.
-
-## Development approach
-
-The team plans to work in parallel on separate components, while keeping a playable end-to-end proof of concept as the priority.
-
-Before requesting a merge:
-
-1. Document what the component does and how to run it.
-2. Test it locally.
-3. State which operating system and browser were tested.
-4. Describe required permissions, dependencies, and known limitations.
-5. Ask another team member to pull and test it on their machine where possible.
-
-Proposed work areas include the repository and integration, browser extension, local bridge and phone input, camera input, and toolkit voice integration. Component ownership and boundaries should be confirmed in project issues.
-
-## Repository layout
-
-```text
-adapters/
-  phone_tilt/          # Android tilt → keyboard adapter (working PoC)
-access_adapter/        # PySide desktop app, mappings, local API
-docs/
-  phone-tilt-adapter.md
-  desktop-app.md
-  local-api.md
-README.md
-LICENSE
+```bash
+cd game
+npm install
+npm run dev
 ```
 
-## Desktop application
+Open `http://localhost:3000` and get into a **driving** session (keyboard is ignored on menus).
 
-Configurable phone-sensor mappings, an Add device scan for USB and wireless ADB, and a local API. Windows and Linux.
+### 2. Chrome extension
 
-**Downloads (this branch, v0.2.0):**
+1. `chrome://extensions` → Developer mode → **Load unpacked** → select `extension/`
+2. Pin the extension. Open **Setup** (options) for the guided Welcome → Choose → Customize → Ready flow.
+3. Use the popup for on-screen controls (Hold or Latch), **Use this tab** (pin any browser game), **Stop all inputs**, and **Open game** (LibreCorsa demo).
+
+Badge `OFF` = access bridge offline (on-screen controls still work). Badge `ON` = bridge connected.
+
+### 3. Bridge (optional — camera / phone / voice)
+
+```bash
+cd bridge
+npm install
+npm start
+```
+
+| UI | Local | Hosted (Render) |
+| --- | --- | --- |
+| Landing | `http://127.0.0.1:18765/` | https://game-night-bridge.onrender.com/ |
+| Control hub | `http://127.0.0.1:18765/hub/` | https://game-night-bridge.onrender.com/hub/ |
+| Phone | `http://127.0.0.1:18765/phone/` (or LAN IP) | https://game-night-bridge.onrender.com/phone/ |
+| Camera | `http://127.0.0.1:18765/camera/` | https://game-night-bridge.onrender.com/camera/ |
+| Head-only steering | `http://127.0.0.1:18765/camera/head-steering.html` | https://game-night-bridge.onrender.com/camera/head-steering.html |
+| Voice | `http://127.0.0.1:18765/voice/` | https://game-night-bridge.onrender.com/voice/ |
+| Health | `http://127.0.0.1:18765/health` | https://game-night-bridge.onrender.com/health |
+
+For the hosted bridge, set the extension Setup connection address to `wss://game-night-bridge.onrender.com`. Free Render instances sleep after idle — expect a short cold start. Prefer local/LAN for Justin’s live tests.
+
+## Phone-tilt desktop adapter
+
+Configurable phone-sensor mappings, an Add device scan for USB and wireless ADB, and a local API. Windows and Linux installers ship the PySide window.
+
+**Downloads (v0.2.0):**
 - Linux: [game-night-access-adapter_0.2.0_all.deb](releases/game-night-access-adapter_0.2.0_all.deb)
 - Windows: [MSI installer](releases/game-night-access-adapter-0.2.0.msi) · [setup.exe](releases/game-night-access-adapter-0.2.0-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.0-windows.zip)
 
@@ -142,73 +110,73 @@ python3 -m pip install -r requirements.txt
 python3 -m access_adapter
 ```
 
-The window opens on live phone tilt and the mapping table. Focus the game, then tilt the phone. Details: [docs/desktop-app.md](docs/desktop-app.md), [docs/local-api.md](docs/local-api.md), and [docs/installers.md](docs/installers.md).
+Focus the game, then tilt the phone. Details: [docs/desktop-app.md](docs/desktop-app.md), [docs/phone-tilt-adapter.md](docs/phone-tilt-adapter.md), [docs/local-api.md](docs/local-api.md), and [docs/installers.md](docs/installers.md).
 
-```bash
-python3 -m access_adapter --api-only
-curl -s http://127.0.0.1:8765/api/v1/health
-```
-
-## Getting started (phone tilt PoC)
-
-### Prerequisites
-
-- Linux host with Python 3.10+ and `adb` (Android platform-tools)
-- Android 11+ phone on the same network, **Wireless debugging** enabled
-- Packages from `adapters/phone_tilt/requirements.txt` (`pygame`, `pynput`, optional `websocket-client`)
-
-### Pair the phone
+CLI PoC without the desktop UI:
 
 ```bash
 cd adapters/phone_tilt
 python3 pair_and_connect.py <PAIR_IP:PORT> <6_DIGIT_CODE>
-adb devices   # should show the phone as "device"
-```
-
-### Run the adapter
-
-```bash
-cd adapters/phone_tilt
 python3 -m pip install -r requirements.txt
 python3 gyro_controller.py
 ```
 
-Focus the game window, then tilt the phone. **P** pauses injection; **Esc** quits.
+## Repo layout
 
-### Configure controls
+| Path | Role | Owner | Docs |
+| --- | --- | --- | --- |
+| `game/` | LibreCorsa submodule | upstream | upstream README |
+| `toolkit/` | AI-for-Accessibility fork | Bunny / Kevin | [toolkit-contribution](docs/toolkit-contribution/) |
+| `extension/` | Chrome MV3 remap + injection | Kevin | [extension/README.md](extension/README.md) |
+| `bridge/` | Local WebSocket hub | Omar (+ Kevin stub) | [bridge/README.md](bridge/README.md) |
+| `phone-controller/` | Gyro + big buttons | Omar / Kevin | [phone-controller/README.md](phone-controller/README.md) |
+| `camera/` | MediaPipe vision controller (head/face/hand/finger → remappable actions) | **Tim** (Kevin backup) | [camera/README.md](camera/README.md) |
+| `voice/` | Web Speech demo → protocol | Bunny → toolkit Controller | [voice/README.md](voice/README.md) |
+| `packages/shared/` | Action IDs + protocol | shared | [packages/shared/README.md](packages/shared/README.md) |
+| `access_adapter/` | PySide desktop app, mappings, local API | Omar | [docs/desktop-app.md](docs/desktop-app.md) |
+| `adapters/phone_tilt/` | ADB tilt → keystroke PoC | Omar | [docs/phone-tilt-adapter.md](docs/phone-tilt-adapter.md) |
+| `packaging/` | Linux/Windows installers | Omar | [docs/installers.md](docs/installers.md) |
+| `docs/` | Onboarding, architecture, testing | team | [docs/README.md](docs/README.md) |
 
-Edit the constants at the top of `adapters/phone_tilt/gyro_controller.py` (`ACCEL_DEADZONE`, `AXIS_DOMINANCE`, `USE_ARROWS`, invert flags). Full tuning notes: [`docs/phone-tilt-adapter.md`](docs/phone-tilt-adapter.md).
+## Documentation map
 
-## Testing and known limitations
+| Doc | When to read |
+| --- | --- |
+| [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | What the project is supposed to be and do |
+| [docs/ONBOARDING.md](docs/ONBOARDING.md) | First day — get a working demo |
+| [docs/architecture.md](docs/architecture.md) | Understand data flow / injection |
+| [docs/protocol.md](docs/protocol.md) | Before changing inputs or remap |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Before your first push |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | When something fails |
+| [docs/writeup.md](docs/writeup.md) | Challenge short write-up |
+| [docs/testing-log.md](docs/testing-log.md) | Justin / smoke-test records |
+| [docs/presentation-checklist.md](docs/presentation-checklist.md) | Saturday demo / slides |
+| [docs/demo-video.md](docs/demo-video.md) | Video shot list |
+| [docs/toolkit-contribution/](docs/toolkit-contribution/) | Upstream toolkit PR |
+| [docs/phone-tilt-adapter.md](docs/phone-tilt-adapter.md) | Desktop ADB phone-tilt path |
+| [docs/desktop-app.md](docs/desktop-app.md) | PySide window and mappings |
+| [docs/installers.md](docs/installers.md) | Windows/Linux installer packages |
 
-Maintain a record of:
+## Team workflow
 
-- Game and adapter versions tested
-- Browser and operating system
-- Input method and control mapping
-- What the player attempted
-- Whether the action worked reliably
-- Co-designer feedback
-- Bugs, accessibility barriers, and toolkit issues
-
-See the project issues for current results and limitations. A feature should only be marked supported after it has been tested.
+- Branch per person; **document before push** (see [CONTRIBUTING.md](docs/CONTRIBUTING.md)); notify WhatsApp after each push
+- Check-ins Wed–Fri **20:30**
+- Bunny: merges; Kevin: backup merges + AWS if cloud hosting is needed
 
 ## Challenge deliverables
 
-- Working code in a public repository
-- A pull request to the accessibility toolkit
-- This README and a short project write-up
-- A short demo video and presentation
-- Toolkit issues identified through co-designer testing
-
-## Contributing
-
-Keep changes focused and documented. Open an issue or discuss a proposed input method before adding it, and describe the access need it addresses. Test accessibility behavior with users where possible rather than assuming a control is accessible because it works for a developer.
+- [x] Working code in a public repository (this repo)
+- [x] Pull request to the toolkit — [#55](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/pull/55)
+- [x] README + short write-up ([docs/writeup.md](docs/writeup.md))
+- [ ] Short demo video — shot list in [docs/demo-video.md](docs/demo-video.md)
+- [x] Presentation — open [docs/presentation.html](docs/presentation.html) (←/→ keys); checklist in [docs/presentation-checklist.md](docs/presentation-checklist.md)
+- [ ] Toolkit issues logged from Justin testing — template in [docs/toolkit-contribution/ISSUE_TEMPLATE.md](docs/toolkit-contribution/ISSUE_TEMPLATE.md)
 
 ## Credits
 
-Built by the Game Night team with input from co-designer Justin Machogu. The project uses an existing open-source browser game and a provided accessibility toolkit; their names, links, and licenses will be added here once the exact repositories are confirmed.
+Game Night team with co-designer Justin Machogu.  
+LibreCorsa code: MIT. Toolkit: Apache-2.0. Adapter code in this repository: MIT (see `LICENSE`).
 
 ## License
 
-_To be confirmed. Check the selected game's and toolkit's licenses before choosing a license for this repository._
+MIT for original Game Night adapter code. Upstream `game/` and `toolkit/` keep their own licenses.

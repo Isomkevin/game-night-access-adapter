@@ -1,0 +1,12 @@
+{
+  "name": "@game-night/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "protocol.js",
+  "exports": {
+    ".": "./protocol.js",
+    "./actions.js": "./actions.js",
+    "./protocol.js": "./protocol.js"
+  }
+}
