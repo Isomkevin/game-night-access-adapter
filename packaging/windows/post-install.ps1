@@ -105,9 +105,16 @@ try {
 
     Register-AdapterUninstallKey -InstallDir $InstallDir
 
+    $env:PYTHONPATH = $InstallDir
+    $pyw = Join-Path $InstallDir 'venv\Scripts\pythonw.exe'
+    $py = Join-Path $InstallDir 'venv\Scripts\python.exe'
     $launcher = Join-Path $InstallDir 'run-app.cmd'
-    if (Test-Path -LiteralPath $launcher) {
-        Write-Log 'Starting Game Night Access Adapter...'
+    Write-Log 'Starting Game Night Access Adapter...'
+    if (Test-Path -LiteralPath $pyw) {
+        Start-Process -FilePath $pyw -ArgumentList '-m access_adapter' -WorkingDirectory $InstallDir
+    } elseif (Test-Path -LiteralPath $py) {
+        Start-Process -FilePath $py -ArgumentList '-m access_adapter' -WorkingDirectory $InstallDir
+    } elseif (Test-Path -LiteralPath $launcher) {
         Start-Process -FilePath $launcher -WorkingDirectory $InstallDir
     }
 

@@ -13,7 +13,14 @@ function New-AdapterShortcut {
     $parent = Split-Path -Parent $ShortcutPath
     New-Item -ItemType Directory -Force -Path $parent | Out-Null
     $link = $shell.CreateShortcut($ShortcutPath)
-    $link.TargetPath = $launcher
+    $pyw = Join-Path $InstallDir 'venv\Scripts\pythonw.exe'
+    if (Test-Path -LiteralPath $pyw) {
+        $link.TargetPath = $pyw
+        $link.Arguments = '-m access_adapter'
+    } else {
+        $link.TargetPath = $launcher
+        $link.Arguments = ''
+    }
     $link.WorkingDirectory = $InstallDir
     $link.WindowStyle = 1
     $link.Description = 'Game Night Access Adapter'

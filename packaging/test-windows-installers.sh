@@ -9,6 +9,7 @@ OUT="${1:-$ROOT/dist/installers}"
 VERSION="$(PYTHONPATH="$ROOT" python3 -c "from access_adapter.version import __version__; print(__version__)")"
 ZIP="$OUT/game-night-access-adapter-${VERSION}-windows.zip"
 SFX="$OUT/game-night-access-adapter-${VERSION}-setup.exe"
+MSI="$OUT/game-night-access-adapter-${VERSION}.msi"
 STAGE="$(mktemp -d)"
 FAIL=0
 
@@ -125,6 +126,30 @@ else
   pass 'run-app.cmd falls back to python.exe'
 fi
 
+if ! grep -q 'start "" /B' "$WIN/run-app.cmd"; then
+  fail 'run-app.cmd must start the app without extra console windows'
+else
+  pass 'run-app.cmd starts without extra consoles'
+fi
+
+echo "-- MSI checks"
+if [[ ! -f "$MSI" ]]; then
+  fail "msi missing: $MSI"
+else
+  pass "msi exists: $(basename "$MSI")"
+  bytes=$(wc -c < "$MSI")
+  if [[ "$bytes" -lt 20000 ]]; then
+    fail "msi too small ($bytes bytes)"
+  else
+    pass "msi size ${bytes} bytes"
+  fi
+  if file "$MSI" | grep -qi 'MSI Installer'; then
+    pass 'msi is a Windows Installer database'
+  else
+    fail "msi is not recognized: $(file "$MSI")"
+  fi
+fi
+
 echo "-- Zip archive checks"
 if [[ ! -f "$ZIP" ]]; then
   fail "zip missing: $ZIP"
@@ -187,6 +212,7 @@ version = manifest.get("version")
 windows = manifest.get("windows", {})
 expected_zip = "game-night-access-adapter-${VERSION}-windows.zip"
 expected_exe = "game-night-access-adapter-${VERSION}-setup.exe"
+expected_msi = "game-night-access-adapter-${VERSION}.msi"
 ok = True
 if version != "${VERSION}":
     print("  FAIL manifest version is", version)
@@ -196,6 +222,9 @@ if windows.get("zip") != expected_zip:
     ok = False
 if windows.get("setup_exe") != expected_exe:
     print("  FAIL manifest setup_exe is", windows.get("setup_exe"))
+    ok = False
+if windows.get("msi") != expected_msi:
+    print("  FAIL manifest msi is", windows.get("msi"))
     ok = False
 if ok:
     print("  OK  manifest matches ${VERSION}")

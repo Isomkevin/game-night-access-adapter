@@ -16,6 +16,10 @@ setup=$(ls -1 "$OUT"/game-night-access-adapter-${VERSION}-setup.exe 2>/dev/null 
 setup_name=$(basename "${setup:-}")
 setup_size=$(stat -c%s "$setup" 2>/dev/null || echo 0)
 
+msi=$(ls -1 "$OUT"/game-night-access-adapter-${VERSION}.msi 2>/dev/null | head -1 || true)
+msi_name=$(basename "${msi:-}")
+msi_size=$(stat -c%s "$msi" 2>/dev/null || echo 0)
+
 cat > "$OUT/manifest.json" << EOF
 {
   "version": "${VERSION}",
@@ -26,6 +30,8 @@ cat > "$OUT/manifest.json" << EOF
   "windows": {
     "setup_exe": "${setup_name}",
     "setup_exe_size": ${setup_size},
+    "msi": "${msi_name}",
+    "msi_size": ${msi_size},
     "zip": "${zip_name}",
     "zip_size": ${zip_size}
   }

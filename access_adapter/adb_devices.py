@@ -9,9 +9,10 @@ so a bad form never reaches the tool.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import os
 import re
 import subprocess
-from typing import Callable, Protocol
+from typing import Any, Callable, Protocol
 
 
 _ENDPOINT_RE = re.compile(r"^[A-Za-z0-9._-]+:([0-9]{1,5})$")
@@ -226,6 +227,25 @@ def _combined(result: CommandResult) -> str:
     return f"{result.stdout or ''}{result.stderr or ''}"
 
 
+def hidden_subprocess_kwargs() -> dict[str, Any]:
+    """Keep ADB helper processes off the Windows desktop.
+
+    Each sensor poll starts ``adb``. Without CREATE_NO_WINDOW, Windows opens a
+    console for every sample and the desktop fills with windows.
+    """
+    if os.name != "nt":
+        return {}
+    flags = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000)
+    kwargs: dict[str, Any] = {"creationflags": flags}
+    startupinfo_cls = getattr(subprocess, "STARTUPINFO", None)
+    if startupinfo_cls is not None:
+        startupinfo = startupinfo_cls()
+        startupinfo.dwFlags |= getattr(subprocess, "STARTF_USESHOWWINDOW", 1)
+        startupinfo.wShowWindow = 0
+        kwargs["startupinfo"] = startupinfo
+    return kwargs
+
+
 def _run_adb(args: list[str]) -> AdbResult:
     proc = subprocess.run(
         ["adb", *args],
@@ -233,5 +253,6 @@ def _run_adb(args: list[str]) -> AdbResult:
         text=True,
         timeout=20,
         check=False,
+        **hidden_subprocess_kwargs(),
     )
     return AdbResult(proc.returncode, proc.stdout or "", proc.stderr or "")

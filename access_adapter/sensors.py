@@ -12,7 +12,12 @@ import subprocess
 import time
 from typing import Callable, TextIO
 
-from access_adapter.adb_devices import AdbResult, CommandResult, validate_serial
+from access_adapter.adb_devices import (
+    AdbResult,
+    CommandResult,
+    hidden_subprocess_kwargs,
+    validate_serial,
+)
 from access_adapter.mapping import SensorSample
 
 
@@ -106,6 +111,7 @@ def _read_streaming(serial: str) -> SensorSample:
         stderr=subprocess.PIPE,
         text=True,
         bufsize=1,
+        **hidden_subprocess_kwargs(),
     )
     stdout: TextIO | None = proc.stdout
     try:

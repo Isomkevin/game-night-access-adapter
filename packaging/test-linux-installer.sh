@@ -20,7 +20,8 @@ for script in \
   "$ROOT/packaging/linux/install.sh" \
   "$ROOT/packaging/linux/uninstall.sh" \
   "$ROOT/packaging/windows/build-zip.sh" \
-  "$ROOT/packaging/windows/build-sfx.sh"
+  "$ROOT/packaging/windows/build-sfx.sh" \
+  "$ROOT/packaging/windows/build-msi.sh"
 do
   if bash -n "$script"; then
     pass "syntax $(basename "$script")"

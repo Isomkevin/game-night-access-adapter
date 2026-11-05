@@ -6,6 +6,7 @@ import argparse
 import os
 import sys
 import time
+from pathlib import Path
 
 from access_adapter.api import ApiService
 from access_adapter.state import AppState
@@ -53,9 +54,21 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     app = QApplication(sys.argv)
+    from PySide6.QtCore import QLockFile, QStandardPaths
+
     from access_adapter.ui.style import apply_app_fonts
 
     apply_app_fonts(app)
+    lock_dir = Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppConfigLocation) or ".")
+    lock_dir.mkdir(parents=True, exist_ok=True)
+    lock = QLockFile(str(lock_dir / "access-adapter.lock"))
+    lock.setStaleLockTime(30_000)
+    if not lock.tryLock(100):
+        from PySide6.QtWidgets import QMessageBox
+
+        QMessageBox.information(None, APP_NAME, f"{APP_NAME} is already open.")
+        _shutdown(state, service)
+        return 0
     window = MainWindow(state)
     window.show()
     app.aboutToQuit.connect(lambda: _shutdown(state, service))

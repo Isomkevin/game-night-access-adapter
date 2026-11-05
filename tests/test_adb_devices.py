@@ -6,6 +6,7 @@ from access_adapter.adb_devices import (
     AdbClient,
     AdbResult,
     classify_transport,
+    hidden_subprocess_kwargs,
     parse_devices_listing,
     parse_mdns_services,
     validate_endpoint,
@@ -124,6 +125,16 @@ def test_missing_adb_is_reported():
 
     with pytest.raises(RuntimeError, match="not on PATH"):
         AdbClient(runner).scan()
+
+
+def test_hidden_subprocess_kwargs_hide_windows_consoles(monkeypatch):
+    monkeypatch.setattr("access_adapter.adb_devices.os.name", "nt")
+    kwargs = hidden_subprocess_kwargs()
+    assert kwargs["creationflags"] == 0x08000000
+    if "startupinfo" in kwargs:
+        assert kwargs["startupinfo"].wShowWindow == 0
+    monkeypatch.setattr("access_adapter.adb_devices.os.name", "posix")
+    assert hidden_subprocess_kwargs() == {}
 
 
 def test_mdns_failure_returns_no_services():

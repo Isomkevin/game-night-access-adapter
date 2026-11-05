@@ -5,11 +5,11 @@ set "PYTHONPATH=%~dp0"
 set "PYW=%~dp0venv\Scripts\pythonw.exe"
 set "PY=%~dp0venv\Scripts\python.exe"
 if exist "%PYW%" (
-  start "Game Night Access Adapter" "%PYW%" -m access_adapter
+  start "" /B "%PYW%" -m access_adapter
   exit /b 0
 )
 if exist "%PY%" (
-  start "Game Night Access Adapter" "%PY%" -m access_adapter
+  start "" /B "%PY%" -m access_adapter
   exit /b 0
 )
 echo.

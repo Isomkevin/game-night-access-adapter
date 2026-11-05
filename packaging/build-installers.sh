@@ -13,6 +13,8 @@ if [ "$(uname -s)" = "Linux" ]; then
   bash "$SCRIPT_DIR/windows/build-zip.sh" "$OUT"
   echo "Building Windows setup.exe (SFX)..."
   bash "$SCRIPT_DIR/windows/build-sfx.sh" "$OUT"
+  echo "Building Windows MSI..."
+  bash "$SCRIPT_DIR/windows/build-msi.sh" "$OUT"
 fi
 
 bash "$SCRIPT_DIR/write-manifest.sh" "$OUT"
