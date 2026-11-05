@@ -143,6 +143,15 @@ def rule_from_dict(data: dict[str, Any]) -> MappingRule:
     return rule
 
 
+def rest_offsets_from_sample(sample: SensorSample) -> dict[str, float]:
+    """Treat the current accelerometer reading as the player's rest pose."""
+    return {
+        "offset_ax": float(sample.ax),
+        "offset_ay": float(sample.ay),
+        "offset_az": float(sample.az),
+    }
+
+
 def axis_value(
     sample: SensorSample,
     sensor: str,
@@ -150,11 +159,14 @@ def axis_value(
     *,
     invert_x: bool = False,
     invert_y: bool = False,
+    offset_ax: float = 0.0,
+    offset_ay: float = 0.0,
+    offset_az: float = 0.0,
 ) -> float:
     table = {
-        ("accelerometer", "x"): sample.ax,
-        ("accelerometer", "y"): sample.ay,
-        ("accelerometer", "z"): sample.az,
+        ("accelerometer", "x"): sample.ax - offset_ax,
+        ("accelerometer", "y"): sample.ay - offset_ay,
+        ("accelerometer", "z"): sample.az - offset_az,
         ("gyroscope", "x"): sample.gx,
         ("gyroscope", "y"): sample.gy,
         ("gyroscope", "z"): sample.gz,
@@ -176,11 +188,21 @@ def rule_matches(
     *,
     invert_x: bool = False,
     invert_y: bool = False,
+    offset_ax: float = 0.0,
+    offset_ay: float = 0.0,
+    offset_az: float = 0.0,
 ) -> bool:
     if not rule.enabled:
         return False
     value = axis_value(
-        sample, rule.sensor, rule.axis, invert_x=invert_x, invert_y=invert_y
+        sample,
+        rule.sensor,
+        rule.axis,
+        invert_x=invert_x,
+        invert_y=invert_y,
+        offset_ax=offset_ax,
+        offset_ay=offset_ay,
+        offset_az=offset_az,
     )
     if rule.comparator == "gt":
         return value > rule.threshold
@@ -199,21 +221,23 @@ def active_rules(
     axis_dominance: float = 1.0,
     invert_x: bool = False,
     invert_y: bool = False,
+    offset_ax: float = 0.0,
+    offset_ay: float = 0.0,
+    offset_az: float = 0.0,
 ) -> list[MappingRule]:
     """Return the rules whose keys should be held for this sample."""
+    axis_kwargs = {
+        "invert_x": invert_x,
+        "invert_y": invert_y,
+        "offset_ax": offset_ax,
+        "offset_ay": offset_ay,
+        "offset_az": offset_az,
+    }
     matched: list[tuple[MappingRule, float]] = []
     for rule in rules:
-        if not rule_matches(rule, sample, invert_x=invert_x, invert_y=invert_y):
+        if not rule_matches(rule, sample, **axis_kwargs):
             continue
-        magnitude = abs(
-            axis_value(
-                sample,
-                rule.sensor,
-                rule.axis,
-                invert_x=invert_x,
-                invert_y=invert_y,
-            )
-        )
+        magnitude = abs(axis_value(sample, rule.sensor, rule.axis, **axis_kwargs))
         matched.append((rule, magnitude))
     if not matched:
         return []

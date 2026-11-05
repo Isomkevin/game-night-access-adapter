@@ -29,6 +29,9 @@ class AppConfig:
     axis_dominance: float = 1.0
     invert_x: bool = False
     invert_y: bool = False
+    offset_ax: float = 0.0
+    offset_ay: float = 0.0
+    offset_az: float = 0.0
     poll_interval: float = 0.08
     api_host: str = DEFAULT_HOST
     api_port: int = DEFAULT_PORT
@@ -42,6 +45,9 @@ class AppConfig:
             "axis_dominance": self.axis_dominance,
             "invert_x": self.invert_x,
             "invert_y": self.invert_y,
+            "offset_ax": self.offset_ax,
+            "offset_ay": self.offset_ay,
+            "offset_az": self.offset_az,
             "poll_interval": self.poll_interval,
             "api_host": self.api_host,
             "api_port": self.api_port,
@@ -54,7 +60,13 @@ class AppConfig:
             "axis_dominance": self.axis_dominance,
             "invert_x": self.invert_x,
             "invert_y": self.invert_y,
+            "offset_ax": self.offset_ax,
+            "offset_ay": self.offset_ay,
+            "offset_az": self.offset_az,
         }
+
+    def is_calibrated(self) -> bool:
+        return any(abs(value) > 1e-9 for value in (self.offset_ax, self.offset_ay, self.offset_az))
 
 
 def default_config_path() -> Path:
@@ -84,6 +96,9 @@ def config_from_dict(data: dict[str, Any]) -> AppConfig:
     try:
         poll_interval = float(data.get("poll_interval", 0.08))
         axis_dominance = float(data.get("axis_dominance", 1.0))
+        offset_ax = float(data.get("offset_ax", 0.0))
+        offset_ay = float(data.get("offset_ay", 0.0))
+        offset_az = float(data.get("offset_az", 0.0))
         api_port = int(data.get("api_port", DEFAULT_PORT))
     except (TypeError, ValueError) as exc:
         raise ValueError("Numeric setting is invalid") from exc
@@ -101,6 +116,9 @@ def config_from_dict(data: dict[str, Any]) -> AppConfig:
         axis_dominance=axis_dominance,
         invert_x=bool(data.get("invert_x", False)),
         invert_y=bool(data.get("invert_y", False)),
+        offset_ax=offset_ax,
+        offset_ay=offset_ay,
+        offset_az=offset_az,
         poll_interval=poll_interval,
         api_host=str(data.get("api_host", DEFAULT_HOST) or DEFAULT_HOST),
         api_port=api_port,

@@ -44,6 +44,8 @@ Game Night Access Adapter
 Menu: Game Night Access Adapter
 Command: game-night-access-adapter
 
+The window shows live phone tilt, rest-pose calibration, and sensor-to-key mappings.
+
 Local API (while the app is running):
   curl http://127.0.0.1:8765/api/v1/health
 

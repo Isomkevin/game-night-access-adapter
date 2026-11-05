@@ -8,9 +8,10 @@ from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
-    QFormLayout,
+    QLabel,
     QLineEdit,
     QVBoxLayout,
+    QWidget,
 )
 
 from access_adapter.mapping import AXES, SENSORS, MappingRule, parse_key_combination
@@ -23,7 +24,9 @@ class MappingDialog(QDialog):
     def __init__(self, rule: MappingRule | None = None, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Edit mapping" if rule else "Add mapping")
-        self.resize(460, 320)
+        self.resize(480, 640)
+        self.setMinimumSize(380, 520)
+        self.setSizeGripEnabled(True)
         self._rule_id = rule.id if rule else ""
 
         self.label = QLineEdit(rule.label if rule else "")
@@ -55,21 +58,32 @@ class MappingDialog(QDialog):
         self.enabled = QCheckBox("Enabled")
         self.enabled.setChecked(True if rule is None else rule.enabled)
 
-        form = QFormLayout()
-        form.addRow("Label", self.label)
-        form.addRow("Sensor", self.sensor)
-        form.addRow("Axis", self.axis)
-        form.addRow("When reading is", self.comparator)
-        form.addRow("Threshold", self.threshold)
-        form.addRow("Keys", self.keys)
-        form.addRow("", self.enabled)
+        def labeled_field(caption: str, widget) -> QWidget:
+            block = QWidget()
+            block_layout = QVBoxLayout(block)
+            block_layout.setContentsMargins(0, 0, 0, 0)
+            block_layout.setSpacing(6)
+            caption_label = QLabel(caption)
+            caption_label.setObjectName("muted")
+            block_layout.addWidget(caption_label)
+            block_layout.addWidget(widget)
+            return block
 
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel)
         buttons.accepted.connect(self._accept_if_valid)
         buttons.rejected.connect(self.reject)
 
         layout = QVBoxLayout(self)
-        layout.addLayout(form)
+        layout.setContentsMargins(24, 24, 24, 20)
+        layout.setSpacing(14)
+        layout.addWidget(labeled_field("Label", self.label))
+        layout.addWidget(labeled_field("Sensor", self.sensor))
+        layout.addWidget(labeled_field("Axis", self.axis))
+        layout.addWidget(labeled_field("When reading is", self.comparator))
+        layout.addWidget(labeled_field("Threshold", self.threshold))
+        layout.addWidget(labeled_field("Keys", self.keys))
+        layout.addWidget(self.enabled)
+        layout.addStretch(1)
         layout.addWidget(buttons)
 
     def payload(self) -> dict:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import threading
+import time
 
 from access_adapter.keys import KeyInjector
 from access_adapter.mapping import SensorSample
@@ -50,6 +51,11 @@ class SensorBridge:
         if self._thread is not None and self._thread.is_alive():
             self._thread.join(timeout=2.0)
         self._thread = None
+        if self._reader is not None:
+            closer = getattr(self._reader, "close", None)
+            if callable(closer):
+                closer()
+            self._reader = None
         if self._injector is not None:
             self._injector.release_all()
         self.state.bridge_running = False
@@ -64,6 +70,7 @@ class SensorBridge:
 
     def _loop(self) -> None:
         while not self._stop.is_set():
+            started = time.monotonic()
             reader = self._reader
             try:
                 if reader is None:
@@ -73,4 +80,7 @@ class SensorBridge:
                 self.state.bridge_error = ""
             except Exception as exc:  # noqa: BLE001 — keep reading after a bad sample
                 self.state.bridge_error = str(exc)
-            self._stop.wait(max(0.02, float(self.state.config.poll_interval)))
+            interval = max(0.0, float(self.state.config.poll_interval))
+            remaining = interval - (time.monotonic() - started)
+            if remaining > 0:
+                self._stop.wait(remaining)

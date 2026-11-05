@@ -46,6 +46,9 @@ else
     ./usr/share/applications/game-night-access-adapter.desktop \
     ./etc/xdg/autostart/game-night-access-adapter.desktop \
     ./opt/game-night-access-adapter/access_adapter/__main__.py \
+    ./opt/game-night-access-adapter/access_adapter/ui/phone_view.py \
+    ./opt/game-night-access-adapter/access_adapter/ui/flow.py \
+    ./opt/game-night-access-adapter/access_adapter/ui/style.py \
     ./opt/game-night-access-adapter/requirements.txt
   do
     if grep -Fq "$path" <<<"$listing"; then

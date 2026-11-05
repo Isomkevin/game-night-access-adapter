@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 import subprocess
 import time
-from typing import Callable
+from typing import Callable, TextIO
 
 from access_adapter.adb_devices import AdbResult, CommandResult, validate_serial
 from access_adapter.mapping import SensorSample
@@ -28,15 +28,14 @@ Runner = Callable[[list[str]], CommandResult]
 
 def parse_dumpsys(dump: str) -> SensorSample:
     """Pull the newest accelerometer and gyroscope triple out of a dumpsys blob."""
-    accel = _parse_named_events(dump, ("accelerometer: last", "accelerometer")) or (0.0, 0.0, 0.0)
-    gyro = _parse_named_events(dump, ("gyroscope: last", "gyroscope", "gyro: last")) or (0.0, 0.0, 0.0)
+    accel, gyro = _parse_motion_events(dump.splitlines())
     return SensorSample(
-        ax=accel[0],
-        ay=accel[1],
-        az=accel[2],
-        gx=gyro[0],
-        gy=gyro[1],
-        gz=gyro[2],
+        ax=accel[0] if accel else 0.0,
+        ay=accel[1] if accel else 0.0,
+        az=accel[2] if accel else 0.0,
+        gx=gyro[0] if gyro else 0.0,
+        gy=gyro[1] if gyro else 0.0,
+        gz=gyro[2] if gyro else 0.0,
         source="dumpsys",
         ts=time.time(),
     )
@@ -47,42 +46,123 @@ class SensorReader:
 
     def __init__(self, serial: str, runner: Runner | None = None) -> None:
         self.serial = validate_serial(serial)
-        self._runner = runner or _run_adb
+        self._runner = runner
 
     def read_once(self) -> SensorSample:
         try:
-            result = self._runner(["-s", self.serial, "shell", "dumpsys", "sensorservice"])
+            if self._runner is not None:
+                result = self._runner(["-s", self.serial, "shell", "dumpsys", "sensorservice"])
+                if result.returncode != 0:
+                    detail = f"{result.stdout or ''}{result.stderr or ''}".strip()
+                    raise RuntimeError(detail or "dumpsys sensorservice failed")
+                return parse_dumpsys(result.stdout or "")
+            return _read_streaming(self.serial)
         except FileNotFoundError as exc:
             raise RuntimeError("adb is not installed or not on PATH") from exc
-        if result.returncode != 0:
-            detail = f"{result.stdout or ''}{result.stderr or ''}".strip()
-            raise RuntimeError(detail or "dumpsys sensorservice failed")
-        return parse_dumpsys(result.stdout or "")
+
+    def close(self) -> None:
+        return None
 
 
-def _parse_named_events(dump: str, name_hints: tuple[str, ...]) -> tuple[float, float, float] | None:
-    lines = dump.splitlines()
-    for index, line in enumerate(lines):
-        lower = line.strip().lower()
-        if not any(hint in lower for hint in name_hints):
-            continue
-        if "last" not in lower and not lower.rstrip().endswith(":"):
-            continue
-        for follow in lines[index + 1 : index + 40]:
-            match = _EVENT_RE.search(follow)
+def _parse_motion_events(lines) -> tuple[tuple[float, float, float] | None, tuple[float, float, float] | None]:
+    accel = None
+    gyro = None
+    looking = ""
+    follows = 0
+    for line in lines:
+        if looking:
+            match = _EVENT_RE.search(line)
             if match:
-                return float(match.group(2)), float(match.group(3)), float(match.group(4))
-            if follow and not follow.startswith((" ", "\t")) and ":" in follow:
-                break
-    return None
+                triple = (float(match.group(2)), float(match.group(3)), float(match.group(4)))
+                if looking == "accel":
+                    accel = triple
+                else:
+                    gyro = triple
+                looking = ""
+                if accel is not None and gyro is not None:
+                    break
+                continue
+            follows -= 1
+            if follows <= 0 or (line.strip() and not line.startswith((" ", "\t")) and ":" in line):
+                looking = ""
+            continue
+        lower = line.strip().lower()
+        if "uncalibrated" in lower:
+            continue
+        if accel is None and "accelerometer" in lower and ("last" in lower or lower.endswith(":")):
+            looking = "accel"
+            follows = 8
+        elif gyro is None and "gyro" in lower and ("last" in lower or lower.endswith(":")):
+            looking = "gyro"
+            follows = 8
+    return accel, gyro
 
 
-def _run_adb(args: list[str]) -> AdbResult:
-    proc = subprocess.run(
-        ["adb", *args],
-        capture_output=True,
+def _read_streaming(serial: str) -> SensorSample:
+    """Stop the dumpsys stream as soon as accel and gyro last-events appear."""
+    proc = subprocess.Popen(
+        ["adb", "-s", serial, "exec-out", "dumpsys", "sensorservice"],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
         text=True,
-        timeout=12,
-        check=False,
+        bufsize=1,
     )
-    return AdbResult(proc.returncode, proc.stdout or "", proc.stderr or "")
+    stdout: TextIO | None = proc.stdout
+    try:
+        if stdout is None:
+            raise RuntimeError("dumpsys sensorservice failed")
+        accel = None
+        gyro = None
+        looking = ""
+        follows = 0
+        collected: list[str] = []
+        for line in stdout:
+            collected.append(line)
+            if looking:
+                match = _EVENT_RE.search(line)
+                if match:
+                    triple = (float(match.group(2)), float(match.group(3)), float(match.group(4)))
+                    if looking == "accel":
+                        accel = triple
+                    else:
+                        gyro = triple
+                    looking = ""
+                    if accel is not None and gyro is not None:
+                        break
+                    continue
+                follows -= 1
+                if follows <= 0 or (line.strip() and not line.startswith((" ", "\t")) and ":" in line):
+                    looking = ""
+                continue
+            lower = line.strip().lower()
+            if "uncalibrated" in lower:
+                continue
+            if accel is None and "accelerometer" in lower and ("last" in lower or lower.endswith(":")):
+                looking = "accel"
+                follows = 8
+            elif gyro is None and "gyro" in lower and ("last" in lower or lower.endswith(":")):
+                looking = "gyro"
+                follows = 8
+            if len(collected) > 12000:
+                break
+        if accel is None and gyro is None:
+            accel, gyro = _parse_motion_events(collected)
+        return SensorSample(
+            ax=accel[0] if accel else 0.0,
+            ay=accel[1] if accel else 0.0,
+            az=accel[2] if accel else 0.0,
+            gx=gyro[0] if gyro else 0.0,
+            gy=gyro[1] if gyro else 0.0,
+            gz=gyro[2] if gyro else 0.0,
+            source="dumpsys",
+            ts=time.time(),
+        )
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+            try:
+                proc.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                pass
+        elif proc.returncode not in (0, None) and proc.returncode < 0:
+            pass

@@ -30,6 +30,8 @@ The window opens on **Sensor mappings**. Each row is one sensor condition and th
 
 **Add device** scans `adb` and lists USB and wireless phones. Use a phone that is already authorized, connect to `host:port`, or pair with the 6-digit wireless debugging code. The status bar shows the selected phone.
 
+**Calibrate rest pose** stores the current accelerometer reading. After that, left / right / forward / back are measured from that grip. Use it after the phone is in a stand, on a lap, or held at an angle that is comfortable. **Clear calibration** returns to absolute tilt (desk-flat rest).
+
 ```bash
 python3 -m pip install -r requirements.txt
 python3 -m access_adapter
@@ -80,7 +82,8 @@ A mapping's `keys` list is a **combination**: every listed key is held at the sa
 | `single_axis_only` | `true` | When several mappings match, hold only the strongest one |
 | `axis_dominance` | `1.0` | Strongest reading must be at least this many times the next reading. Raise it (for example `1.15`) to ignore ambiguous diagonals |
 | `invert_x` / `invert_y` | `false` | Flip an axis for the way the phone is held |
-| `poll_interval` | `0.08` | Seconds between sensor reads |
+| `offset_ax` / `offset_ay` / `offset_az` | `0` | Rest-pose accelerometer subtracted before mappings. Set by Calibrate rest pose |
+| `poll_interval` | `0.08` | Minimum seconds between sensor reads. Slow ADB dumps do not add extra wait on top |
 | `injection_enabled` | `true` | When false, show the active mapping but do not press keys |
 | `selected_serial` | empty | ADB serial chosen in Add device |
 
@@ -97,8 +100,7 @@ Sensors are `accelerometer` and `gyroscope`. Axes are `x`, `y`, and `z`.
 ## Run the tests for this phase
 
 ```bash
-python3 -m pip install -r requirements-dev.txt
-python3 -m pytest tests/test_mapping.py tests/test_config.py tests/test_keys.py -q
+QT_QPA_PLATFORM=offscreen python3 -m pytest tests/test_calibrate.py -q
 ```
 
 `tests/test_keys.py` uses a fake keyboard. It does not type into the focused window.

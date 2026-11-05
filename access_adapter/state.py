@@ -9,7 +9,13 @@ from typing import Any
 
 from access_adapter.adb_devices import AdbClient, AdbDevice, WirelessService
 from access_adapter.config import AppConfig, config_from_dict, load_config, save_config
-from access_adapter.mapping import MappingRule, SensorSample, active_key_names, rule_from_dict
+from access_adapter.mapping import (
+    MappingRule,
+    SensorSample,
+    active_key_names,
+    rest_offsets_from_sample,
+    rule_from_dict,
+)
 
 
 class AppState:
@@ -64,6 +70,9 @@ class AppState:
             "axis_dominance",
             "invert_x",
             "invert_y",
+            "offset_ax",
+            "offset_ay",
+            "offset_az",
             "poll_interval",
         }
         unknown = sorted(set(payload) - allowed)
@@ -180,6 +189,18 @@ class AppState:
             self.last_sample = sample
             self._refresh_active_keys_locked()
             return list(self.active_keys)
+
+    def calibrate_rest_pose(self, sample: SensorSample | None = None) -> dict[str, Any]:
+        """Save the current (or given) accelerometer reading as rest."""
+        chosen = sample if sample is not None else self.last_sample
+        if chosen.source in {"", "none"} and chosen.ax == 0 and chosen.ay == 0 and chosen.az == 0:
+            raise ValueError(
+                "Need a sensor reading first. Start reading, hold the phone still, then calibrate."
+            )
+        return self.update_settings(rest_offsets_from_sample(chosen))
+
+    def clear_calibration(self) -> dict[str, Any]:
+        return self.update_settings({"offset_ax": 0.0, "offset_ay": 0.0, "offset_az": 0.0})
 
     def _refresh_active_keys_locked(self) -> None:
         self.active_keys = active_key_names(

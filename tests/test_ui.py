@@ -8,6 +8,7 @@ from access_adapter.state import AppState
 from access_adapter.ui.devices_dialog import DeviceDialog
 from access_adapter.ui.main_window import MainWindow
 from access_adapter.ui.mapping_dialog import MappingDialog
+from access_adapter.ui.phone_view import tilt_from_sample
 from tests.test_adb_devices import ScriptedAdb
 
 
@@ -16,7 +17,7 @@ def test_main_window_lists_default_mappings(qapp, tmp_path):
     window = MainWindow(state)
     assert window.table.rowCount() == 4
     assert window.table.item(0, 0).text() == "Steer left"
-    assert window.table.item(0, 5).text() == "a"
+    assert window.table.item(0, 2).text() == "a"
     window.close()
 
 
@@ -83,6 +84,37 @@ def test_live_readout_follows_sample(qapp, tmp_path):
     state.note_sample(SensorSample(ax=-4.0, source="test"))
     window.refresh_live()
     assert "Matched: a" in window.live.text()
+    assert window.phone_view._target_roll < 0
+    assert window.chip_left.property("active") is True
+    window.close()
+
+
+def test_tilt_from_sample_leans_left_and_respects_rest():
+    roll, pitch = tilt_from_sample(-4.0, 0.0)
+    assert roll < 0
+    assert abs(pitch) < 1
+    roll_rest, _pitch = tilt_from_sample(-4.0, 0.0, offset_ax=-4.0)
+    assert abs(roll_rest) < 0.01
+    flipped, _ = tilt_from_sample(-4.0, 0.0, invert_x=True)
+    assert flipped > 0
+
+
+def test_window_stacks_when_narrow(qapp, tmp_path):
+    from PySide6.QtCore import Qt
+
+    from access_adapter.ui.main_window import COMPACT_WIDTH
+
+    state = AppState(config_path=tmp_path / "config.json")
+    window = MainWindow(state)
+    window.resize(1200, 800)
+    window._apply_responsive_layout()
+    assert window.split.orientation() == Qt.Orientation.Horizontal
+    window.resize(COMPACT_WIDTH - 80, 700)
+    window._apply_responsive_layout()
+    assert window.split.orientation() == Qt.Orientation.Vertical
+    window.resize(1280, 800)
+    window._apply_responsive_layout()
+    assert window.split.orientation() == Qt.Orientation.Horizontal
     window.close()
 
 

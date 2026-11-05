@@ -36,6 +36,9 @@ REQUIRED=(
   requirements.txt
   access_adapter/__main__.py
   access_adapter/version.py
+  access_adapter/ui/phone_view.py
+  access_adapter/ui/flow.py
+  access_adapter/ui/style.py
 )
 
 echo "-- Source script checks"

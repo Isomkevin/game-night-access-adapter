@@ -41,6 +41,20 @@ def test_parse_dumpsys_reads_accel_and_gyro():
     assert sample.source == "dumpsys"
 
 
+def test_parse_dumpsys_reads_filtered_phone_output():
+    dump = """
+ICM42632M Gyroscope Uncalibrated: last 50 events
+	 1 (ts=1.0, wall=12:00:00.000) 9.0, 9.0, 9.0,
+ICM42632M Gyroscope: last 50 events
+	 1 (ts=1.0, wall=12:00:00.000) 0.10, -0.20, 0.30,
+ICM42632M Accelerometer: last 50 events
+	 1 (ts=1.0, wall=12:00:00.000) -3.25, 0.50, 9.20,
+"""
+    sample = parse_dumpsys(dump)
+    assert sample.ax == -3.25
+    assert (sample.gx, sample.gy, sample.gz) == (0.10, -0.20, 0.30)
+
+
 def test_reader_targets_the_selected_serial():
     seen: list[list[str]] = []
 

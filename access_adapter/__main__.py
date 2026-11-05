@@ -53,6 +53,9 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     app = QApplication(sys.argv)
+    from access_adapter.ui.style import apply_app_fonts
+
+    apply_app_fonts(app)
     window = MainWindow(state)
     window.show()
     app.aboutToQuit.connect(lambda: _shutdown(state, service))

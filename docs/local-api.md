@@ -46,8 +46,10 @@ Errors:
 | POST | `/api/v1/bridge/start` | Start reading the selected phone |
 | POST | `/api/v1/bridge/stop` | Stop reading and release every held key |
 | POST | `/api/v1/injection` | `{"enabled": false}` pauses key presses |
+| POST | `/api/v1/calibrate` | Save rest-pose offsets. Body may be empty (uses the latest sample) or `{"ax": 1.2, "ay": 0.1, "az": 9.6}` |
+| POST | `/api/v1/calibrate/reset` | Clear rest-pose offsets |
 
-Settings that PUT accepts: `selected_serial`, `injection_enabled`, `single_axis_only`, `axis_dominance`, `invert_x`, `invert_y`, `poll_interval`.
+Settings that PUT accepts: `selected_serial`, `injection_enabled`, `single_axis_only`, `axis_dominance`, `invert_x`, `invert_y`, `offset_ax`, `offset_ay`, `offset_az`, `poll_interval`.
 
 ### Examples
 

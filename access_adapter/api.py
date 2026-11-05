@@ -153,6 +153,20 @@ class AdapterApiHandler(BaseHTTPRequestHandler):
             if "enabled" not in body:
                 raise ValueError("enabled is required")
             return 200, state.update_settings({"injection_enabled": bool(body["enabled"])})
+        if method == "POST" and path == "/api/v1/calibrate":
+            sample = None
+            if any(key in body for key in ("ax", "ay", "az")):
+                from access_adapter.mapping import SensorSample
+
+                sample = SensorSample(
+                    ax=float(body.get("ax", 0.0)),
+                    ay=float(body.get("ay", 0.0)),
+                    az=float(body.get("az", 0.0)),
+                    source=str(body.get("source", "calibrate")),
+                )
+            return 200, state.calibrate_rest_pose(sample)
+        if method == "POST" and path == "/api/v1/calibrate/reset":
+            return 200, state.clear_calibration()
 
         raise ApiError(404, "NOT_FOUND", "Endpoint not found")
 

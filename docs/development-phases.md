@@ -82,7 +82,7 @@ Covered:
 
 ## Phase 6 — Windows and Linux installers
 
-A `.deb`, a Windows zip, and a self-extracting `setup.exe` install the app into a virtual environment and register a login shortcut. The package is not a system service: keystrokes have to come from the signed-in session. See [installers.md](installers.md).
+A `.deb`, a Windows zip, and a self-extracting `setup.exe` install the app into a virtual environment and register a login shortcut. Rebuild after UI changes so the packages ship the live-tilt window. The package is not a system service: keystrokes have to come from the signed-in session. See [installers.md](installers.md).
 
 ```bash
 bash packaging/build-installers.sh
@@ -98,9 +98,26 @@ Covered:
 - `manifest.json` names match the version
 - Project sources do not reuse another product's service name
 
+## Phase 7 — Rest-pose calibration
+
+The player holds the phone in a comfortable rest grip. That accelerometer reading is saved as an offset so mappings fire relative to that pose, not a flat desk.
+
+```bash
+QT_QPA_PLATFORM=offscreen python3 -m pytest tests/test_calibrate.py -q
+```
+
+Covered:
+
+- A rest offset of −4 m/s² on X makes that same raw tilt hold nothing
+- Tilting further from rest still holds the mapped key
+- Offsets round-trip in the settings file
+- `POST /api/v1/calibrate` with `ax` / `ay` / `az`, then reset
+- The window Calibrate rest pose button stores the latest sample
+- Calibrating with no sample explains that a reading is required
+
 ## Phase status
 
-Phases 1 through 6 are implemented. Re-run everything with:
+Phases 1 through 7 are implemented. Re-run everything with:
 
 ```bash
 QT_QPA_PLATFORM=offscreen python3 -m pytest -q

@@ -130,7 +130,7 @@ Re-test after changing deadzone, game, browser, or OS before calling the flow â€
 - **Focus:** keystrokes go to the focused window. The adapter cannot inject into a sandboxed page that ignores OS key events.
 - **Platform:** `pynput` key injection is validated on Linux X11/Wayland setups that allow it; macOS/Windows need separate verification (important for co-designer testing).
 - **Permissions:** Wireless debugging must stay enabled; the PC must be authorized.
-- **Accessibility:** this is one motor-access option. It is not a substitute for co-designer validation or for camera/voice fallbacks described in the main README.
+- **Rest pose:** the pygame proof of concept assumes a roughly flat phone. The desktop app under `access_adapter/` can subtract a rest-pose offset (**Calibrate rest pose**) so a stand or lap grip still maps as neutral.
 
 ## Security notes
 

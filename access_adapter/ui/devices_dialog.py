@@ -5,16 +5,18 @@ from __future__ import annotations
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
-    QGridLayout,
-    QGroupBox,
+    QFrame,
     QHBoxLayout,
     QHeaderView,
     QLabel,
     QLineEdit,
     QPushButton,
+    QScrollArea,
+    QTabWidget,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
+    QWidget,
 )
 
 from access_adapter.adb_devices import validate_endpoint
@@ -28,13 +30,12 @@ class DeviceDialog(QDialog):
         super().__init__(parent)
         self.state = state
         self.setWindowTitle("Add device")
-        self.resize(720, 520)
+        self.resize(640, 560)
+        self.setMinimumSize(480, 420)
+        self.setSizeGripEnabled(True)
         self.chosen_serial = ""
 
-        intro = QLabel(
-            "USB phones appear after the cable is connected and this computer is authorized. "
-            "Wireless phones need the pairing code from Developer options, then the connect address."
-        )
+        intro = QLabel("Plug in a USB phone, or pair wireless debugging, then select it.")
         intro.setWordWrap(True)
         intro.setObjectName("hint")
 
@@ -65,54 +66,88 @@ class DeviceDialog(QDialog):
         self.services.cellDoubleClicked.connect(self._fill_from_service)
 
         use_button = QPushButton("Use selected phone")
-        use_button.setObjectName("primary")
+        use_button.setObjectName("bridgeButton")
         use_button.clicked.connect(self.use_selected)
         fill_button = QPushButton("Copy address into connect")
         fill_button.clicked.connect(self._fill_from_service)
 
-        found = QGroupBox("Phones adb can already see")
-        found_layout = QVBoxLayout(found)
-        found_layout.addWidget(self.table)
-        found_layout.addWidget(use_button)
+        phones = QWidget()
+        phones_layout = QVBoxLayout(phones)
+        phones_layout.setContentsMargins(16, 16, 16, 16)
+        phones_layout.setSpacing(12)
+        phones_layout.addWidget(self.table, stretch=1)
+        phones_layout.addWidget(use_button)
 
-        advertised = QGroupBox("Wireless debugging on the network")
-        advertised_layout = QVBoxLayout(advertised)
-        advertised_layout.addWidget(self.services)
-        advertised_layout.addWidget(fill_button)
+        ads = QWidget()
+        ads_layout = QVBoxLayout(ads)
+        ads_layout.setContentsMargins(16, 16, 16, 16)
+        ads_layout.setSpacing(12)
+        ads_layout.addWidget(self.services, stretch=1)
+        ads_layout.addWidget(fill_button)
 
         self.connect_host = QLineEdit()
         self.connect_host.setPlaceholderText("192.168.1.20")
         self.connect_host.setAccessibleName("Connect host")
+        self.connect_host.setFixedHeight(44)
         self.connect_port = QLineEdit("5555")
         self.connect_port.setAccessibleName("Connect port")
+        self.connect_port.setFixedHeight(44)
         connect_button = QPushButton("Connect")
+        connect_button.setObjectName("bridgeButton")
         connect_button.clicked.connect(self.connect_wireless)
 
         self.pair_host = QLineEdit()
         self.pair_host.setPlaceholderText("192.168.1.20")
         self.pair_host.setAccessibleName("Pair host")
+        self.pair_host.setFixedHeight(44)
         self.pair_port = QLineEdit()
         self.pair_port.setPlaceholderText("37123")
         self.pair_port.setAccessibleName("Pair port")
+        self.pair_port.setFixedHeight(44)
         self.pair_code = QLineEdit()
         self.pair_code.setPlaceholderText("6 digits")
         self.pair_code.setAccessibleName("Pairing code")
+        self.pair_code.setFixedHeight(44)
         pair_button = QPushButton("Pair")
         pair_button.clicked.connect(self.pair_wireless)
 
-        wireless = QGroupBox("Connect or pair")
-        grid = QGridLayout(wireless)
-        grid.addWidget(QLabel("Connect host"), 0, 0)
-        grid.addWidget(self.connect_host, 0, 1)
-        grid.addWidget(QLabel("Port"), 0, 2)
-        grid.addWidget(self.connect_port, 0, 3)
-        grid.addWidget(connect_button, 0, 4)
-        grid.addWidget(QLabel("Pair host"), 1, 0)
-        grid.addWidget(self.pair_host, 1, 1)
-        grid.addWidget(QLabel("Port"), 1, 2)
-        grid.addWidget(self.pair_port, 1, 3)
-        grid.addWidget(self.pair_code, 1, 4)
-        grid.addWidget(pair_button, 1, 5)
+        def labeled_field(caption: str, widget) -> QWidget:
+            block = QWidget()
+            block_layout = QVBoxLayout(block)
+            block_layout.setContentsMargins(0, 0, 0, 0)
+            block_layout.setSpacing(6)
+            caption_label = QLabel(caption)
+            caption_label.setObjectName("muted")
+            block_layout.addWidget(caption_label)
+            block_layout.addWidget(widget)
+            return block
+
+        connect_inner = QWidget()
+        connect_layout = QVBoxLayout(connect_inner)
+        connect_layout.setContentsMargins(20, 16, 20, 16)
+        connect_layout.setSpacing(14)
+        connect_layout.addWidget(labeled_field("Host", self.connect_host))
+        connect_layout.addWidget(labeled_field("Port", self.connect_port))
+        connect_layout.addWidget(connect_button)
+        connect_layout.addSpacing(8)
+        connect_layout.addWidget(labeled_field("Pair host", self.pair_host))
+        connect_layout.addWidget(labeled_field("Pair port", self.pair_port))
+        connect_layout.addWidget(labeled_field("Pairing code", self.pair_code))
+        connect_layout.addWidget(pair_button)
+        connect_layout.addStretch(1)
+        connect_scroll = QScrollArea()
+        connect_scroll.setWidgetResizable(True)
+        connect_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        connect_scroll.setWidget(connect_inner)
+        connect_tab = QWidget()
+        wrap = QVBoxLayout(connect_tab)
+        wrap.setContentsMargins(0, 0, 0, 0)
+        wrap.addWidget(connect_scroll)
+
+        self.tabs = QTabWidget()
+        self.tabs.addTab(phones, "Phones")
+        self.tabs.addTab(ads, "Wireless ads")
+        self.tabs.addTab(connect_tab, "Connect / pair")
 
         close = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         close.rejected.connect(self.reject)
@@ -123,12 +158,12 @@ class DeviceDialog(QDialog):
         top.addStretch(1)
 
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(20, 20, 20, 16)
+        layout.setSpacing(14)
         layout.addWidget(intro)
         layout.addLayout(top)
         layout.addWidget(self.message)
-        layout.addWidget(found)
-        layout.addWidget(advertised)
-        layout.addWidget(wireless)
+        layout.addWidget(self.tabs, stretch=1)
         layout.addWidget(close)
         self.refresh_tables()
 
