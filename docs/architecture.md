@@ -79,6 +79,18 @@ Validated against LibreCorsa source on 2026-11-04 (codes like `KeyW`, `KeyA`, `S
 
 Profiles live in `chrome.storage.local` and can be exported as JSON from Options.
 
+### Camera steering and recovery
+
+The camera page calibrates a resting head yaw, smooths active motion, and
+pulses the existing logical down/up events for partial steering. It does
+not bypass the remap table or inject keys directly. The extension's
+camera-only receiver tracks original mapped key codes, expires unrefreshed
+holds after 800 ms, and releases camera keys when the bridge disconnects.
+The camera UI separates bridge status from tracker status and provides
+Start, Stop, Recenter, sensitivity, and direction controls. Keep it in a
+separate visible window beside the game; a hidden camera page releases
+steering. Details and manual checks: [camera/README.md](../camera/README.md).
+
 ## Why not the toolkit adapter runtime?
 
 The toolkit’s `extension/` runs accessibility **page adapters** (DOM/CSS). Continuous racing input needs a dedicated content script + remap store. Voice still uses the toolkit **Controller**; Bunny maps phrases to bridge `input` events ([toolkit-contribution/](toolkit-contribution/)).
