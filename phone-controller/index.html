@@ -4,29 +4,49 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Game Night — Phone controller</title>
+    <link rel="stylesheet" href="/ui/tokens.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header>
+      <p class="eyebrow">Game Night</p>
       <h1>Phone controller</h1>
-      <p id="status">Connecting…</p>
+      <p id="status" class="status" aria-live="polite">Connecting…</p>
     </header>
 
-    <p class="hint">Tilt the phone left/right to steer. Large buttons for throttle, brake, and boost. Software only — no USB cable.</p>
+    <p class="hint">
+      Phone and computer must be on the same Wi‑Fi. Keep the game focused and driving.
+      Tilt left/right to steer. Use large buttons for throttle, brake, and boost.
+    </p>
+
+    <section class="mode-bar" aria-label="Button behavior">
+      <span class="mode-label" id="mode-label">Buttons</span>
+      <div class="mode-toggle" role="group" aria-labelledby="mode-label">
+        <button type="button" id="mode-hold" class="mode-btn" aria-pressed="true">Hold</button>
+        <button type="button" id="mode-latch" class="mode-btn" aria-pressed="false">Latch</button>
+      </div>
+    </section>
+    <p class="hint" id="mode-hint">Hold mode: press and hold. Latch mode: tap to press, tap again to release.</p>
 
     <div class="gauge" aria-live="polite">
       <span>Steer</span>
       <div class="bar"><i id="steer-bar"></i></div>
-      <strong id="steer-label">0°</strong>
+      <strong id="steer-label">Centered</strong>
     </div>
 
     <div class="buttons">
-      <button type="button" id="throttle" class="hold big">Throttle</button>
-      <button type="button" id="brake" class="hold big">Brake</button>
-      <button type="button" id="boost" class="hold">Boost</button>
+      <button type="button" id="throttle" class="hold big" aria-pressed="false">Throttle</button>
+      <button type="button" id="brake" class="hold big" aria-pressed="false">Brake</button>
+      <button type="button" id="boost" class="hold" aria-pressed="false">Boost</button>
     </div>
 
+    <button type="button" id="release-all" class="stop">Stop all inputs</button>
     <button type="button" id="enable" class="enable">Enable motion sensors</button>
+    <p class="hint motion-help">
+      On iPhone, tap Enable motion sensors once. On many Android phones, tilt works automatically.
+    </p>
+
+    <p class="back"><a href="/">← All control methods</a></p>
 
     <script type="module" src="phone.js"></script>
   </body>

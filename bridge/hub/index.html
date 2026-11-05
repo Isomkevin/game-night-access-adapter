@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Night — Choose your controls</title>
+    <link rel="stylesheet" href="/ui/tokens.css" />
+    <link rel="stylesheet" href="/hub/hub.css" />
+  </head>
+  <body>
+    <main class="hub">
+      <p class="eyebrow">Game Night Access Adapter</p>
+      <h1 class="brand">Choose your controls</h1>
+      <p class="lede">
+        Open one of these pages on this computer or your phone. Keep the Chrome extension installed,
+        start a race in LibreCorsa, and click the game so it can receive your controls.
+      </p>
+
+      <p id="conn" class="conn gnaa-chip gnaa-chip--info" aria-live="polite">Checking connection…</p>
+
+      <div class="cards">
+        <a class="card" href="/phone/">
+          <span class="badge gnaa-chip gnaa-chip--ok">Available</span>
+          <h2>Phone controller</h2>
+          <p>Tilt to steer. Large throttle, brake, and boost buttons. Same Wi‑Fi as this computer.</p>
+        </a>
+        <a class="card" href="/camera/">
+          <span class="badge gnaa-chip gnaa-chip--warn">Experimental</span>
+          <h2>Head &amp; vision</h2>
+          <p>Use your webcam for head, face, or hand movements. Calibrate before you play.</p>
+        </a>
+        <a class="card" href="/voice/">
+          <span class="badge gnaa-chip gnaa-chip--warn">Experimental — short taps</span>
+          <h2>Voice commands</h2>
+          <p>Speak phrases like “go” or “boost”. Each command is a quick tap, not a continuous hold.</p>
+        </a>
+      </div>
+
+      <section class="help gnaa-card">
+        <h2>Quick checklist</h2>
+        <ol>
+          <li>Chrome extension loaded and showing <strong>ON</strong> when this bridge is running.</li>
+          <li>LibreCorsa open and in a driving session.</li>
+          <li>This page’s host matches your computer (use the LAN address on a phone).</li>
+        </ol>
+        <p class="gnaa-hint" id="lan-hint"></p>
+      </section>
+    </main>
+    <script type="module" src="/hub/hub.js"></script>
+  </body>
+</html>

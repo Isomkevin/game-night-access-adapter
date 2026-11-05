@@ -1,15 +1,13 @@
 /**
- * Web Speech → bridge input events.
- * Bunny: replace / wrap with AI-for-Accessibility Toolkit Controller
- * (see docs/toolkit-contribution/).
+ * Web Speech → bridge input events (experimental short taps).
  */
 
 const statusEl = document.getElementById('status');
 const logEl = document.getElementById('log');
 const btn = document.getElementById('listen');
+const stopBtn = document.getElementById('stop');
 
 const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-// Prefer same host as the bridge page; fall back if opened as a static file.
 const wsUrl =
   location.port && location.protocol.startsWith('http')
     ? `${proto}://${location.host}`
@@ -17,14 +15,17 @@ const wsUrl =
 
 /** @type {WebSocket|null} */
 let socket = null;
+/** @type {SpeechRecognition|null} */
+let recognition = null;
+let wantListening = false;
 
 const PHRASES = [
-  { re: /\b(turn left|left)\b/i, action: 'turnLeft' },
-  { re: /\b(turn right|right)\b/i, action: 'turnRight' },
-  { re: /\b(go|accelerate|throttle)\b/i, action: 'go' },
-  { re: /\b(stop|brake)\b/i, action: 'stop' },
-  { re: /\bboost\b/i, action: 'boost' },
-  { re: /\bpause\b/i, action: 'pause' },
+  { re: /\b(turn left|left)\b/i, action: 'turnLeft', label: 'turn left' },
+  { re: /\b(turn right|right)\b/i, action: 'turnRight', label: 'turn right' },
+  { re: /\b(go|accelerate|throttle)\b/i, action: 'go', label: 'go' },
+  { re: /\b(stop|brake)\b/i, action: 'stop', label: 'stop' },
+  { re: /\bboost\b/i, action: 'boost', label: 'boost' },
+  { re: /\bpause\b/i, action: 'pause', label: 'pause' },
 ];
 
 function log(line) {
@@ -40,16 +41,16 @@ function send(msg) {
 function connect() {
   socket = new WebSocket(wsUrl);
   socket.addEventListener('open', () => {
-    statusEl.textContent = 'Bridge connected';
+    if (!wantListening) statusEl.textContent = 'Connected — press Start listening';
     send({ type: 'hello', role: 'voice', v: 1, ts: Date.now() });
   });
   socket.addEventListener('close', () => {
-    statusEl.textContent = 'Bridge disconnected — retrying…';
+    statusEl.textContent = 'Connection lost — retrying…';
     setTimeout(connect, 2000);
   });
 }
 
-function emit(action) {
+function emit(action, label) {
   send({
     type: 'input',
     source: 'voice',
@@ -59,42 +60,91 @@ function emit(action) {
     ts: Date.now(),
     v: 1,
   });
-  log(`→ voice:${action}`);
+  log(`Heard “${label}” → short tap sent`);
 }
 
 function handleTranscript(text) {
-  log(`heard: ${text}`);
+  log(`Heard: ${text}`);
   for (const p of PHRASES) {
     if (p.re.test(text)) {
-      emit(p.action);
+      emit(p.action, p.label);
       return;
     }
   }
 }
 
+function setListeningUi(on) {
+  btn.disabled = on;
+  stopBtn.disabled = !on;
+  btn.textContent = on ? 'Listening…' : 'Start listening';
+}
+
+function stopListening() {
+  wantListening = false;
+  setListeningUi(false);
+  if (recognition) {
+    try {
+      recognition.onend = null;
+      recognition.stop();
+    } catch {
+      /* ignore */
+    }
+    recognition = null;
+  }
+  statusEl.textContent = 'Stopped listening';
+}
+
 function startListening() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
-    statusEl.textContent = 'Web Speech API not available in this browser';
+    statusEl.textContent = 'Voice recognition is not available in this browser. Try Chrome.';
     return;
   }
+
+  wantListening = true;
   const rec = new SR();
+  recognition = rec;
   rec.continuous = true;
   rec.interimResults = false;
   rec.lang = 'en-US';
+
   rec.onresult = (ev) => {
     const result = ev.results[ev.results.length - 1];
     if (result && result[0]) handleTranscript(result[0].transcript.trim());
   };
+
   rec.onerror = (e) => {
-    statusEl.textContent = `Speech error: ${e.error}`;
+    if (e.error === 'not-allowed') {
+      statusEl.textContent = 'Microphone permission needed — allow access and try again.';
+      stopListening();
+      return;
+    }
+    if (e.error === 'aborted') return;
+    statusEl.textContent = `Speech issue: ${e.error}. Listening will retry.`;
   };
+
   rec.onend = () => {
-    statusEl.textContent = 'Recognition ended — click to restart';
+    if (!wantListening) return;
+    statusEl.textContent = 'Still listening…';
+    try {
+      rec.start();
+    } catch {
+      setTimeout(() => {
+        if (wantListening) startListening();
+      }, 400);
+    }
   };
-  rec.start();
-  statusEl.textContent = 'Listening…';
+
+  try {
+    rec.start();
+    setListeningUi(true);
+    statusEl.textContent = 'Listening — say a command (each is a short tap)';
+  } catch (err) {
+    statusEl.textContent = `Could not start microphone: ${err.message || err}`;
+    stopListening();
+  }
 }
 
 btn.addEventListener('click', startListening);
+stopBtn.addEventListener('click', stopListening);
 connect();

@@ -1,140 +1,129 @@
-# Camera head tracking (issue #11)
+# Vision controller (camera accessibility input)
 
 **Owner: Tim** (Kevin backup)
 
-MediaPipe Face Landmarker runs in the browser. Turning the head left/right
-(yaw) emits `source: "camera"`, `action: "tiltLeft"` / `"tiltRight"`, and
-`state: "down"` / `"up"` through the local bridge. The extension remaps those
-logical inputs to game actions. There are no native modules, Python, OpenCV,
-microphone, phone, or voice dependencies in this camera path.
+In-browser **MediaPipe** vision pipeline that detects configurable head, face, hand, and finger movements and emits standardized bridge events:
 
-## Run and test
+- `source: "camera"`
+- `action: "<logical gesture id>"` (e.g. `tiltLeft`, `mouthOpen`, `pinch`)
+- `state: "down" | "up" | "pulse"`
+- optional `strength` `0..1`
 
-1. From the repository root, install and start the bridge:
+Processing is **local** (WASM in the camera tab). Camera frames are not uploaded or stored.
 
-   ```powershell
-   npm --prefix bridge ci --ignore-scripts
-   npm --prefix bridge start
+Legacy Milestone 1 steering still works: `tiltLeft` / `tiltRight` are yaw aliases (nose vs cheeks) and default-remap to steer.
+
+For the calibrated, proportional head-only controller from issue #11, open
+**http://127.0.0.1:18765/camera/head-steering.html** or follow **Use head-only
+steering** on this page. It retains Start, Stop, Recenter, direction reversal,
+and live dead-zone/full-steering controls. Setup, permissions, tuning, and
+the manual test checklist are in [head-steering.md](head-steering.md).
+Use one camera controller at a time, in a separate visible window beside the game.
+
+## Run
+
+1. Start LibreCorsa + load the extension (see [docs/ONBOARDING.md](../docs/ONBOARDING.md))
+2. Start the bridge:
+
+   ```bash
+   cd bridge && npm start
    ```
 
-   Leave that terminal running.
-2. In Chrome, open `chrome://extensions`, enable Developer mode, and load
-   **this repository's `extension/` folder**. Reload it after code changes.
-   Disable the older standalone Game Night extension during this test so two
-   extensions do not send competing controls.
-3. Open LibreCorsa at <https://khazp.github.io/librecorsa/> (or run the
-   `game/` submodule at <http://localhost:3000>). Finish setup and enter a
-   practice/race **driving session**. Menus do not consume steering keys.
-4. Open <http://127.0.0.1:18765/camera/> in a **separate, visible Chrome
-   window beside the game**. Keep both windows visible. Switching focus to
-   the game is fine; hiding, minimizing, or switching away from the camera
-   page releases steering. Returning to the camera page recalibrates it.
-5. Check the camera page says the bridge **and extension** are connected.
-   Click **Start camera**, allow camera access, then hold your head the way
-   it comfortably rests for one second. Wait for **Steering ready**.
-6. Turn your face toward your left/right to steer. Yaw means looking to the
-   side, rather than bringing an ear toward a shoulder. If directions feel
-   reversed, select **Reverse left and right** and recalibrate.
-7. Close the phone and voice pages to verify the independent camera path.
-   This component supplies steering; for the initial steering test, hold
-   **W** in the game to accelerate (or have a helper do so). Automatic
-   throttle/cruise is not part of the camera component.
+3. Open **http://127.0.0.1:18765/camera/** in Chrome
+4. Allow camera access; wait for MediaPipe WASM/model download (needs network once)
+5. **Calibrate** a neutral pose, enable only gestures you can perform, map them to game actions, **Apply mappings to extension**
+6. Keep this tab open; focus LibreCorsa
 
-The camera preview is mirrored. **Recenter** sets the resting position again.
-**Stop camera** releases steering, closes tracking, and stops the webcam.
+Camera-only must work **without** the phone (redundancy).
 
-## Permissions, privacy, and startup errors
+## Files
 
-- Use `http://127.0.0.1:18765/camera/` or localhost on the same computer as
-  Chrome. An ordinary `http://<LAN-IP>` camera URL does not provide a secure
-  camera context. Phone LAN setup is a separate component.
-- Camera frames are processed locally; the bridge receives logical input
-  events, not camera images. No frames are saved by this component.
-- Only camera permission is requested. Chrome may already remember a prior
-  permission decision for this origin.
-- If permission is blocked, allow Camera in Chrome's site settings for this
-  origin, then press **Start camera** again. A missing/busy camera gets a
-  separate message. Close video-call apps if needed.
-- MediaPipe JS/WASM (`@mediapipe/tasks-vision@0.10.14`) and the float16 model
-  load from jsDelivr/Google storage at runtime. Internet access is required
-  unless the browser happens to have usable cached assets; offline operation
-  is not guaranteed. Start failures remain visible and can be retried.
-- Tracking first tries GPU, then CPU. Neither path needs native installs.
-- If the extension is offline, load/reload `extension/`, check its service
-  worker errors, and reload the game tab. See [onboarding](../docs/ONBOARDING.md).
+| Path | Role |
+| --- | --- |
+| `index.html` / `style.css` | Setup UI shell |
+| `camera.js` | Orchestrator (capture → detect → interpret → emit) |
+| `head-steering.html` / `head-steering.js` | Independent head-only steering with explicit camera lifecycle |
+| `steering.js` | Head-only yaw geometry, calibration, smoothing, and proportional key timing |
+| `lib/catalog.js` | Supported gesture definitions |
+| `lib/capture.js` | getUserMedia, pause, lost-tracking timeout |
+| `lib/detectors/face.js` | Face Landmarker (blendshapes + matrix) |
+| `lib/detectors/hands.js` | Gesture Recognizer (lazy-loaded) |
+| `lib/signals.js` | Continuous signal extraction |
+| `lib/calibration.js` | Neutral baseline capture |
+| `lib/interpreter.js` | Thresholds, hysteresis, hold/pulse/toggle |
+| `lib/emitter.js` | WebSocket input + `setRemap` |
+| `lib/profiles.js` | Named profiles in `localStorage` |
+| `ui/setup.js` | Categories, meters, mapping, profiles |
 
-## Calibration and sensitivity
+## Setup flow
 
-`steering.js` projects the nose displacement onto the eye line, corrected
-for video aspect ratio. This reduces head roll being mistaken for yaw.
-It is a normalized geometric proxy, **not degrees or a clinical measurement**.
-The first second of continuous face readings defines the resting position;
-missing frames interrupt calibration.
+1. Open the camera page and allow permission
+2. See available categories (Head / Face / Hands / Fingers)
+3. Watch live signal meters and the **Recognized** list while testing movements
+4. Enable only comfortable gestures; tune activation / release sliders and mode
+5. Calibrate neutral pose
+6. Assign game actions per gesture → **Apply mappings to extension**
+7. Uncheck **Emit to game** to practice without injecting keys; use **Pause control** anytime
 
-| Setting | Starting value | Meaning |
-| --- | --- | --- |
-| `YAW_DEADZONE` | `0.08` | Ignore displacement this close to the resting position |
-| `YAW_FULL` | `0.28` | Displacement at which steering stays fully held |
-| `smoothingMs` | `120` | Smooth active turns; neutral releases immediately |
-| `periodMs` | `150` | Cycle length for partial key holds |
-| `faceLostMs` | `300` | Stop steering when camera frames stop arriving |
+Profiles (enablement, thresholds, bindings, calibration) save in `localStorage` and can be exported/imported as JSON.
 
-Change **Dead zone**, **Full steering**, and **Reverse left and right** on the
-page. Changes apply after recalibration and last until page reload. Full
-steering must be greater than the dead zone; invalid settings release inputs
-until corrected. The defaults are starting values awaiting a real-player test.
+## Supported gestures (implemented)
 
-If resting movements steer, increase the dead zone a little. If turning
-requires too much movement, reduce full steering while keeping it above the
-dead zone. Change one value at a time and record the comfortable values in
-[testing-log.md](../docs/testing-log.md). Permanent defaults are in `steering.js`.
+| Category | Logical `action` ids |
+| --- | --- |
+| Head | `tiltLeft`, `tiltRight` (legacy yaw), `headYawLeft/Right`, `headPitchUp/Down`, `headRollLeft/Right`, `headCloser`, `headFarther` (experimental scale) |
+| Face | `mouthOpen`, `smile`, `browRaise`, `frown`, `blinkLeft`, `blinkRight`, `blinkBoth`, `squint` |
+| Hands | `handRaise`, `handLeft`, `handRight`, `palmOpen`, `fist`, `thumbUp`, `thumbDown`, `pointUp` |
+| Fingers | `pinch`, `indexPoint` |
 
-Partial steering sends a held key for part of each 150 ms cycle. For example,
-strength `0.5` holds for about 75 ms and releases for about 75 ms; full strength
-holds continuously. This makes `YAW_FULL` affect steering even though the
-extension's key injector only understands digital key states. The wire format
-and user remap table are unchanged.
+Defaults enable **only** `tiltLeft` / `tiltRight` so existing demos keep working without surprise inputs.
 
-## Release and recovery
+### Known limitations (not claimed as reliable)
 
-- Neutral, a missing face, Recenter, Stop, a tracking error, or hiding the
-  camera page releases inputs immediately when the page can execute.
-- A video feed that stalls releases after 300 ms. No automatic Esc/pause is
-  emitted; steering release does not brake a moving car.
-- While a key stays held, camera `down` events refresh every 100 ms.
-  `extension/lib/camera-keys.js` releases a camera key after 800 ms without
-  refresh, and on bridge disconnect. The receiver stores the original mapped
-  code so changing remaps while holding a key cannot strand the old code.
-- The camera reconnects after two seconds, identifies itself again, sends
-  both releases, and recalibrates before steering resumes.
-- Timer deadlines are best effort while Chrome and the extension are running.
-  Keeping the camera window visible avoids background tracking throttling.
+- True head translation toward/away from camera is a **monocular face-scale proxy** (`headCloser` / `headFarther`) — off by default
+- Fine per-finger flexion beyond pinch / index extension is approximate
+- Custom signs beyond MediaPipe Gesture Recognizer’s fixed set are not supported
+- `Victory` / `ILoveYou` are not exposed until validated
+- First load needs network for CDN WASM + models; offline demos need vendoring later
+
+## Reliability
+
+- Per-gesture activate / release hysteresis, EMA smoothing, cooldown
+- Held inputs released on face/hand loss, Pause, tab hide timeout, or bridge disconnect
+- Category toggles skip unused models (hands load only when Hands/Fingers enabled)
+- Held and toggle gestures refresh the extension's 800 ms camera lease only
+  after valid detection frames; a stalled page cannot keep refreshing a hold
+- Camera pulse events retain a bounded 120 ms press. Extension Stop all
+  clears pending camera leases as well as releasing game keys
+- The vision setup, gesture profiles, `setRemap`, and the separate head-only
+  controller all use the existing bridge and extension remap table
 
 ## Automated checks
 
-From the repository root after installing the bridge dependency, using Node 22:
+After installing the bridge dependency, run from the repository root with Node 22:
 
 ```powershell
 node --experimental-vm-modules --test camera/tests/steering.test.mjs camera/tests/runtime.test.mjs camera/tests/bridge.test.mjs extension/tests/camera-keys.test.mjs
 ```
 
-The tests cover geometry, continuous calibration, smoothing and pulsed keys,
-neutral/face-loss/stalled-frame release, remapping, receiver expiry, camera
-startup cancellation, permission/model errors, GPU fallback, reconnect,
-extension routing, and the real HTTP/WebSocket bridge without phone or voice.
-Browser APIs and MediaPipe are simulated in runtime tests. A real webcam,
-Chrome GPU/WASM setup, and driving comfort require the manual checks below.
+The 23 checks include head-only lifecycle/steering, real bridge serving and relay,
+the merged extension's status/Stop all/`setRemap` paths, camera pulse handling,
+and frame-driven refresh of vision toggle gestures. Browser APIs are simulated
+in runtime tests. Real webcam driving and Chrome/macOS testing remain manual.
 
-## Manual acceptance checklist
+## Dependencies (CDN)
 
-- [ ] Chrome/Windows: real webcam starts and steering works in a driving session
-- [ ] Chrome/macOS: Justin tests, or a concrete blocker is recorded
-- [ ] No phone or voice page needed for camera steering
-- [ ] Neutral is stable; comfortable left/right movement; tuned values recorded
-- [ ] Swapping `camera:tiltLeft` / `camera:tiltRight` mappings swaps the game response
-- [ ] Face loss, Stop, hidden page, and closed camera tab release steering
-- [ ] Restarting the bridge reconnects and recalibrates without a stuck key
-- [ ] Denied permissions show clear recovery instructions; retry works
-- [ ] Actual OS/browser, results, and limits recorded in the testing log
+- `@mediapipe/tasks-vision@0.10.14`
+- Face Landmarker float16 model
+- Gesture Recognizer float16 model (when hands enabled)
 
-The automated checks do not mark the real-player or macOS criteria complete.
+## Failure modes
+
+See [docs/TROUBLESHOOTING.md](../docs/TROUBLESHOOTING.md)#camera-page-errors--no-face
+
+## Acceptance
+
+- [ ] Head yaw left/right steers in LibreCorsa with extension remap defaults
+- [ ] Pause / face-loss releases stuck steer
+- [ ] Face and hand categories can be enabled independently; mappings apply via Options or `setRemap`
+- [ ] Entry added to [docs/testing-log.md](../docs/testing-log.md)

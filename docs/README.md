@@ -14,6 +14,7 @@ Start here if you are new to the repo:
 | --- | --- |
 | [writeup.md](writeup.md) | Short project write-up for judging |
 | [testing-log.md](testing-log.md) | Justin (and other) session notes — fill before claiming “works” |
+| [presentation.html](presentation.html) | Saturday slide deck (←/→ keys) |
 | [presentation-checklist.md](presentation-checklist.md) | Demo video + slides checklist |
 | [demo-video.md](demo-video.md) | Shot list / upload placeholder |
 | [toolkit-contribution/](toolkit-contribution/) | Upstream toolkit PR pack + issue template |
@@ -25,7 +26,7 @@ Start here if you are new to the repo:
 | Chrome extension | [`../extension/README.md`](../extension/README.md) |
 | Local bridge | [`../bridge/README.md`](../bridge/README.md) |
 | Phone controller | [`../phone-controller/README.md`](../phone-controller/README.md) |
-| Camera (MediaPipe) | [`../camera/README.md`](../camera/README.md) |
+| Camera / vision controller (MediaPipe) | [`../camera/README.md`](../camera/README.md) |
 | Voice demo | [`../voice/README.md`](../voice/README.md) |
 | Shared protocol package | [`../packages/shared/README.md`](../packages/shared/README.md) |
 

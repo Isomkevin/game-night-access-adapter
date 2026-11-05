@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import { CameraKeys } from '../lib/camera-keys.js';
 
 function fixture(send) {
-  const events = [], timers = new Map();
+  const events = [], timers = new Map(), delays = [];
   let nextTimer = 0;
   const receiver = new CameraKeys(send || ((...event) => events.push(event)), {
-    setTimer(callback) { const id = ++nextTimer; timers.set(id, callback); return id; },
+    setTimer(callback, ms) { const id = ++nextTimer; timers.set(id, callback); delays.push(ms); return id; },
     clearTimer(id) { timers.delete(id); },
   });
-  return { receiver, events, timers, expire() { for (const fn of [...timers.values()]) fn(); } };
+  return { receiver, events, timers, delays, expire() { for (const fn of [...timers.values()]) fn(); } };
 }
 
 test('missing camera refresh expires and releases the mapped game key', async () => {
@@ -73,4 +73,17 @@ test('delivery stays ordered even when tab messaging is asynchronous', async () 
   receiver.apply('tiltLeft', 'KeyA', 'up');
   await receiver.pending;
   assert.deepEqual(events, [['KeyA', 'down'], ['KeyA', 'up']]);
+});
+
+test('camera pulse gestures release after 120 ms and can retrigger a held action', async () => {
+  const { receiver, events, delays, timers, expire } = fixture();
+  await receiver.apply('blinkLeft', 'Escape', 'pulse');
+  assert.equal(delays.at(-1), 120);
+  assert.equal(timers.size, 1);
+  assert.deepEqual(events, [['Escape', 'down']]);
+  await receiver.apply('blinkLeft', 'Escape', 'pulse');
+  assert.deepEqual(events.slice(-2), [['Escape', 'up'], ['Escape', 'down']]);
+  expire(); await receiver.pending;
+  assert.deepEqual(events.at(-1), ['Escape', 'up']);
+  assert.equal(timers.size, 0);
 });

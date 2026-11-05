@@ -64,10 +64,10 @@ Open `http://localhost:3000` and get into a **driving** session (keyboard is ign
 ### 2. Chrome extension
 
 1. `chrome://extensions` → Developer mode → **Load unpacked** → select `extension/`
-2. Pin the extension. Use the popup demo pad (hold Left / Throttle / Right…) while the game tab is focused.
-3. **Remap controls** from the popup link (large-target options page).
+2. Pin the extension. Open **Setup** (options) for the guided Welcome → Choose → Customize → Ready flow.
+3. Use the popup for on-screen controls (Hold or Latch), **Stop all inputs**, and **Open game**.
 
-Badge `demo` = bridge offline (demo still works). Badge `ON` = bridge connected.
+Badge `OFF` = access bridge offline (on-screen controls still work). Badge `ON` = bridge connected.
 
 ### 3. Bridge (optional — camera / phone / voice)
 
@@ -79,8 +79,10 @@ npm start
 
 | UI | URL |
 | --- | --- |
+| Control hub | `http://127.0.0.1:18765/` |
 | Phone | `http://127.0.0.1:18765/phone/` (or `http://<lan-ip>:18765/phone/`) |
 | Camera | `http://127.0.0.1:18765/camera/` |
+| Head-only steering | `http://127.0.0.1:18765/camera/head-steering.html` |
 | Voice | `http://127.0.0.1:18765/voice/` |
 | Health | `http://127.0.0.1:18765/health` |
 
@@ -93,7 +95,7 @@ npm start
 | `extension/` | Chrome MV3 remap + injection | Kevin | [extension/README.md](extension/README.md) |
 | `bridge/` | Local WebSocket hub | Omar (+ Kevin stub) | [bridge/README.md](bridge/README.md) |
 | `phone-controller/` | Gyro + big buttons | Omar / Kevin | [phone-controller/README.md](phone-controller/README.md) |
-| `camera/` | MediaPipe head tilt | **Tim** (Kevin backup) | [camera/README.md](camera/README.md) |
+| `camera/` | MediaPipe vision controller (head/face/hand/finger → remappable actions) | **Tim** (Kevin backup) | [camera/README.md](camera/README.md) |
 | `voice/` | Web Speech demo → protocol | Bunny → toolkit Controller | [voice/README.md](voice/README.md) |
 | `packages/shared/` | Action IDs + protocol | shared | [packages/shared/README.md](packages/shared/README.md) |
 | `docs/` | Onboarding, architecture, testing | team | [docs/README.md](docs/README.md) |
@@ -122,11 +124,11 @@ npm start
 ## Challenge deliverables
 
 - [x] Working code in a public repository (this repo)
-- [ ] Pull request to the toolkit — fork branch ready: [Isomkevin:feat/game-night-librecorsa-example](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit/tree/feat/game-night-librecorsa-example) → [compare vs upstream](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/compare/main...Isomkevin:AI-for-Accessibility-Toolkit:feat/game-night-librecorsa-example) (needs Collective collaborator rights to submit)
-- [x] README + short write-up
-- [ ] Short demo video
-- [ ] Presentation
-- [ ] Toolkit issues logged from Justin testing
+- [x] Pull request to the toolkit — [#55](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/pull/55)
+- [x] README + short write-up ([docs/writeup.md](docs/writeup.md))
+- [ ] Short demo video — shot list in [docs/demo-video.md](docs/demo-video.md)
+- [x] Presentation — open [docs/presentation.html](docs/presentation.html) (←/→ keys); checklist in [docs/presentation-checklist.md](docs/presentation-checklist.md)
+- [ ] Toolkit issues logged from Justin testing — template in [docs/toolkit-contribution/ISSUE_TEMPLATE.md](docs/toolkit-contribution/ISSUE_TEMPLATE.md)
 
 ## Credits
 

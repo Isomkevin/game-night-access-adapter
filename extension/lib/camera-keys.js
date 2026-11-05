@@ -16,6 +16,14 @@ export class CameraKeys {
   }
 
   apply(action, code, state) {
+    if (state === 'pulse') {
+      this.release(action);
+      this.apply(action, code, 'down');
+      const held = this.held.get(action);
+      this.clearTimer(held.timer);
+      held.timer = this.setTimer(() => this.release(action), 120);
+      return this.pending;
+    }
     const old = this.held.get(action);
     if (old && (state !== 'down' || old.code !== code)) this.release(action);
     if (state !== 'down') return this.pending;
@@ -32,10 +40,11 @@ export class CameraKeys {
 
   release(action) {
     const held = this.held.get(action);
-    if (!held) return;
+    if (!held) return this.pending;
     this.clearTimer(held.timer);
     this.held.delete(action);
     if (![...this.held.values()].some((other) => other.code === held.code)) this.emit(held.code, 'up');
+    return this.pending;
   }
 
   releaseAll() {

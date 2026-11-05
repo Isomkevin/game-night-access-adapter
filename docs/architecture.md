@@ -13,7 +13,7 @@ New developers: [ONBOARDING.md](ONBOARDING.md).
 | `extension/` | Kevin | Chrome MV3: remap UI, WebSocket client, keystroke injection |
 | `bridge/` | Omar (+ Kevin stub) | Local Node WebSocket hub; serves phone/camera/voice over LAN |
 | `phone-controller/` | Omar / Kevin | DeviceOrientation → protocol events |
-| `camera/` | Tim (Kevin backup) | MediaPipe head tilt → protocol events |
+| `camera/` | Tim (Kevin backup) | MediaPipe vision controller (head/face/hand/finger) → protocol events |
 | `voice/` | Bunny (demo); toolkit Controller for real integration | Speech → protocol events |
 | `toolkit/` submodule | Bunny / Kevin | AI-for-Accessibility fork |
 | `game/` submodule | upstream | LibreCorsa (unchanged for PoC) |
@@ -35,7 +35,7 @@ Camera / Voice / Phone / Demo UI
 flowchart LR
   subgraph sources [Inputs]
     Demo[Extension demo pad]
-    Cam[Camera MediaPipe]
+    Cam[Camera vision controller]
     Voice[Voice / toolkit]
     Phone[Phone gyro page]
   end
@@ -81,7 +81,7 @@ Profiles live in `chrome.storage.local` and can be exported as JSON from Options
 
 ### Camera steering and recovery
 
-The camera page calibrates a resting head yaw, smooths active motion, and
+The head-only page (`/camera/head-steering.html`) calibrates a resting head yaw, smooths active motion, and
 pulses the existing logical down/up events for partial steering. It does
 not bypass the remap table or inject keys directly. The extension's
 camera-only receiver tracks original mapped key codes, expires unrefreshed
@@ -90,6 +90,25 @@ The camera UI separates bridge status from tracker status and provides
 Start, Stop, Recenter, sensitivity, and direction controls. Keep it in a
 separate visible window beside the game; a hidden camera page releases
 steering. Details and manual checks: [camera/README.md](../camera/README.md).
+
+### Vision controller layers
+
+```text
+getUserMedia
+  → Face Landmarker (+ optional Gesture Recognizer)
+  → continuous signals (pose, blendshapes, hand landmarks)
+  → baseline calibration
+  → interpreter (thresholds / hysteresis / hold|pulse|toggle)
+  → camera:* input events (+ optional setRemap)
+```
+
+Camera detection profiles (enabled gestures, thresholds, calibration) live in the page `localStorage`. Game remapping stays in the extension (Options UI and/or `setRemap` from the camera page).
+
+The vision controller remains the `/camera/` entry point. Its link to
+`head-steering.html` exposes the independent head-only controller without
+replacing gesture profiles or hand/face detection. Fresh valid vision frames
+refresh toggle holds; camera pulses release after 120 ms. Both paths share
+the camera receiver's expiry and the updated extension payload format.
 
 ## Why not the toolkit adapter runtime?
 

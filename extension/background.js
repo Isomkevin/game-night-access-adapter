@@ -6,11 +6,13 @@ import {
   DEFAULT_BRIDGE_WS,
   DEFAULT_REMAP,
   isInputEvent,
+  isSetRemapEvent,
   createHello,
   resolveRemap,
 } from './lib/protocol.js';
 import { DEFAULT_KEY_CODES, HOLD_ACTIONS } from './lib/actions.js';
 import { CameraKeys } from './lib/camera-keys.js';
+import { badgeForBridge, GAME_TAB_URLS } from './lib/status.js';
 
 const STORAGE_KEYS = {
   remap: 'remap',
@@ -24,7 +26,8 @@ let reconnectTimer = null;
 let bridgeUrl = DEFAULT_BRIDGE_WS;
 let bridgeStatus = 'disconnected';
 let bridgeGeneration = 0;
-const cameraKeys = new CameraKeys(sendToGameTabs);
+let cameraInputQueue = Promise.resolve();
+const cameraKeys = new CameraKeys((code, state) => sendToGameTabs({ type: 'gnaa-apply', code, state }));
 
 async function loadSettings() {
   const data = await chrome.storage.local.get([
@@ -56,26 +59,39 @@ function setBadge(text, color) {
 }
 
 function updateBadge() {
-  if (bridgeStatus === 'connected') setBadge('ON', '#0a7');
-  else if (bridgeStatus === 'connecting') setBadge('…', '#a70');
-  else setBadge('demo', '#555');
+  const b = badgeForBridge(bridgeStatus);
+  setBadge(b.text, b.color);
 }
 
-async function sendToGameTabs(code, state) {
-  const tabs = await chrome.tabs.query({
-    url: [
-      'http://localhost:3000/*',
-      'http://127.0.0.1:3000/*',
-      'https://khazp.github.io/librecorsa/*',
-    ],
-  });
+async function queryGameTabs() {
+  return chrome.tabs.query({ url: GAME_TAB_URLS });
+}
+
+async function sendToGameTabs(payload) {
+  const tabs = await queryGameTabs();
   await Promise.all(
     tabs.map((tab) =>
-      chrome.tabs
-        .sendMessage(tab.id, { type: 'gnaa-apply', code, state })
-        .catch(() => {})
+      chrome.tabs.sendMessage(tab.id, payload).catch(() => {})
     )
   );
+  return tabs.length;
+}
+
+/**
+ * Merge or replace remap entries pushed from the camera setup page.
+ * @param {{ entries: Record<string, string>, merge?: boolean }} msg
+ */
+async function handleSetRemap(msg) {
+  const settings = await loadSettings();
+  const entries = msg.entries || {};
+  const next =
+    msg.merge === false
+      ? { ...DEFAULT_REMAP, ...entries }
+      : { ...settings.remap, ...entries };
+  for (const [k, v] of Object.entries(entries)) {
+    if (!v) delete next[k];
+  }
+  await chrome.storage.local.set({ [STORAGE_KEYS.remap]: next });
 }
 
 /**
@@ -84,12 +100,12 @@ async function sendToGameTabs(code, state) {
  */
 async function handleInputEvent(evt) {
   const generation = bridgeGeneration;
+  if (evt.source === 'camera' && evt.state === 'up') return cameraKeys.release(evt.action);
   const settings = await loadSettings();
   if (evt.source === 'camera' && (generation !== bridgeGeneration || bridgeStatus !== 'connected')) return;
   const logicalId = `${evt.source}:${evt.action}`;
   let gameAction = resolveRemap(settings.remap, logicalId);
 
-  // Allow already-resolved game action ids (e.g. demo sending steerLeft)
   if (!gameAction && settings.keyCodes[evt.action]) {
     gameAction = evt.action;
   }
@@ -105,9 +121,15 @@ async function handleInputEvent(evt) {
 
   let state = evt.state;
   if (state === 'pulse' && HOLD_ACTIONS.has(gameAction)) {
-    // still fine — content script handles pulse
+    // content script handles pulse
   }
-  await sendToGameTabs(code, state);
+  await sendToGameTabs({ type: 'gnaa-apply', code, state });
+}
+
+async function releaseAllInputs() {
+  await cameraInputQueue;
+  await cameraKeys.releaseAll();
+  await sendToGameTabs({ type: 'gnaa-release-all' });
 }
 
 function scheduleReconnect() {
@@ -147,7 +169,19 @@ function connectBridge() {
       return;
     }
     if (isInputEvent(msg)) {
-      handleInputEvent(msg);
+      if (msg.source === 'camera') {
+        const generation = bridgeGeneration;
+        cameraInputQueue = cameraInputQueue.then(() => {
+          if (generation !== bridgeGeneration || bridgeStatus !== 'connected') return;
+          return handleInputEvent(msg);
+        }).catch((error) => console.error('[Camera] Input handling failed', error));
+      } else {
+        handleInputEvent(msg);
+      }
+      return;
+    }
+    if (isSetRemapEvent(msg)) {
+      handleSetRemap(msg);
     }
   });
 
@@ -211,7 +245,25 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 
   if (msg.type === 'gnaa-get-status') {
-    sendResponse({ bridgeStatus, bridgeUrl });
+    queryGameTabs()
+      .then((tabs) => {
+        sendResponse({
+          bridgeStatus,
+          bridgeUrl,
+          gameTabOpen: tabs.length > 0,
+          gameTabCount: tabs.length,
+          workerOk: true,
+        });
+      })
+      .catch(() => {
+        sendResponse({
+          bridgeStatus,
+          bridgeUrl,
+          gameTabOpen: false,
+          gameTabCount: 0,
+          workerOk: true,
+        });
+      });
     return true;
   }
 
@@ -225,6 +277,30 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     }
     connectBridge();
     sendResponse({ ok: true });
+    return true;
+  }
+
+  if (msg.type === 'gnaa-release-all') {
+    releaseAllInputs().then(() => sendResponse({ ok: true }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-open-game') {
+    const url = msg.url || 'http://localhost:3000/';
+    queryGameTabs()
+      .then(async (tabs) => {
+        if (tabs[0]) {
+          await chrome.tabs.update(tabs[0].id, { active: true });
+          if (tabs[0].windowId != null) {
+            await chrome.windows.update(tabs[0].windowId, { focused: true });
+          }
+          sendResponse({ ok: true, focused: true });
+          return;
+        }
+        await chrome.tabs.create({ url });
+        sendResponse({ ok: true, created: true });
+      })
+      .catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
   }
 

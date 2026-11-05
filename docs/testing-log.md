@@ -21,6 +21,18 @@ Record each session before claiming a feature works.
 
 ## Sessions
 
+### 2026-11-05 — Local camera conflict resolution against main
+
+| Field | Value |
+| --- | --- |
+| Adapter / commit | `feat/tim-camera-head-yaw` (`3d2ea7f`) combined locally with main `f6418ff` |
+| Browser / OS | Windows / Node.js 22.13.1; runtime browser APIs simulated |
+| Changes preserved | Main's vision/profile UI, control hub, extension status and Stop all, `setRemap`, and existing session records; calibrated head-only controller available at `/camera/head-steering.html` |
+| What was attempted | 23 tests: earlier camera checks plus camera pulses, merged status/Stop all/remapping routes, disabled-binding release, and fresh-frame toggle refresh; real HTTP/WebSocket bridge serves both camera pages |
+| Result | 23 passed; no live webcam or macOS test performed during conflict resolution |
+| Next manual check | Reload extension and game tab; check vision setup at `/camera/` and the original head-only controls at `/camera/head-steering.html` |
+| Publishing | Local resolution only; no push or GitHub PR merge performed |
+
 ### 2026-11-04 — Camera #11 automated development checks
 
 | Field | Value |
@@ -50,7 +62,7 @@ Record each session before claiming a feature works.
 | Bridge restart and camera retry | Pending |
 | Result and comfort feedback | User reported "it is working". Comfort and selected sensitivity values not yet reported; this does not verify all issue #11 acceptance criteria |
 
-### 2026-11-04 — Developer smoke (Kevin)
+### 2026-11-04 — Developer smoke (Kevin) — scaffold review
 
 | Field | Value |
 | --- | --- |
@@ -65,6 +77,51 @@ Record each session before claiming a feature works.
 | Justin's feedback | — |
 | Toolkit issues filed | — |
 
+### 2026-11-04 — Developer smoke (Kevin) — bridge + game boot
+
+| Field | Value |
+| --- | --- |
+| Date | 2026-11-04 |
+| Adapter / commit | main (extension Options bridge URL + icons + presentation) |
+| Game | LibreCorsa local `npm run dev` → http://localhost:3000 |
+| Browser / OS | Chromium (Cursor browser) + Node WS client / Windows |
+| Input method | bridge protocol (synthetic phone → extension role) |
+| Mapping used | n/a (pre-extension fan-out) |
+| What was attempted | Health `/health`; static `/phone/` `/camera/` `/voice/` = 200; WS hello+input fan-out to `role=extension`; LibreCorsa title/loading boots; phone UI “Connected to bridge”; camera “Bridge connected — tracking…”; Chrome launched with `--load-extension=extension` |
+| Result | **worked** for bridge + input pages + game boot. **Manual step left:** enter driving phase and hold extension demo pad (or phone/camera) while game tab focused — confirm car moves, then tick issue #8 |
+| Justin's feedback | — |
+| Toolkit issues filed | — |
+
+### 2026-11-05 — Vision controller foundation (developer)
+
+| Field | Value |
+| --- | --- |
+| Date | 2026-11-05 |
+| Adapter / commit | vision input system (camera modular engine) |
+| Game | LibreCorsa (manual drive test still required) |
+| Browser / OS | Chrome target / Windows + macOS |
+| Input method | camera (vision controller) |
+| Mapping used | defaults: `tiltLeft`/`tiltRight` → steer; other gestures unmapped until assigned |
+| What was attempted | Modular detection layers; face blendshapes + head pose; lazy hand Gesture Recognizer; calibration/profiles/setRemap; Options grouped by source; protocol docs |
+| Result | **code complete** — live webcam gesture reliability and LibreCorsa drive confirmation pending on device |
+| Justin's feedback | — |
+| Toolkit issues filed | — |
+
+### 2026-11-05 — Developer smoke (UX transformation) — not Justin-verified
+
+| Field | Value |
+| --- | --- |
+| Date | 2026-11-05 |
+| Adapter / commit | product UX transformation (options shell, popup latch/stop-all, bridge hub, phone latch, voice restart) |
+| Game | LibreCorsa local (manual verify recommended) |
+| Browser / OS | Chrome / Windows (dev machine) |
+| Input method | demo / phone / camera / voice (developer pass) |
+| Mapping used | defaults + Customize UI |
+| What was attempted | Guided options journey; human remap + presets + hardened import; popup Hold/Latch + Stop all inputs; bridge `/` hub; phone latch + release on hide; voice auto-restart + experimental copy; camera plain-language status (existing release-on-lost retained) |
+| Result | **Developer implementation landed.** Live drive + Justin macOS session still required before calling features co-designer-supported. |
+| Justin's feedback | — |
+| Toolkit issues filed | — |
+
 ### Justin session 1 — _pending_
 
-_Fill in after first macOS smoke test (target: Thu/Fri check-in)._
+_Fill in after first macOS smoke test (target: Thu/Fri check-in). Developer smoke ≠ Justin verification._

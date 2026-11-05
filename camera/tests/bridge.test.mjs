@@ -39,8 +39,11 @@ test('real bridge serves the camera page and relays camera-only steering to an e
   const origin = `http://127.0.0.1:${port}`;
   const page = await fetch(`${origin}/camera/`);
   assert.equal(page.status, 200);
-  assert.match(await page.text(), /id="recenter"/);
-  for (const file of ['camera.js', 'steering.js']) {
+  assert.match(await page.text(), /id="setup"/);
+  const headPage = await fetch(`${origin}/camera/head-steering.html`);
+  assert.equal(headPage.status, 200);
+  assert.match(await headPage.text(), /id="recenter"/);
+  for (const file of ['camera.js', 'head-steering.js', 'steering.js']) {
     const response = await fetch(`${origin}/camera/${file}`);
     assert.equal(response.status, 200);
     assert.match(response.headers.get('content-type'), /javascript/);
