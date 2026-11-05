@@ -25,7 +25,7 @@ Start here if you are new to the repo:
 
 | Doc | Description |
 |-----|-------------|
-| [phone-tilt-adapter.md](phone-tilt-adapter.md) | Android tilt → keyboard adapter: setup, architecture, tuning, limitations |
+| [phone-tilt-adapter.md](phone-tilt-adapter.md) | Android tilt → keyboard adapter: USB/wireless debugging setup, architecture, tuning, limitations |
 | [desktop-app.md](desktop-app.md) | PySide desktop app: sensor mappings, devices, how to run |
 | [local-api.md](local-api.md) | Loopback JSON API for mappings, settings, and ADB scan |
 | [installers.md](installers.md) | Linux deb, Windows zip/MSI, and self-extracting setup.exe |

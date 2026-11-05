@@ -28,7 +28,7 @@ The HTTP API is documented in [local-api.md](local-api.md). Windows and Linux pa
 
 The window opens on **Sensor mappings**. Each row is one sensor condition and the key combination it holds. Add, edit, or remove rows there. Dominance, invert, and “send keys” sit under the table.
 
-**Add device** scans `adb` and lists USB and wireless phones. Use a phone that is already authorized, connect to `host:port`, or pair with the 6-digit wireless debugging code. The status bar shows the selected phone.
+**Add device** scans `adb` and lists USB and wireless phones. Use a phone that is already authorized, connect to `host:port`, or pair with the 6-digit wireless debugging code. The status bar shows the selected phone. First-time phone setup (Developer options, USB debugging, wireless pairing) is in [phone-tilt-adapter.md — Enable USB debugging](phone-tilt-adapter.md#enable-usb-debugging-on-the-phone).
 
 **Calibrate rest pose** stores the current accelerometer reading. After that, left / right / forward / back are measured from that grip. Use it after the phone is in a stand, on a lap, or held at an angle that is comfortable. **Clear calibration** returns to absolute tilt (desk-flat rest).
 
@@ -54,7 +54,15 @@ Scan runs `adb devices -l`.
 | `192.168.0.104:38667` or `phone.local:5555` | Wireless |
 | Name containing `adb-tls` | Wireless |
 
-`adb mdns services` lists phones that are advertising wireless debugging but are not connected yet. Pair with the 6-digit code from the phone (`adb pair host:port code`), then connect to the address on the wireless debugging screen (`adb connect host:port`). USB phones show up after the cable is plugged in and the PC is authorized.
+`adb mdns services` lists phones that are advertising wireless debugging but are not connected yet. Pair with the 6-digit code from the phone (`adb pair host:port code`), then connect to the address on the wireless debugging screen (`adb connect host:port`).
+
+**USB path (quickest first connect):**
+
+1. Enable **Developer options** and **USB debugging** — see [Enable USB debugging on the phone](phone-tilt-adapter.md#enable-usb-debugging-on-the-phone).
+2. Plug in a data USB cable and tap **Allow** on the phone.
+3. Click **Add device** (or run `adb devices`) and select the serial that shows as USB / `device`.
+
+**Wireless path:** follow [Optional: Wireless debugging](phone-tilt-adapter.md#optional-wireless-debugging-no-cable-after-pairing), then pair/connect in **Add device**.
 
 ## Settings file
 
