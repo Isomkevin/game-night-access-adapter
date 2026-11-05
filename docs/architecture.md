@@ -124,4 +124,4 @@ The toolkit’s `extension/` runs accessibility **page adapters** (DOM/CSS). Con
 
 Default: everything local (game `npm run dev`, bridge, Load unpacked).
 
-Cloud (AWS / Render) only if needed to host a static phone page or demo — not required for latency-sensitive control. Localhost wins for the live co-designer test.
+**Cloud (Render):** the bridge can be hosted as a Node web service so judges / teammates can open phone, camera, and voice UIs over HTTPS without running Node locally. Point the extension Setup → connection address at `wss://<service>.onrender.com`. Latency-sensitive co-designer racing still prefers LAN/localhost; cloud is for demos and remote access to the controller pages. The game itself can stay on `localhost:3000` or [khazp.github.io/librecorsa](https://khazp.github.io/librecorsa/).

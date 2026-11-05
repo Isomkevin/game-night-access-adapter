@@ -15,7 +15,8 @@ import { WebSocketServer } from 'ws';
 import os from 'node:os';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = Number(process.env.GNAA_PORT || 18765);
+// Render (and most PaaS) inject PORT; keep GNAA_PORT for local overrides.
+const PORT = Number(process.env.PORT || process.env.GNAA_PORT || 18765);
 const HUB_DIR = path.resolve(__dirname, 'hub');
 const PHONE_DIR = path.resolve(__dirname, '../phone-controller');
 const CAMERA_DIR = path.resolve(__dirname, '../camera');

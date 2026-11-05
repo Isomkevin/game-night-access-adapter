@@ -86,11 +86,12 @@ curl http://127.0.0.1:18765/health
 
 | Env | Default | Meaning |
 | --- | --- | --- |
-| `GNAA_PORT` | `18765` | Listen port (HTTP and WS) |
+| `PORT` | — | Listen port when set (Render / most PaaS inject this) |
+| `GNAA_PORT` | `18765` | Local override when `PORT` is unset |
 
-Bind address is `0.0.0.0` so phones on LAN can connect. Use trusted Wi‑Fi only.
+Bind address is `0.0.0.0` so phones on LAN (or a hosted demo) can connect. Prefer trusted Wi‑Fi for live co-designer tests; cloud hosting adds latency.
 
-If you change the port, the extension must use the matching `ws://127.0.0.1:<port>` (`DEFAULT_BRIDGE_PORT` in shared/extension protocol, or future options UI).
+If you change the port locally, the extension must use the matching `ws://127.0.0.1:<port>` (Setup → connection address, or `DEFAULT_BRIDGE_PORT` in shared protocol).
 
 ## Omar backlog (suggested)
 

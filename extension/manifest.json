@@ -7,7 +7,10 @@
   "host_permissions": [
     "http://localhost:3000/*",
     "http://127.0.0.1:3000/*",
-    "https://khazp.github.io/librecorsa/*"
+    "http://127.0.0.1:18765/*",
+    "http://localhost:18765/*",
+    "https://khazp.github.io/librecorsa/*",
+    "https://*.onrender.com/*"
   ],
   "background": {
     "service_worker": "background.js",
