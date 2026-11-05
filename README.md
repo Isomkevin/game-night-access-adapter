@@ -2,6 +2,7 @@
 
 Proof-of-concept accessibility adapter for **[LibreCorsa](https://github.com/KhazP/librecorsa)** so players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — can remap camera, voice, and phone inputs onto the keyboard actions the game already understands.
 
+> **What is this supposed to be and do?** Full narrative: **[docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)**.  
 > **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → game → extension demo pad → optional bridge).  
 > Full doc index: **[docs/README.md](docs/README.md)**.
 
@@ -24,7 +25,10 @@ Camera / voice / phone / demo UI
 ```
 
 - **No extra hardware.** Phone is a LAN web page (software controller), not USB/ADB — works on Justin’s MacBook.
+- **Remap without code.** Extension Options / Setup maps logical inputs (`phone:tiltLeft`, `voice:go`, …) onto game actions and key codes; profiles export/import as JSON.
 - **Toolkit:** [AI for Accessibility Toolkit](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit) via fork [Isomkevin/AI-for-Accessibility-Toolkit](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit). Contribution pack: [`docs/toolkit-contribution/`](docs/toolkit-contribution/).
+
+Intended inputs, remapping rules, piece-by-piece roles, and “done” criteria: [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md).
 
 ## Prerequisites
 
@@ -77,14 +81,16 @@ npm install
 npm start
 ```
 
-| UI | URL |
-| --- | --- |
-| Control hub | `http://127.0.0.1:18765/` |
-| Phone | `http://127.0.0.1:18765/phone/` (or `http://<lan-ip>:18765/phone/`) |
-| Camera | `http://127.0.0.1:18765/camera/` |
-| Head-only steering | `http://127.0.0.1:18765/camera/head-steering.html` |
-| Voice | `http://127.0.0.1:18765/voice/` |
-| Health | `http://127.0.0.1:18765/health` |
+| UI | Local | Hosted (Render) |
+| --- | --- | --- |
+| Control hub | `http://127.0.0.1:18765/` | https://game-night-bridge.onrender.com/ |
+| Phone | `http://127.0.0.1:18765/phone/` (or LAN IP) | https://game-night-bridge.onrender.com/phone/ |
+| Camera | `http://127.0.0.1:18765/camera/` | https://game-night-bridge.onrender.com/camera/ |
+| Head-only steering | `http://127.0.0.1:18765/camera/head-steering.html` | https://game-night-bridge.onrender.com/camera/head-steering.html |
+| Voice | `http://127.0.0.1:18765/voice/` | https://game-night-bridge.onrender.com/voice/ |
+| Health | `http://127.0.0.1:18765/health` | https://game-night-bridge.onrender.com/health |
+
+For the hosted bridge, set the extension Setup connection address to `wss://game-night-bridge.onrender.com`. Free Render instances sleep after idle — expect a short cold start. Prefer local/LAN for Justin’s live tests.
 
 ## Repo layout
 
@@ -104,6 +110,7 @@ npm start
 
 | Doc | When to read |
 | --- | --- |
+| [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | What the project is supposed to be and do |
 | [docs/ONBOARDING.md](docs/ONBOARDING.md) | First day — get a working demo |
 | [docs/architecture.md](docs/architecture.md) | Understand data flow / injection |
 | [docs/protocol.md](docs/protocol.md) | Before changing inputs or remap |
