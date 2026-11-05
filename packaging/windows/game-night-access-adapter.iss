@@ -1,8 +1,8 @@
 ; Inno Setup 6 script. Compile on Windows:
-;   iscc /DMyAppVersion=0.2.0 game-night-access-adapter.iss
+;   iscc /DMyAppVersion=0.2.1 game-night-access-adapter.iss
 
 #ifndef MyAppVersion
-  #define MyAppVersion "0.2.0"
+  #define MyAppVersion "0.2.1"
 #endif
 
 [Setup]

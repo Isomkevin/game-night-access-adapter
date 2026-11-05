@@ -99,7 +99,10 @@ For the hosted bridge, set the extension Setup connection address to `wss://game
 
 Configurable phone-sensor mappings, an Add device scan for USB and wireless ADB, and a local API. Windows and Linux installers ship the PySide window.
 
-**Downloads (v0.2.0):**
+**Downloads (v0.2.1 — current):**
+- Windows: [setup.exe](releases/game-night-access-adapter-0.2.1-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.1-windows.zip)
+
+**Previous (v0.2.0, still available):**
 - Linux: [game-night-access-adapter_0.2.0_all.deb](releases/game-night-access-adapter_0.2.0_all.deb)
 - Windows: [MSI installer](releases/game-night-access-adapter-0.2.0.msi) · [setup.exe](releases/game-night-access-adapter-0.2.0-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.0-windows.zip)
 
