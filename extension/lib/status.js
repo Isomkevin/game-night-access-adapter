@@ -3,6 +3,7 @@
  * Keep technical URLs / worker jargon out of primary UI.
  */
 
+/** Default LibreCorsa demo hosts (fallback when no tab is pinned). */
 export const GAME_TAB_URLS = [
   'http://localhost:3000/*',
   'http://127.0.0.1:3000/*',
@@ -62,6 +63,24 @@ export const SOURCE_GROUP_LABELS = Object.freeze({
 });
 
 /**
+ * Short label for a pinned game tab.
+ * @param {{ targetTabTitle?: string, targetTabHost?: string, targetTabUrl?: string }|null|undefined} s
+ */
+export function describePinnedTab(s) {
+  if (!s) return '';
+  if (s.targetTabHost) return s.targetTabHost;
+  if (s.targetTabTitle) return s.targetTabTitle;
+  if (s.targetTabUrl) {
+    try {
+      return new URL(s.targetTabUrl).host || s.targetTabUrl;
+    } catch {
+      return s.targetTabUrl;
+    }
+  }
+  return '';
+}
+
+/**
  * @param {{ bridgeStatus?: string, gameTabOpen?: boolean, workerOk?: boolean }} s
  */
 export function describeConnection(s) {
@@ -94,9 +113,23 @@ export function describeConnection(s) {
 }
 
 /**
- * @param {{ gameTabOpen?: boolean }} s
+ * @param {{
+ *   gameTabOpen?: boolean,
+ *   targetTabId?: number|null,
+ *   targetTabTitle?: string,
+ *   targetTabHost?: string,
+ *   targetTabUrl?: string,
+ * }} s
  */
 export function describeGame(s) {
+  const pin = describePinnedTab(s);
+  if (s.targetTabId && pin) {
+    return {
+      tone: 'ok',
+      title: `Playing: ${pin}`,
+      detail: 'Click the game so it can receive controls, then keep that tab focused.',
+    };
+  }
   if (s.gameTabOpen) {
     return {
       tone: 'ok',
@@ -106,8 +139,8 @@ export function describeGame(s) {
   }
   return {
     tone: 'warn',
-    title: 'Game not open',
-    detail: 'Open LibreCorsa, start a race, then keep that tab focused while driving.',
+    title: 'No game tab pinned',
+    detail: 'Open your game, then click Use this tab — or Open game for the LibreCorsa demo.',
   };
 }
 

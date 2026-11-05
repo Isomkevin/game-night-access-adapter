@@ -1,7 +1,7 @@
 {
   "name": "game-night-access-adapter",
   "version": "1.0.0",
-  "description": "Proof-of-concept accessibility adapter for **[LibreCorsa](https://github.com/KhazP/librecorsa)** so players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — can remap camera, voice, and phone inputs onto the keyboard actions the game already understands.",
+  "description": "Proof-of-concept accessibility adapter so players with different access needs can remap camera, voice, and phone inputs onto keyboard controls for browser games. LibreCorsa is the default demo.",
   "main": "index.js",
   "directories": {
     "doc": "docs"

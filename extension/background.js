@@ -1,5 +1,6 @@
 /**
- * Service worker: bridge WebSocket client + remap + fan-out to LibreCorsa tabs.
+ * Service worker: bridge WebSocket client + remap + fan-out to the pinned game tab
+ * (or LibreCorsa demo hosts when nothing is pinned).
  */
 
 import {
@@ -12,12 +13,19 @@ import {
 } from './lib/protocol.js';
 import { DEFAULT_KEY_CODES, HOLD_ACTIONS } from './lib/actions.js';
 import { CameraKeys } from './lib/camera-keys.js';
-import { badgeForBridge, GAME_TAB_URLS } from './lib/status.js';
+import { badgeForBridge, GAME_TAB_URLS, GAME_OPEN_URL } from './lib/status.js';
 
 const STORAGE_KEYS = {
   remap: 'remap',
   keyCodes: 'keyCodes',
   bridgeUrl: 'bridgeUrl',
+};
+
+const SESSION_KEYS = {
+  targetTabId: 'targetTabId',
+  targetTabTitle: 'targetTabTitle',
+  targetTabUrl: 'targetTabUrl',
+  targetTabHost: 'targetTabHost',
 };
 
 /** @type {WebSocket|null} */
@@ -63,18 +71,139 @@ function updateBadge() {
   setBadge(b.text, b.color);
 }
 
-async function queryGameTabs() {
+/**
+ * @param {string} [url]
+ */
+function hostFromUrl(url) {
+  if (!url) return '';
+  try {
+    return new URL(url).host || '';
+  } catch {
+    return '';
+  }
+}
+
+async function getPinnedTarget() {
+  const data = await chrome.storage.session.get([
+    SESSION_KEYS.targetTabId,
+    SESSION_KEYS.targetTabTitle,
+    SESSION_KEYS.targetTabUrl,
+    SESSION_KEYS.targetTabHost,
+  ]);
+  const id = data[SESSION_KEYS.targetTabId];
+  if (typeof id !== 'number') {
+    return {
+      targetTabId: null,
+      targetTabTitle: '',
+      targetTabUrl: '',
+      targetTabHost: '',
+      tab: null,
+    };
+  }
+  try {
+    const tab = await chrome.tabs.get(id);
+    if (!tab || tab.id == null) {
+      await clearPinnedTarget();
+      return {
+        targetTabId: null,
+        targetTabTitle: '',
+        targetTabUrl: '',
+        targetTabHost: '',
+        tab: null,
+      };
+    }
+    return {
+      targetTabId: tab.id,
+      targetTabTitle: tab.title || data[SESSION_KEYS.targetTabTitle] || '',
+      targetTabUrl: tab.url || data[SESSION_KEYS.targetTabUrl] || '',
+      targetTabHost: hostFromUrl(tab.url) || data[SESSION_KEYS.targetTabHost] || '',
+      tab,
+    };
+  } catch {
+    await clearPinnedTarget();
+    return {
+      targetTabId: null,
+      targetTabTitle: '',
+      targetTabUrl: '',
+      targetTabHost: '',
+      tab: null,
+    };
+  }
+}
+
+async function clearPinnedTarget() {
+  await chrome.storage.session.remove([
+    SESSION_KEYS.targetTabId,
+    SESSION_KEYS.targetTabTitle,
+    SESSION_KEYS.targetTabUrl,
+    SESSION_KEYS.targetTabHost,
+  ]);
+}
+
+/**
+ * @param {chrome.tabs.Tab} tab
+ */
+async function setPinnedTarget(tab) {
+  if (!tab || tab.id == null) {
+    throw new Error('No tab to pin');
+  }
+  const url = tab.url || '';
+  if (!/^https?:/i.test(url)) {
+    throw new Error('Pin an http(s) game page (not chrome:// or the extension UI).');
+  }
+  await chrome.storage.session.set({
+    [SESSION_KEYS.targetTabId]: tab.id,
+    [SESSION_KEYS.targetTabTitle]: tab.title || '',
+    [SESSION_KEYS.targetTabUrl]: url,
+    [SESSION_KEYS.targetTabHost]: hostFromUrl(url),
+  });
+  return {
+    targetTabId: tab.id,
+    targetTabTitle: tab.title || '',
+    targetTabUrl: url,
+    targetTabHost: hostFromUrl(url),
+  };
+}
+
+async function queryFallbackGameTabs() {
   return chrome.tabs.query({ url: GAME_TAB_URLS });
 }
 
+/**
+ * Prefer the pinned tab; otherwise LibreCorsa demo hosts.
+ * @returns {Promise<chrome.tabs.Tab[]>}
+ */
+async function resolveGameTabs() {
+  const pinned = await getPinnedTarget();
+  if (pinned.tab) return [pinned.tab];
+  return queryFallbackGameTabs();
+}
+
 async function sendToGameTabs(payload) {
-  const tabs = await queryGameTabs();
+  const tabs = await resolveGameTabs();
   await Promise.all(
     tabs.map((tab) =>
       chrome.tabs.sendMessage(tab.id, payload).catch(() => {})
     )
   );
   return tabs.length;
+}
+
+async function buildStatusPayload() {
+  const pinned = await getPinnedTarget();
+  const fallback = pinned.tab ? [] : await queryFallbackGameTabs();
+  const gameTabOpen = Boolean(pinned.tab) || fallback.length > 0;
+  return {
+    bridgeStatus,
+    bridgeUrl,
+    gameTabOpen,
+    gameTabCount: pinned.tab ? 1 : fallback.length,
+    targetTabId: pinned.targetTabId,
+    targetTabTitle: pinned.targetTabTitle,
+    targetTabUrl: pinned.targetTabUrl,
+    targetTabHost: pinned.targetTabHost,
+    workerOk: true,
+  };
 }
 
 /**
@@ -217,6 +346,13 @@ chrome.runtime.onStartup.addListener(() => {
   });
 });
 
+chrome.tabs.onRemoved.addListener(async (tabId) => {
+  const data = await chrome.storage.session.get(SESSION_KEYS.targetTabId);
+  if (data[SESSION_KEYS.targetTabId] === tabId) {
+    await clearPinnedTarget();
+  }
+});
+
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== 'local') return;
   if (changes[STORAGE_KEYS.bridgeUrl]) {
@@ -245,25 +381,49 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 
   if (msg.type === 'gnaa-get-status') {
-    queryGameTabs()
-      .then((tabs) => {
-        sendResponse({
-          bridgeStatus,
-          bridgeUrl,
-          gameTabOpen: tabs.length > 0,
-          gameTabCount: tabs.length,
-          workerOk: true,
-        });
-      })
+    buildStatusPayload()
+      .then((payload) => sendResponse(payload))
       .catch(() => {
         sendResponse({
           bridgeStatus,
           bridgeUrl,
           gameTabOpen: false,
           gameTabCount: 0,
+          targetTabId: null,
+          targetTabTitle: '',
+          targetTabUrl: '',
+          targetTabHost: '',
           workerOk: true,
         });
       });
+    return true;
+  }
+
+  if (msg.type === 'gnaa-use-this-tab') {
+    (async () => {
+      let tab = null;
+      if (typeof msg.tabId === 'number') {
+        tab = await chrome.tabs.get(msg.tabId);
+      } else {
+        const [active] = await chrome.tabs.query({ active: true, currentWindow: true });
+        tab = active || null;
+      }
+      // Popup may be the "active" context; prefer last focused window's selected tab.
+      if (!tab || !tab.url || tab.url.startsWith('chrome-extension://')) {
+        const [focused] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+        if (focused) tab = focused;
+      }
+      if (!tab) throw new Error('Could not find an active tab.');
+      const pinned = await setPinnedTarget(tab);
+      sendResponse({ ok: true, ...pinned });
+    })().catch((err) => sendResponse({ ok: false, error: String(err?.message || err) }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-clear-game-tab') {
+    clearPinnedTarget()
+      .then(() => sendResponse({ ok: true }))
+      .catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
   }
 
@@ -286,21 +446,29 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 
   if (msg.type === 'gnaa-open-game') {
-    const url = msg.url || 'http://localhost:3000/';
-    queryGameTabs()
-      .then(async (tabs) => {
-        if (tabs[0]) {
-          await chrome.tabs.update(tabs[0].id, { active: true });
-          if (tabs[0].windowId != null) {
-            await chrome.windows.update(tabs[0].windowId, { focused: true });
-          }
-          sendResponse({ ok: true, focused: true });
-          return;
+    const url = msg.url || GAME_OPEN_URL;
+    (async () => {
+      const pinned = await getPinnedTarget();
+      if (pinned.tab) {
+        await chrome.tabs.update(pinned.tab.id, { active: true });
+        if (pinned.tab.windowId != null) {
+          await chrome.windows.update(pinned.tab.windowId, { focused: true });
         }
-        await chrome.tabs.create({ url });
-        sendResponse({ ok: true, created: true });
-      })
-      .catch((err) => sendResponse({ ok: false, error: String(err) }));
+        sendResponse({ ok: true, focused: true, pinned: true });
+        return;
+      }
+      const tabs = await queryFallbackGameTabs();
+      if (tabs[0]) {
+        await chrome.tabs.update(tabs[0].id, { active: true });
+        if (tabs[0].windowId != null) {
+          await chrome.windows.update(tabs[0].windowId, { focused: true });
+        }
+        sendResponse({ ok: true, focused: true });
+        return;
+      }
+      await chrome.tabs.create({ url });
+      sendResponse({ ok: true, created: true });
+    })().catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
   }
 

@@ -1,6 +1,6 @@
 # Game Night Access Adapter
 
-Proof-of-concept accessibility adapter for **[LibreCorsa](https://github.com/KhazP/librecorsa)** so players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — can remap camera, voice, and phone inputs onto the keyboard actions the game already understands.
+Proof-of-concept accessibility adapter so players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — can remap camera, voice, and phone inputs onto the keyboard actions a browser game already understands. **[LibreCorsa](https://github.com/KhazP/librecorsa)** is the default demo; pin any `http(s)` game tab with **Use this tab** in the extension popup and retune key codes in Setup.
 
 > **What is this supposed to be and do?** Full narrative: **[docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)**.  
 > **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → game → extension demo pad → optional bridge).  
@@ -19,9 +19,9 @@ Camera / voice / phone / demo UI
         ↓
  Local bridge (WebSocket :18765)
         ↓
- Chrome extension (remap table)
+ Chrome extension (remap table → pinned game tab)
         ↓
- LibreCorsa keyboard codes (KeyW/A/S/D, …)
+ KeyboardEvent.code (LibreCorsa defaults: KeyW/A/S/D, …)
 ```
 
 - **No extra hardware.** Phone is a LAN web page (software controller), not USB/ADB — works on Justin’s MacBook.
@@ -69,7 +69,7 @@ Open `http://localhost:3000` and get into a **driving** session (keyboard is ign
 
 1. `chrome://extensions` → Developer mode → **Load unpacked** → select `extension/`
 2. Pin the extension. Open **Setup** (options) for the guided Welcome → Choose → Customize → Ready flow.
-3. Use the popup for on-screen controls (Hold or Latch), **Stop all inputs**, and **Open game**.
+3. Use the popup for on-screen controls (Hold or Latch), **Use this tab** (pin any browser game), **Stop all inputs**, and **Open game** (LibreCorsa demo).
 
 Badge `OFF` = access bridge offline (on-screen controls still work). Badge `ON` = bridge connected.
 

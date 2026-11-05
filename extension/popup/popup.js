@@ -1,6 +1,7 @@
 import {
   describeConnection,
   describeGame,
+  describePinnedTab,
   GAME_OPEN_URL,
 } from '../lib/status.js';
 
@@ -23,8 +24,8 @@ function setMode(mode) {
   document.getElementById('mode-latch').setAttribute('aria-pressed', mode === 'latch' ? 'true' : 'false');
   document.getElementById('pad-hint').textContent =
     mode === 'latch'
-      ? 'Latch mode: tap once to press, tap again to release. Game must be focused and driving.'
-      : 'Hold mode: press and hold while the game is focused and driving.';
+      ? 'Latch mode: tap once to press, tap again to release. Game must be focused.'
+      : 'Hold mode: press and hold while the game is focused.';
 }
 
 async function releaseAllLatched() {
@@ -116,6 +117,20 @@ function bindPulse(btn) {
   });
 }
 
+function updatePinHint(s) {
+  const hint = document.getElementById('pin-hint');
+  const pin = describePinnedTab(s);
+  if (s?.targetTabId && pin) {
+    hint.textContent = `Inputs go to ${pin}.`;
+    return;
+  }
+  if (s?.gameTabOpen) {
+    hint.textContent = 'Using LibreCorsa demo tab. Pin any game with Use this tab.';
+    return;
+  }
+  hint.textContent = 'No game tab pinned — Open game (LibreCorsa) or Use this tab.';
+}
+
 async function refreshStatus() {
   const el = document.getElementById('status');
   const detail = document.getElementById('status-detail');
@@ -129,10 +144,12 @@ async function refreshStatus() {
     el.textContent = primary.title;
     el.className = `status ${primary.tone}`;
     detail.textContent = `${game.title}. ${conn.detail}`;
+    updatePinHint(s);
   } catch {
     el.textContent = 'Extension stopped';
     el.className = 'status danger';
     detail.textContent = 'Open chrome://extensions and click Reload on Game Night Access Adapter.';
+    document.getElementById('pin-hint').textContent = '';
   }
 }
 
@@ -147,6 +164,25 @@ document.getElementById('mode-latch').addEventListener('click', () => setMode('l
 
 document.getElementById('release-all').addEventListener('click', async () => {
   await releaseAllLatched();
+});
+
+document.getElementById('use-this-tab').addEventListener('click', async () => {
+  const hint = document.getElementById('pin-hint');
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    const res = await chrome.runtime.sendMessage({
+      type: 'gnaa-use-this-tab',
+      tabId: tab?.id,
+    });
+    if (!res?.ok) {
+      hint.textContent = res?.error || 'Could not pin this tab.';
+      return;
+    }
+    hint.textContent = `Pinned ${res.targetTabHost || res.targetTabTitle || 'tab'}.`;
+  } catch (err) {
+    hint.textContent = String(err?.message || err || 'Could not pin this tab.');
+  }
+  setTimeout(refreshStatus, 200);
 });
 
 document.getElementById('reconnect').addEventListener('click', async () => {

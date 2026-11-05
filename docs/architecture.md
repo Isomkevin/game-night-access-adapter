@@ -2,7 +2,7 @@
 
 ## Goal
 
-Adapt [LibreCorsa](https://github.com/KhazP/librecorsa) so Justin (limited finger mobility) can remap camera, voice, and phone inputs onto the keyboard actions the game already understands — with **no extra hardware**.
+Remap camera, voice, and phone inputs onto the keyboard actions a browser game already understands — with **no extra hardware**. [LibreCorsa](https://github.com/KhazP/librecorsa) is the default demo and co-design target (Justin, limited finger mobility); the extension can pin any `http(s)` game tab.
 
 Product intent (what this is supposed to be and do): [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).  
 New developers: [ONBOARDING.md](ONBOARDING.md).
@@ -29,7 +29,7 @@ Camera / Voice / Phone / Demo UI
           ↓  WebSocket
    Chrome extension (remap table in chrome.storage)
           ↓  KeyboardEvent.code on window
-   LibreCorsa tab (driving phase only)
+   Pinned game tab (or LibreCorsa demo hosts as fallback)
 ```
 
 ```mermaid
@@ -43,17 +43,21 @@ flowchart LR
   Bridge[Bridge WS :18765]
   Ext[Extension background]
   Remap[chrome.storage remap]
+  Pin[Pinned target tab]
   CS[Content script]
-  Game[LibreCorsa]
+  Game[Browser game]
   Demo --> Ext
   Cam --> Bridge
   Voice --> Bridge
   Phone --> Bridge
   Bridge --> Ext
   Remap --> Ext
+  Pin --> Ext
   Ext --> CS
   CS --> Game
 ```
+
+**Tab targeting:** content scripts load on all `http(s)` pages. Inputs are sent only to the tab pinned via popup **Use this tab** (`chrome.storage.session`). If nothing is pinned (or the pin closed), the extension falls back to LibreCorsa demo URL matches (`localhost:3000`, GitHub Pages).
 
 Demo mode works **without** the bridge so day-one testing does not block on Omar.
 

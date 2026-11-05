@@ -18,16 +18,13 @@ If that fails, check network access to GitHub and that you cloned with a GitHub 
 
 ## Extension demo pad does nothing
 
-1. **Are you in a driving session?** Title menu / loading ignore driving keys. Start practice or a race until the car is on track.
-2. **Is the LibreCorsa tab focused?** Click the game canvas, then use the popup. Popups can steal focus — hold controls, then click back into the game if needed, or keep the popup open and click the game once first.
-3. **Is the extension loaded from `extension/`?** The folder must contain `manifest.json`. Reload the extension after code pulls (`chrome://extensions` → circular arrow).
-4. **URL match?** Content script only injects on:
-   - `http://localhost:3000/*`
-   - `http://127.0.0.1:3000/*`
-   - `https://khazp.github.io/librecorsa/*`  
-   Other hosts need a manifest + background `tabs.query` update.
-5. **Open DevTools on the game tab** → Console. After a demo press you should not see extension errors. On the service worker: `chrome://extensions` → Service worker → Inspect.
-6. **Known risk:** if a future LibreCorsa build ignores untrusted events, the MAIN-world `page-hook.js` path should still run via `postMessage`. Confirm `window.__gnaaHookInstalled` in the page console.
+1. **Is a game tab pinned or open?** Popup → **Use this tab** on your game, or **Open game** for the LibreCorsa demo. Without a pin, inputs only go to LibreCorsa demo hosts (`localhost:3000`, GitHub Pages).
+2. **Is the game tab focused?** Click the game canvas, then use the popup. Popups can steal focus — hold controls, then click back into the game if needed.
+3. **LibreCorsa only:** title menu / loading ignore driving keys — start practice or a race until the car is on track.
+4. **Is the extension loaded from `extension/`?** The folder must contain `manifest.json`. Reload the extension after code pulls (`chrome://extensions` → circular arrow).
+5. **URL match?** Content scripts load on all `http(s)` pages. Inputs are routed only to the pinned tab (or LibreCorsa fallback URLs). Confirm the popup pin hint shows your game host.
+6. **Open DevTools on the game tab** → Console. After a demo press you should not see extension errors. On the service worker: `chrome://extensions` → Service worker → Inspect.
+7. **Known risk:** games that ignore untrusted events may still work via MAIN-world `page-hook.js` (`postMessage`). Confirm `window.__gnaaHookInstalled` in the page console. Pointer-only games are out of scope.
 
 ## Badge stuck on `OFF` / bridge won’t connect
 

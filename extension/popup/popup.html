@@ -23,7 +23,7 @@
     </section>
 
     <section class="pad" aria-label="On-screen controls">
-      <p class="hint" id="pad-hint">Hold a control while the game is focused and driving.</p>
+      <p class="hint" id="pad-hint">Hold a control while the game tab is focused.</p>
       <div class="row">
         <button type="button" class="hold" data-action="steerLeft" aria-label="Steer left" aria-pressed="false">Left</button>
         <button type="button" class="hold" data-action="throttle" aria-label="Throttle" aria-pressed="false">Throttle</button>
@@ -40,6 +40,13 @@
       <button type="button" id="release-all" class="gnaa-btn gnaa-btn--danger stop-btn">
         Stop all inputs
       </button>
+    </div>
+
+    <div class="pin-row">
+      <button type="button" id="use-this-tab" class="gnaa-btn gnaa-btn--secondary stop-btn">
+        Use this tab
+      </button>
+      <p id="pin-hint" class="pin-hint" aria-live="polite"></p>
     </div>
 
     <footer>

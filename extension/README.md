@@ -3,9 +3,11 @@
 Manifest V3 extension that:
 
 1. Connects to the local bridge (optional)
-2. Remaps logical inputs → LibreCorsa game actions
-3. Injects `KeyboardEvent`s (`keydown` / `keyup`) into the game tab
+2. Remaps logical inputs → game actions → `KeyboardEvent.code`
+3. Injects `keydown` / `keyup` into a **pinned** game tab (any `http(s)` page)
 4. Provides a **demo pad** so you can test without Omar’s bridge
+
+LibreCorsa remains the default demo (Open game → `localhost:3000`). For any other keyboard-driven browser game: open the game, click **Use this tab**, and retune key codes in Setup if needed.
 
 New developers: finish [docs/ONBOARDING.md](../docs/ONBOARDING.md) first.
 
@@ -15,7 +17,7 @@ New developers: finish [docs/ONBOARDING.md](../docs/ONBOARDING.md) first.
 2. Enable **Developer mode**
 3. **Load unpacked** → select **this** directory (`…/game-night-access-adapter/extension`)
 4. Confirm the service worker starts (no errors on the extension card)
-5. Open LibreCorsa at `http://localhost:3000` (or the GitHub Pages build) and enter a **driving** session
+5. Open a game tab (LibreCorsa at `http://localhost:3000` by default) and click **Use this tab** in the popup — or rely on the LibreCorsa URL fallback
 
 After every `git pull` that touches `extension/`, click **Reload** on the extension card.
 
@@ -23,12 +25,12 @@ After every `git pull` that touches `extension/`, click **Reload** on the extens
 
 | Surface | What it does |
 | --- | --- |
-| Toolbar popup | On-screen controls (Hold or Latch), Stop all inputs, Open game, Reconnect, Setup |
+| Toolbar popup | On-screen controls (Hold or Latch), **Use this tab**, Stop all inputs, Open game, Reconnect, Setup |
 | Options page | Guided Welcome → Choose → Setup → Customize → Ready; presets; Advanced connection |
 | Badge `OFF` | Access bridge down — on-screen controls still work |
 | Badge `ON` | Access bridge connected |
 
-**Focus:** click the game canvas before using popup buttons. The game must be in the driving phase.
+**Focus:** click the game canvas before using popup buttons. Inputs go only to the pinned tab (or LibreCorsa demo hosts when nothing is pinned).
 
 ## File map
 
@@ -56,8 +58,9 @@ extension/
 | Permission | Why |
 | --- | --- |
 | `storage` | Persist remap + key code profiles |
-| `tabs` | Find LibreCorsa tabs to message |
-| Host access | Inject only on localhost:3000 and khazp.github.io/librecorsa |
+| `tabs` | Find / focus game tabs |
+| `activeTab` | Help **Use this tab** pin the page behind the popup |
+| Host access (`http://*/*`, `https://*/*`) | Content script + page-hook on any browser game |
 
 ## Message types (internal)
 
@@ -66,6 +69,7 @@ extension/
 | popup → background | `gnaa-demo-input` | `{ action, state }` on-screen events |
 | background → content | `gnaa-apply` | `{ code, state }` after remap |
 | background → content | `gnaa-release-all` | Release every held key |
+| popup → background | `gnaa-use-this-tab` | Pin the active game tab (`chrome.storage.session`) |
 | popup → background | `gnaa-get-status` / `gnaa-reconnect` / `gnaa-release-all` / `gnaa-open-game` | Status & helpers |
 | content → background | `gnaa-content-ready` | Tab ready ping |
 
@@ -84,11 +88,14 @@ page in a separate visible window. See [camera setup](../camera/README.md).
 
 Change `packages/shared/*` first, then **copy** into `extension/lib/`. See [packages/shared/README.md](../packages/shared/README.md).
 
-## Adding a host URL
+## Targeting a game tab
 
-1. `manifest.json` → `host_permissions`, `content_scripts.matches`, `web_accessible_resources.matches`
-2. `background.js` → `chrome.tabs.query({ url: [...] })`
-3. Reload the extension
+1. Open the game in Chrome (`http` or `https`)
+2. Click the extension → **Use this tab**
+3. Retune Setup → key codes if the game’s bindings differ from LibreCorsa defaults
+4. Focus the game and use the pad / phone / camera / voice
+
+With no pin, the extension falls back to LibreCorsa demo URL matches in `lib/status.js` (`GAME_TAB_URLS`). Closing a pinned tab clears the pin for that session.
 
 ## Test matrix
 
