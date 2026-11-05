@@ -72,26 +72,52 @@ def guid_for(relative: str) -> str:
     return f"{{{digest[0:8]}-{digest[8:12]}-{digest[12:16]}-{digest[16:20]}-{digest[20:32]}}}"
 
 
-def xml_id(relative: str) -> str:
+def xml_id(prefix: str, relative: str) -> str:
     cleaned = "".join(ch if ch.isalnum() else "_" for ch in relative)
-    return ("F_" + cleaned)[:70]
+    return (prefix + cleaned)[:70]
+
+
+class DirNode:
+    __slots__ = ("dirs", "files")
+
+    def __init__(self) -> None:
+        self.dirs: dict[str, DirNode] = {}
+        self.files: list[Path] = []
 
 
 files = [path for path in stage.rglob("*") if path.is_file() and path.name != "product.wxs"]
-components = []
+tree = DirNode()
+component_ids: list[str] = []
 for path in sorted(files):
-    rel = path.relative_to(stage).as_posix()
-    components.append(
-        "        <Component Id='{cid}' Guid='{guid}' Win64='yes'>\n"
-        "          <File Id='{cid}' Source='{src}' KeyPath='yes' />\n"
-        "        </Component>".format(
-            cid=xml_id(rel),
-            guid=guid_for(rel),
-            src=escape(str(path)),
-        )
-    )
+    rel = path.relative_to(stage)
+    node = tree
+    for part in rel.parts[:-1]:
+        node = node.dirs.setdefault(part, DirNode())
+    node.files.append(path)
 
-refs = "\n".join(f"      <ComponentRef Id='{xml_id(path.relative_to(stage).as_posix())}' />" for path in sorted(files))
+
+def emit_directory(node: DirNode, rel_dir: str, indent: int) -> list[str]:
+    pad = " " * indent
+    lines: list[str] = []
+    for path in sorted(node.files, key=lambda item: item.name.lower()):
+        rel = path.relative_to(stage).as_posix()
+        cid = xml_id("F_", rel)
+        component_ids.append(cid)
+        lines.append(f"{pad}<Component Id='{cid}' Guid='{guid_for(rel)}' Win64='yes'>")
+        lines.append(f"{pad}  <File Id='{cid}' Source='{escape(str(path))}' KeyPath='yes' />")
+        lines.append(f"{pad}</Component>")
+    for name in sorted(node.dirs):
+        child = node.dirs[name]
+        child_rel = name if not rel_dir else f"{rel_dir}/{name}"
+        did = xml_id("D_", child_rel)
+        lines.append(f"{pad}<Directory Id='{did}' Name='{escape(name)}'>")
+        lines.extend(emit_directory(child, child_rel, indent + 2))
+        lines.append(f"{pad}</Directory>")
+    return lines
+
+
+directory_body = "\n".join(emit_directory(tree, "", 10))
+refs = "\n".join(f"      <ComponentRef Id='{cid}' />" for cid in component_ids)
 
 out.write_text(
     f"""<?xml version="1.0" encoding="utf-8"?>
@@ -107,7 +133,7 @@ out.write_text(
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFiles64Folder">
         <Directory Id="INSTALLDIR" Name="Game Night Access Adapter">
-{chr(10).join(components)}
+{directory_body}
         </Directory>
       </Directory>
       <Directory Id="ProgramMenuFolder">

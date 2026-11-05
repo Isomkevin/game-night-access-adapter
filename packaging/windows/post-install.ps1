@@ -75,6 +75,68 @@ function Register-AdapterUninstallKey {
     Write-Log "Registered Add/Remove Programs entry (v$version)"
 }
 
+function Test-FileContains {
+    param(
+        [Parameter(Mandatory = $true)][string]$Path,
+        [Parameter(Mandatory = $true)][string]$Needle
+    )
+    if (-not (Test-Path -LiteralPath $Path)) { return $false }
+    return [bool](Select-String -LiteralPath $Path -Pattern $Needle -SimpleMatch -Quiet)
+}
+
+function Repair-AdapterPackageLayout {
+    param([Parameter(Mandatory = $true)][string]$InstallDir)
+
+    # Older MSI builds dropped every file into the install root. The app imports
+    # access_adapter.*, so those modules must live under access_adapter\.
+    $packageModules = @(
+        'adb_devices.py', 'api.py', 'bridge.py', 'config.py', 'keys.py',
+        'mapping.py', 'sensors.py', 'state.py', 'version.py', '__init__.py', '__main__.py'
+    )
+    $uiModules = @(
+        'devices_dialog.py', 'flow.py', 'main_window.py', 'mapping_dialog.py',
+        'phone_view.py', 'style.py', '__init__.py'
+    )
+    $pkg = Join-Path $InstallDir 'access_adapter'
+    $ui = Join-Path $pkg 'ui'
+    $flatHits = @($packageModules | Where-Object { Test-Path -LiteralPath (Join-Path $InstallDir $_) }).Count
+    if ($flatHits -ge 5) {
+        Write-Log 'Repairing flattened package layout from MSI...'
+        New-Item -ItemType Directory -Force -Path $ui | Out-Null
+        foreach ($name in $packageModules) {
+            $src = Join-Path $InstallDir $name
+            if (Test-Path -LiteralPath $src) {
+                Copy-Item -LiteralPath $src -Destination (Join-Path $pkg $name) -Force
+                Remove-Item -LiteralPath $src -Force
+            }
+        }
+        foreach ($name in $uiModules) {
+            $src = Join-Path $InstallDir $name
+            if (Test-Path -LiteralPath $src) {
+                Copy-Item -LiteralPath $src -Destination (Join-Path $ui $name) -Force
+                Remove-Item -LiteralPath $src -Force
+            }
+        }
+    }
+
+    $nested = Join-Path $pkg 'access_adapter'
+    if (Test-Path -LiteralPath $nested) {
+        Write-Log 'Removing nested duplicate access_adapter package...'
+        Copy-Item -Path (Join-Path $nested '*') -Destination $pkg -Recurse -Force
+        Remove-Item -LiteralPath $nested -Recurse -Force
+    }
+
+    $adbDevices = Join-Path $pkg 'adb_devices.py'
+    $sensors = Join-Path $pkg 'sensors.py'
+    if (-not (Test-FileContains -Path $adbDevices -Needle 'CREATE_NO_WINDOW')) {
+        throw 'Installed access_adapter\adb_devices.py is missing CREATE_NO_WINDOW (ADB consoles would flood the desktop).'
+    }
+    if (-not (Test-FileContains -Path $sensors -Needle 'hidden_subprocess_kwargs')) {
+        throw 'Installed access_adapter\sensors.py is missing hidden_subprocess_kwargs.'
+    }
+    Write-Log 'Package layout OK (ADB helper consoles stay hidden).'
+}
+
 . (Join-Path $PSScriptRoot 'python-bootstrap.ps1')
 
 try {
@@ -83,6 +145,7 @@ try {
 
     $InstallDir = Publish-AdapterToProgramFiles -SourceDir $InstallDir -TargetDir $PermanentRoot
     Write-Log "Install root: $InstallDir"
+    Repair-AdapterPackageLayout -InstallDir $InstallDir
 
     # The copy under Program Files is the one that must be used from here on.
     . (Join-Path $InstallDir 'python-bootstrap.ps1')

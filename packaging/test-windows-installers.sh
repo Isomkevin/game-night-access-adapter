@@ -132,6 +132,30 @@ else
   pass 'run-app.cmd starts without extra consoles'
 fi
 
+if ! grep -q 'CREATE_NO_WINDOW' "$ROOT/access_adapter/adb_devices.py"; then
+  fail 'adb_devices.py must hide Windows ADB consoles with CREATE_NO_WINDOW'
+else
+  pass 'adb_devices.py hides ADB consoles'
+fi
+
+if ! grep -q 'hidden_subprocess_kwargs' "$ROOT/access_adapter/sensors.py"; then
+  fail 'sensors.py must pass hidden_subprocess_kwargs to ADB dumpsys'
+else
+  pass 'sensors.py hides dumpsys consoles'
+fi
+
+if ! grep -q 'Repair-AdapterPackageLayout' "$WIN/post-install.ps1"; then
+  fail 'post-install.ps1 must repair flattened MSI package layouts'
+else
+  pass 'post-install.ps1 repairs flattened package layouts'
+fi
+
+if ! grep -q 'emit_directory' "$WIN/build-msi.sh"; then
+  fail 'build-msi.sh must nest Directory entries so access_adapter/ is preserved'
+else
+  pass 'build-msi.sh nests MSI Directory entries'
+fi
+
 echo "-- MSI checks"
 if [[ ! -f "$MSI" ]]; then
   fail "msi missing: $MSI"
