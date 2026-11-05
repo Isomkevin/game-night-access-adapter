@@ -19,6 +19,8 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host ""
 Write-Host "Game Night Access Adapter installed."
-Write-Host "  It starts at login. You can also use the Start Menu shortcut."
+Write-Host "  The window should open now."
+Write-Host "  If it does not, use the desktop shortcut or Start Menu: Game Night Access Adapter"
+Write-Host "  Or run: C:\Program Files\Game Night Access Adapter\run-app.cmd"
 Write-Host "  Local API: http://127.0.0.1:8765/api/v1/health"
 Write-Host ""

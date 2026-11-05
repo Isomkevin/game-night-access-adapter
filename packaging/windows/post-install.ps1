@@ -59,7 +59,7 @@ function Register-AdapterUninstallKey {
     try {
         $versionFile = Join-Path $InstallDir 'access_adapter\version.py'
         $text = Get-Content -LiteralPath $versionFile -Raw -ErrorAction Stop
-        if ($text -match "__version__\s*=\s*'([^']+)'") { $version = $Matches[1] }
+        if ($text -match '__version__\s*=\s*[''"]([^''"]+)[''"]') { $version = $Matches[1] }
     } catch {}
 
     $uninstallBat = Join-Path $InstallDir 'uninstall.bat'
@@ -104,6 +104,13 @@ try {
     if ($LASTEXITCODE -ne 0) { throw "shortcut registration failed ($LASTEXITCODE)" }
 
     Register-AdapterUninstallKey -InstallDir $InstallDir
+
+    $launcher = Join-Path $InstallDir 'run-app.cmd'
+    if (Test-Path -LiteralPath $launcher) {
+        Write-Log 'Starting Game Night Access Adapter...'
+        Start-Process -FilePath $launcher -WorkingDirectory $InstallDir
+    }
+
     Write-Log 'Install finished.'
     exit 0
 } catch {

@@ -37,5 +37,6 @@ if errorlevel 1 (
 
 echo.
 echo Game Night Access Adapter installed.
-timeout /t 6 /nobreak >nul
+echo Look for the window, the desktop shortcut, or Start Menu: Game Night Access Adapter
+timeout /t 8 /nobreak >nul
 exit /b 0

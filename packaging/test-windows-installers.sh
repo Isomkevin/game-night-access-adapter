@@ -107,6 +107,24 @@ else
   pass 'post-install.ps1 publishes to Program Files'
 fi
 
+if grep -q 'WindowStyle = 7' "$WIN/register-autostart.ps1"; then
+  fail 'Start Menu shortcut must not launch minimized'
+else
+  pass 'shortcuts launch in a normal window'
+fi
+
+if ! grep -q "PUBLIC 'Desktop" "$WIN/register-autostart.ps1"; then
+  fail 'missing public desktop shortcut'
+else
+  pass 'public desktop shortcut is registered'
+fi
+
+if ! grep -q 'venv\\Scripts\\python.exe' "$WIN/run-app.cmd"; then
+  fail 'run-app.cmd must fall back to python.exe'
+else
+  pass 'run-app.cmd falls back to python.exe'
+fi
+
 echo "-- Zip archive checks"
 if [[ ! -f "$ZIP" ]]; then
   fail "zip missing: $ZIP"

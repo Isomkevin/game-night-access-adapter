@@ -2,9 +2,20 @@
 setlocal EnableExtensions
 cd /d "%~dp0"
 set "PYTHONPATH=%~dp0"
-if exist "%~dp0venv\Scripts\pythonw.exe" (
-  start "" "%~dp0venv\Scripts\pythonw.exe" -m access_adapter
+set "PYW=%~dp0venv\Scripts\pythonw.exe"
+set "PY=%~dp0venv\Scripts\python.exe"
+if exist "%PYW%" (
+  start "Game Night Access Adapter" "%PYW%" -m access_adapter
   exit /b 0
 )
-echo Python virtual environment is missing. Re-run install.bat as Administrator.
+if exist "%PY%" (
+  start "Game Night Access Adapter" "%PY%" -m access_adapter
+  exit /b 0
+)
+echo.
+echo Game Night Access Adapter could not start.
+echo Expected: %PY%
+echo Re-run setup.exe or install.bat as Administrator after installing Python 3 from python.org.
+echo.
+pause
 exit /b 1

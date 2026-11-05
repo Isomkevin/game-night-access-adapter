@@ -44,10 +44,13 @@ Two artifacts, plus an Inno Setup script you can compile on Windows with Inno Se
 
 `install.bat` changes to its own directory, then asks for Administrator. PowerShell scripts are UTF-8 with a BOM and use ASCII punctuation so Windows PowerShell 5.1 can parse them.
 
-Shortcuts:
+After install the window should open. Shortcuts:
 
+- Desktop: Game Night Access Adapter
 - Start Menu: Game Night Access Adapter
-- Startup folder (all users): same shortcut, so the app opens at login in the user session
+- Startup folder (all users): same shortcut, so the app also opens at login
+
+If the window does not appear, run `C:\Program Files\Game Night Access Adapter\run-app.cmd`. Install log: `%ProgramData%\GameNightAccessAdapter\install.log`.
 
 Uninstall from that copy's `uninstall.bat`, or from Apps & Features. Settings remain in `%APPDATA%\GameNightAccessAdapter`.
 
