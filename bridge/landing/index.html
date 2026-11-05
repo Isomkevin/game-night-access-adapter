@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Night Access Adapter — Play LibreCorsa your way</title>
+    <meta
+      name="description"
+      content="Remappable camera, voice, phone, and on-screen controls for LibreCorsa. Software-only accessibility adapter co-designed with players who need different ways to race."
+    />
+    <meta name="theme-color" content="#0b3d3a" />
+    <link rel="icon" type="image/svg+xml" href="/landing/mark.svg" />
+    <link rel="apple-touch-icon" href="/landing/mark.svg" />
+    <meta property="og:title" content="Game Night Access Adapter" />
+    <meta
+      property="og:description"
+      content="Race LibreCorsa with the controls that match how you move — phone tilt, head tracking, voice, or on-screen pad. Remap without editing code."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="/ui/tokens.css" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <a class="logo" href="/" aria-label="Game Night Access Adapter home">
+        <img src="/landing/mark.svg" width="36" height="36" alt="" />
+        <span class="logo-text">
+          <span class="logo-name">Game Night</span>
+          <span class="logo-sub">Access Adapter</span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="#how">How it works</a>
+        <a href="#controls">Controls</a>
+        <a href="#start">Get started</a>
+        <a
+          class="nav-external"
+          href="https://github.com/Isomkevin/game-night-access-adapter"
+          rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </nav>
+      <a class="gnaa-btn gnaa-btn--amber header-cta" href="/hub/">Open control hub</a>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Game Night Access Adapter</p>
+          <h1 id="hero-title" class="brand">Play together without assuming fast fingers.</h1>
+          <p class="hero-lede">
+            Remap phone tilt, head movement, voice, and on-screen controls onto the keys LibreCorsa
+            already understands — no extra hardware, no code edits.
+          </p>
+          <div class="hero-cta">
+            <a class="gnaa-btn gnaa-btn--amber" href="/hub/">Choose your controls</a>
+            <a
+              class="gnaa-btn gnaa-btn--secondary"
+              href="https://github.com/Isomkevin/game-night-access-adapter#quick-start"
+              rel="noopener noreferrer"
+              >Install the extension</a
+            >
+          </div>
+          <p class="hero-meta gnaa-hint">
+            Co-designed with Justin Machogu · Built for Chrome + LibreCorsa
+          </p>
+        </div>
+
+        <div class="hero-stage" aria-hidden="true">
+          <div class="stage-glow"></div>
+          <figure class="product-frame">
+            <figcaption class="frame-chrome">
+              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              <span class="frame-title">Remap · live</span>
+            </figcaption>
+            <div class="product-body">
+              <div class="signal-rail">
+                <span class="signal signal--phone is-live">Phone tilt</span>
+                <span class="signal signal--camera">Head yaw</span>
+                <span class="signal signal--voice">Voice “boost”</span>
+                <span class="signal signal--pad">On-screen pad</span>
+              </div>
+              <div class="remap-core">
+                <p class="remap-label">Your mapping</p>
+                <ul class="remap-list">
+                  <li><code>phone:tiltLeft</code><span>→</span><strong>Steer left</strong></li>
+                  <li><code>camera:yawRight</code><span>→</span><strong>Steer right</strong></li>
+                  <li><code>voice:boost</code><span>→</span><strong>Space</strong></li>
+                  <li><code>demo:throttle</code><span>→</span><strong>KeyW</strong></li>
+                </ul>
+              </div>
+              <div class="game-keys" aria-hidden="true">
+                <span class="key">A</span>
+                <span class="key key--active">W</span>
+                <span class="key">D</span>
+                <span class="key key--boost">␣</span>
+              </div>
+            </div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="section problem" aria-labelledby="problem-title">
+        <div class="section-inner narrow">
+          <p class="eyebrow">The problem</p>
+          <h2 id="problem-title">Browser games assume a mouse, chords, and continuous pace.</h2>
+          <p class="section-lede">
+            That locks players with motor access needs out of racing with friends and family.
+            Justin’s ask was simple and non-negotiable: <strong>fully remappable controls</strong>
+            that match the movements he can use — on a MacBook, with software only.
+          </p>
+        </div>
+      </section>
+
+      <section class="section how" id="how" aria-labelledby="how-title">
+        <div class="section-inner">
+          <p class="eyebrow">How it works</p>
+          <h2 id="how-title">Accessible inputs become the keys the game already hears.</h2>
+          <p class="section-lede">
+            We do not rewrite LibreCorsa. A local bridge and Chrome extension translate your inputs
+            into keyboard codes during the driving phase.
+          </p>
+
+          <ol class="flow" aria-label="Input pipeline">
+            <li class="flow-step">
+              <span class="flow-num">1</span>
+              <h3>Sense</h3>
+              <p>Phone, camera, voice, or the extension pad emit logical actions.</p>
+            </li>
+            <li class="flow-step">
+              <span class="flow-num">2</span>
+              <h3>Bridge</h3>
+              <p>A WebSocket hub on this host fans events to the extension.</p>
+            </li>
+            <li class="flow-step">
+              <span class="flow-num">3</span>
+              <h3>Remap</h3>
+              <p>Your profile maps <code>source:action</code> → game action → key code.</p>
+            </li>
+            <li class="flow-step">
+              <span class="flow-num">4</span>
+              <h3>Drive</h3>
+              <p>Synthetic keydown/keyup reach LibreCorsa while you are on track.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="section controls" id="controls" aria-labelledby="controls-title">
+        <div class="section-inner">
+          <p class="eyebrow">Control methods</p>
+          <h2 id="controls-title">Pick the body movement that works — combine them if you want.</h2>
+          <p class="section-lede">
+            Every method below is a real page on this bridge. Keep the Chrome extension installed and
+            LibreCorsa focused in a driving session.
+          </p>
+
+          <div class="method-grid">
+            <a class="method-card" href="/phone/">
+              <span class="gnaa-chip gnaa-chip--ok">Available</span>
+              <h3>Phone controller</h3>
+              <p>Tilt to steer. Large throttle, brake, and boost buttons on the same Wi‑Fi.</p>
+              <span class="method-go">Open phone UI</span>
+            </a>
+            <a class="method-card" href="/camera/">
+              <span class="gnaa-chip gnaa-chip--warn">Experimental</span>
+              <h3>Head &amp; vision</h3>
+              <p>Webcam head, face, or hand movements. Calibrate first; nothing is uploaded.</p>
+              <span class="method-go">Open camera UI</span>
+            </a>
+            <a class="method-card" href="/voice/">
+              <span class="gnaa-chip gnaa-chip--warn">Experimental</span>
+              <h3>Voice commands</h3>
+              <p>Short spoken taps — “go”, “boost”, “pause” — not continuous holds.</p>
+              <span class="method-go">Open voice UI</span>
+            </a>
+            <a
+              class="method-card"
+              href="https://github.com/Isomkevin/game-night-access-adapter/tree/main/extension"
+              rel="noopener noreferrer"
+            >
+              <span class="gnaa-chip gnaa-chip--info">Works offline</span>
+              <h3>On-screen pad</h3>
+              <p>Hold or latch buttons in the extension popup. No bridge required to smoke-test.</p>
+              <span class="method-go">Extension docs</span>
+            </a>
+          </div>
+
+          <p class="hub-link">
+            Prefer a single menu?
+            <a href="/hub/">Open the control hub</a>
+            — it also shows live bridge status.
+          </p>
+        </div>
+      </section>
+
+      <section class="section remap" aria-labelledby="remap-title">
+        <div class="section-inner remap-layout">
+          <div>
+            <p class="eyebrow">Justin’s core need</p>
+            <h2 id="remap-title">Change mappings without editing code.</h2>
+            <p class="section-lede">
+              Extension Setup walks Welcome → Choose → Customize → Ready. Profiles live in Chrome
+              storage and export as JSON. Defaults match LibreCorsa’s own bindings.
+            </p>
+            <ul class="check-list">
+              <li>48px touch targets and high-legibility type (Atkinson Hyperlegible)</li>
+              <li>Hold vs latch modes; Stop all inputs when something sticks</li>
+              <li>Works on Justin’s macOS MacBook — no USB gamepad or ADB</li>
+            </ul>
+          </div>
+          <aside class="key-map gnaa-card" aria-label="Default LibreCorsa bindings">
+            <h3>Default game keys</h3>
+            <dl>
+              <div><dt>Steer</dt><dd>A / D</dd></div>
+              <div><dt>Throttle / brake</dt><dd>W / S</dd></div>
+              <div><dt>Boost</dt><dd>Space</dd></div>
+              <div><dt>Pause</dt><dd>Esc</dd></div>
+              <div><dt>Gears</dt><dd>E / Q</dd></div>
+            </dl>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section start" id="start" aria-labelledby="start-title">
+        <div class="section-inner">
+          <p class="eyebrow">Get started</p>
+          <h2 id="start-title">From zero to driving with accessible controls.</h2>
+          <ol class="start-steps">
+            <li>
+              <strong>Run LibreCorsa</strong> locally at
+              <a href="http://localhost:3000" rel="noopener noreferrer">localhost:3000</a>
+              or open
+              <a href="https://khazp.github.io/librecorsa/" rel="noopener noreferrer"
+                >the hosted build</a
+              >, then enter a driving session.
+            </li>
+            <li>
+              <strong>Load the Chrome extension</strong> unpacked from
+              <code>extension/</code> — see the
+              <a
+                href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/ONBOARDING.md"
+                rel="noopener noreferrer"
+                >onboarding guide</a
+              >.
+            </li>
+            <li>
+              <strong>Use this bridge</strong> for phone, camera, or voice — open the
+              <a href="/hub/">control hub</a>, then focus the game canvas.
+            </li>
+          </ol>
+          <div class="start-cta">
+            <a class="gnaa-btn gnaa-btn--amber" href="/hub/">Open control hub</a>
+            <a
+              class="gnaa-btn gnaa-btn--secondary"
+              href="https://github.com/Isomkevin/game-night-access-adapter"
+              rel="noopener noreferrer"
+              >View repository</a
+            >
+            <a
+              class="gnaa-btn gnaa-btn--ghost"
+              href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/presentation.html"
+              rel="noopener noreferrer"
+              >Open presentation</a
+            >
+          </div>
+          <p class="gnaa-hint start-note">
+            Status: Phase A scaffold + extension demo path landed. Treat camera, voice, and phone as
+            supported only after co-designer sessions are logged.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img src="/landing/mark.svg" width="28" height="28" alt="" />
+        <div>
+          <p class="brand footer-name">Game Night Access Adapter</p>
+          <p class="gnaa-hint">Inclusive racing companion · MIT adapter code</p>
+        </div>
+      </div>
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="/hub/">Control hub</a>
+        <a href="/health">Health</a>
+        <a href="https://github.com/Isomkevin/game-night-access-adapter" rel="noopener noreferrer"
+          >GitHub</a
+        >
+        <a
+          href="https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit"
+          rel="noopener noreferrer"
+          >AI for Accessibility Toolkit</a
+        >
+        <a href="https://github.com/KhazP/librecorsa" rel="noopener noreferrer">LibreCorsa</a>
+      </nav>
+      <p class="footer-copy">
+        Game Night team with co-designer Justin Machogu. LibreCorsa MIT · Toolkit Apache-2.0.
+      </p>
+    </footer>
+
+    <script type="module" src="/landing/landing.js"></script>
+  </body>
+</html>

@@ -126,7 +126,7 @@ npm install
 npm start
 ```
 
-Open the **control hub** at `http://127.0.0.1:18765/` — it links to phone, camera, and voice with readiness labels. Health check:
+Open the **product landing** at `http://127.0.0.1:18765/` or the **control hub** at `http://127.0.0.1:18765/hub/` — the hub links to phone, camera, and voice with readiness labels. Health check:
 
 ```bash
 curl http://127.0.0.1:18765/health
@@ -137,7 +137,8 @@ Reload the extension (or click **Reconnect** in the popup). Badge should become 
 
 | Input | Open | Notes |
 | --- | --- | --- |
-| Hub | `http://127.0.0.1:18765/` | Chooser for all methods |
+| Landing | `http://127.0.0.1:18765/` | Public product page |
+| Hub | `http://127.0.0.1:18765/hub/` | Chooser for all methods |
 | Phone | `http://127.0.0.1:18765/phone/` or `http://<your-lan-ip>:18765/phone/` | Same Wi‑Fi; Enable motion; Hold or Latch buttons |
 | Camera | `http://127.0.0.1:18765/camera/` | Experimental; calibrate; Pause control releases stuck inputs |
 | Voice | `http://127.0.0.1:18765/voice/` | Experimental short taps; Chrome + mic; auto-restarts listening |

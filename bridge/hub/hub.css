@@ -4,6 +4,21 @@
   padding: 32px 20px 64px;
 }
 
+.back-home {
+  margin: 0 0 18px;
+}
+
+.back-home a {
+  color: var(--gnaa-teal);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.back-home a:hover,
+.back-home a:focus-visible {
+  text-decoration: underline;
+}
+
 .eyebrow {
   margin: 0 0 6px;
   font-size: 0.85rem;

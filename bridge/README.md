@@ -38,7 +38,8 @@ npm run dev
 
 ```text
 Game Night bridge on http://127.0.0.1:18765
-  Hub        http://127.0.0.1:18765/
+  Landing    http://127.0.0.1:18765/
+  Hub        http://127.0.0.1:18765/hub/
   WebSocket  ws://127.0.0.1:18765
   Phone UI   http://127.0.0.1:18765/phone/
   Camera UI  http://127.0.0.1:18765/camera/
@@ -60,7 +61,9 @@ curl http://127.0.0.1:18765/health
 
 | Path | Serves |
 | --- | --- |
-| `/`, `/hub/` | Control-method hub ([`hub/`](hub/)) |
+| `/` | Product landing ([`landing/`](landing/)) |
+| `/hub/` | Control-method hub ([`hub/`](hub/)) |
+| `/landing/*` | Landing assets (CSS, mark, favicon) |
 | `/health` | JSON status |
 | `/phone/`, `/phone/*` | [`../phone-controller/`](../phone-controller/) |
 | `/camera/`, `/camera/*` | [`../camera/`](../camera/) |
@@ -80,6 +83,8 @@ curl http://127.0.0.1:18765/health
 | File | Role |
 | --- | --- |
 | `server.js` | HTTP static + `ws` hub |
+| `landing/` | Public product landing at `/` |
+| `hub/` | Control-method chooser at `/hub/` |
 | `package.json` | `ws` dependency, `npm start` |
 
 ## Configuration

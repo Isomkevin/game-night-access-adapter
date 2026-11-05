@@ -83,7 +83,8 @@ npm start
 
 | UI | Local | Hosted (Render) |
 | --- | --- | --- |
-| Control hub | `http://127.0.0.1:18765/` | https://game-night-bridge.onrender.com/ |
+| Landing | `http://127.0.0.1:18765/` | https://game-night-bridge.onrender.com/ |
+| Control hub | `http://127.0.0.1:18765/hub/` | https://game-night-bridge.onrender.com/hub/ |
 | Phone | `http://127.0.0.1:18765/phone/` (or LAN IP) | https://game-night-bridge.onrender.com/phone/ |
 | Camera | `http://127.0.0.1:18765/camera/` | https://game-night-bridge.onrender.com/camera/ |
 | Head-only steering | `http://127.0.0.1:18765/camera/head-steering.html` | https://game-night-bridge.onrender.com/camera/head-steering.html |
