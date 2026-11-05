@@ -15,11 +15,15 @@ import { WebSocketServer } from 'ws';
 import os from 'node:os';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PORT = Number(process.env.GNAA_PORT || 18765);
+// Render (and most PaaS) inject PORT; keep GNAA_PORT for local overrides.
+const PORT = Number(process.env.PORT || process.env.GNAA_PORT || 18765);
+const LANDING_DIR = path.resolve(__dirname, 'landing');
+const HUB_DIR = path.resolve(__dirname, 'hub');
 const PHONE_DIR = path.resolve(__dirname, '../phone-controller');
 const CAMERA_DIR = path.resolve(__dirname, '../camera');
 const VOICE_DIR = path.resolve(__dirname, '../voice');
 const TOOLKIT_TOOLS_DIR = path.resolve(__dirname, '../toolkit/tools');
+const UI_DIR = path.resolve(__dirname, '../packages/ui');
 
 /** @type {Map<import('ws').WebSocket, { role: string }>} */
 const clients = new Map();
@@ -30,6 +34,9 @@ function mime(filePath) {
   if (filePath.endsWith('.css')) return 'text/css; charset=utf-8';
   if (filePath.endsWith('.json')) return 'application/json';
   if (filePath.endsWith('.svg')) return 'image/svg+xml';
+  if (filePath.endsWith('.png')) return 'image/png';
+  if (filePath.endsWith('.webp')) return 'image/webp';
+  if (filePath.endsWith('.ico')) return 'image/x-icon';
   return 'application/octet-stream';
 }
 
@@ -56,8 +63,13 @@ function broadcast(obj, except) {
   for (const [ws, meta] of clients) {
     if (ws === except) continue;
     if (ws.readyState !== 1) continue;
-    // Inputs go to extensions; status goes to everyone
-    if (obj.type === 'input' && meta.role !== 'extension') continue;
+    // Inputs + setRemap go to extensions; status goes to everyone
+    if (
+      (obj.type === 'input' || obj.type === 'setRemap') &&
+      meta.role !== 'extension'
+    ) {
+      continue;
+    }
     ws.send(raw);
   }
 }
@@ -95,7 +107,15 @@ const server = http.createServer((req, res) => {
   }
 
   let filePath;
-  if (url.pathname === '/' || url.pathname === '/phone' || url.pathname === '/phone/') {
+  if (url.pathname === '/' || url.pathname === '/index.html') {
+    filePath = path.join(LANDING_DIR, 'index.html');
+  } else if (url.pathname.startsWith('/landing/')) {
+    filePath = path.join(LANDING_DIR, url.pathname.slice('/landing/'.length));
+  } else if (url.pathname === '/hub' || url.pathname === '/hub/') {
+    filePath = path.join(HUB_DIR, 'index.html');
+  } else if (url.pathname.startsWith('/hub/')) {
+    filePath = path.join(HUB_DIR, url.pathname.slice('/hub/'.length));
+  } else if (url.pathname === '/phone' || url.pathname === '/phone/') {
     filePath = path.join(PHONE_DIR, 'index.html');
   } else if (url.pathname.startsWith('/phone/')) {
     filePath = path.join(PHONE_DIR, url.pathname.slice('/phone/'.length));
@@ -109,10 +129,12 @@ const server = http.createServer((req, res) => {
     filePath = path.join(VOICE_DIR, url.pathname.slice('/voice/'.length));
   } else if (url.pathname.startsWith('/toolkit/tools/')) {
     filePath = path.join(TOOLKIT_TOOLS_DIR, url.pathname.slice('/toolkit/tools/'.length));
+  } else if (url.pathname.startsWith('/ui/')) {
+    filePath = path.join(UI_DIR, url.pathname.slice('/ui/'.length));
   } else if (url.pathname.startsWith('/shared/')) {
     filePath = path.join(__dirname, '../packages/shared', url.pathname.slice('/shared/'.length));
   } else {
-    // Convenience: /style.css from phone root
+    // Convenience: legacy root assets from phone
     filePath = path.join(PHONE_DIR, url.pathname.slice(1));
   }
   serveFile(res, path.normalize(filePath));
@@ -147,6 +169,20 @@ wss.on('connection', (ws) => {
       broadcast(event, ws);
       return;
     }
+
+    if (msg.type === 'setRemap' && msg.entries && typeof msg.entries === 'object') {
+      broadcast(
+        {
+          type: 'setRemap',
+          entries: msg.entries,
+          merge: msg.merge !== false,
+          ts: msg.ts || Date.now(),
+          v: msg.v || 1,
+        },
+        ws
+      );
+      return;
+    }
   });
 
   ws.on('close', () => {
@@ -158,11 +194,14 @@ wss.on('connection', (ws) => {
 server.listen(PORT, '0.0.0.0', () => {
   const lans = lanAddresses();
   console.log(`Game Night bridge on http://127.0.0.1:${PORT}`);
+  console.log(`  Landing    http://127.0.0.1:${PORT}/`);
+  console.log(`  Hub        http://127.0.0.1:${PORT}/hub/`);
   console.log(`  WebSocket  ws://127.0.0.1:${PORT}`);
   console.log(`  Phone UI   http://127.0.0.1:${PORT}/phone/`);
   console.log(`  Camera UI  http://127.0.0.1:${PORT}/camera/`);
   console.log(`  Voice UI   http://127.0.0.1:${PORT}/voice/`);
   for (const ip of lans) {
     console.log(`  Phone LAN  http://${ip}:${PORT}/phone/`);
+    console.log(`  Hub LAN    http://${ip}:${PORT}/hub/`);
   }
 });

@@ -2,6 +2,8 @@
 
 Goal of this guide: on a clean machine, go from zero to **steering LibreCorsa with the extension demo pad** in under 30 minutes, then optionally add bridge inputs (phone / camera / voice).
 
+Before you dig into commands, skim **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** for what the adapter is supposed to be and do (problem, inputs, remap, status).
+
 ## Who this project is for
 
 | Role | Read first | Then own |
@@ -10,7 +12,7 @@ Goal of this guide: on a clean machine, go from zero to **steering LibreCorsa wi
 | Kevin | [extension/README.md](../extension/README.md) | Extension, monorepo, coordination |
 | Omar | [bridge/README.md](../bridge/README.md), [phone-controller/README.md](../phone-controller/README.md) | Bridge, phone sensors |
 | Bunny | [voice/README.md](../voice/README.md), [toolkit-contribution/](toolkit-contribution/) | Toolkit voice + merges |
-| Tim | [camera/README.md](../camera/README.md) | MediaPipe head tracking |
+| Tim | [camera/README.md](../camera/README.md) | MediaPipe vision controller |
 | Testers (Justin) | Quick start below + remap UI | Feedback in [testing-log.md](testing-log.md) |
 
 ## Prerequisites
@@ -88,26 +90,31 @@ Badge meanings:
 
 | Badge | Meaning |
 | --- | --- |
-| `demo` | Bridge offline — popup demo pad still works |
-| `…` | Connecting to bridge |
-| `ON` | Bridge WebSocket connected |
+| `OFF` | Access bridge offline — on-screen popup controls still work |
+| `…` | Connecting to the access bridge |
+| `ON` | Access bridge connected (phone / camera / voice can reach the game) |
+
+**First-run product UI:** open the extension **Options** page (popup → **Setup**, or right-click the extension → Options). It walks through Welcome → Choose controls → Setup → Customize → Ready. Advanced connection settings stay under **Advanced**.
 
 ### 2c. Drive with the demo pad
 
 1. Focus the **LibreCorsa** tab (click the game canvas)
 2. Open the extension popup
-3. **Hold** Throttle / Left / Right (pointer down = key down)
+3. Use **Hold** or **Latch** mode for Throttle / Left / Right
 4. You should see the car respond
+5. Use **Stop all inputs** if a control sticks
 
 If nothing happens → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)#extension-demo-pad-does-nothing
 
 ### 2d. Remap (Justin’s core need)
 
-Popup → **Remap controls** (or extension → Options).
+Popup → **Setup** (or extension → Options) → **Customize**.
 
-- Change any logical input → game action
+- Choose a human-readable game action for each input
+- Use **Test** on a row while the game is focused and driving
 - Changes save to `chrome.storage.local` immediately
-- **Export profile** / **Import profile** for backup or sharing with Justin
+- Save named **presets**, or **Export / Import settings (JSON)** for backup
+- Key-code overrides stay under **Advanced: match keys rebound in the game**
 
 ## 3. Full path — bridge + alternate inputs
 
@@ -119,22 +126,24 @@ npm install
 npm start
 ```
 
-You should see URLs for phone, camera, and voice. Health check:
+Open the **product landing** at `http://127.0.0.1:18765/` or the **control hub** at `http://127.0.0.1:18765/hub/` — the hub links to phone, camera, and voice with readiness labels. Health check:
 
 ```bash
 curl http://127.0.0.1:18765/health
 # {"ok":true,"clients":{...}}
 ```
 
-Reload the extension (or click **Reconnect bridge** in the popup). Badge should become `ON`.
+Reload the extension (or click **Reconnect** in the popup). Badge should become `ON`.
 
 | Input | Open | Notes |
 | --- | --- | --- |
-| Phone | `http://127.0.0.1:18765/phone/` or `http://<your-lan-ip>:18765/phone/` on the phone | Same Wi‑Fi; allow motion; large throttle/brake buttons |
-| Camera | `http://127.0.0.1:18765/camera/` | Allow webcam; keep tab open; tilt head to steer |
-| Voice | `http://127.0.0.1:18765/voice/` | Chrome + mic; say “turn left”, “go”, “stop”, … |
+| Landing | `http://127.0.0.1:18765/` | Public product page |
+| Hub | `http://127.0.0.1:18765/hub/` | Chooser for all methods |
+| Phone | `http://127.0.0.1:18765/phone/` or `http://<your-lan-ip>:18765/phone/` | Same Wi‑Fi; Enable motion; Hold or Latch buttons |
+| Camera | `http://127.0.0.1:18765/camera/` | Experimental; calibrate; Pause control releases stuck inputs |
+| Voice | `http://127.0.0.1:18765/voice/` | Experimental short taps; Chrome + mic; auto-restarts listening |
 
-Keep **LibreCorsa focused** while testing holds (throttle/steer). Voice uses `pulse` (short key taps).
+Keep **LibreCorsa focused** while testing holds (throttle/steer). Voice uses `pulse` (short key taps) — not continuous drive.
 
 ## 4. How data moves (mental model)
 
@@ -163,7 +172,7 @@ Design rationale: [architecture.md](architecture.md).
 | Change remap defaults | `DEFAULT_REMAP` in both protocol files |
 | Change injection / tab matching | `extension/background.js`, `extension/content/` |
 | Change bridge port / routing | `bridge/server.js`, env `GNAA_PORT` |
-| Tune head-steer sensitivity | `camera/camera.js` (`YAW_DEADZONE`, `YAW_FULL`) |
+| Tune camera gestures / sensitivity | Camera page UI (thresholds, calibrate, profiles) or `camera/lib/` |
 | Add voice phrases (demo) | `voice/voice.js` (`PHRASES`) |
 | Wire toolkit Controller | See [toolkit-contribution/](toolkit-contribution/) — do not only change the Web Speech demo |
 

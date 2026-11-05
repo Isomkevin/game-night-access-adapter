@@ -6,18 +6,35 @@
   if (window.__gnaaHookInstalled) return;
   window.__gnaaHookInstalled = true;
 
-  const CODE_TO_KEY = {
-    KeyA: 'a',
-    KeyD: 'd',
-    KeyW: 'w',
-    KeyS: 's',
-    KeyE: 'e',
-    KeyQ: 'q',
-    KeyX: 'x',
+  const NAMED_CODE_TO_KEY = {
     Space: ' ',
     Escape: 'Escape',
     Backspace: 'Backspace',
+    Tab: 'Tab',
+    Enter: 'Enter',
+    ShiftLeft: 'Shift',
+    ShiftRight: 'Shift',
+    ControlLeft: 'Control',
+    ControlRight: 'Control',
+    AltLeft: 'Alt',
+    AltRight: 'Alt',
+    MetaLeft: 'Meta',
+    MetaRight: 'Meta',
+    ArrowLeft: 'ArrowLeft',
+    ArrowRight: 'ArrowRight',
+    ArrowUp: 'ArrowUp',
+    ArrowDown: 'ArrowDown',
   };
+
+  /** @param {string} code */
+  function codeToKey(code) {
+    if (!code) return '';
+    if (NAMED_CODE_TO_KEY[code]) return NAMED_CODE_TO_KEY[code];
+    if (code.startsWith('Key') && code.length === 4) return code.slice(3).toLowerCase();
+    if (code.startsWith('Digit') && code.length === 6) return code.slice(5);
+    if (code.startsWith('Numpad') && code.length === 7) return code.slice(6);
+    return code;
+  }
 
   window.addEventListener('message', (event) => {
     if (event.source !== window) return;
@@ -27,7 +44,7 @@
     const code = data.code;
     const keyType = data.keyType === 'keyup' ? 'keyup' : 'keydown';
     if (!code) return;
-    const key = CODE_TO_KEY[code] ?? code;
+    const key = typeof data.key === 'string' && data.key ? data.key : codeToKey(code);
     window.dispatchEvent(
       new KeyboardEvent(keyType, {
         key,

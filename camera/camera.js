@@ -1,146 +1,284 @@
 /**
- * MediaPipe Face Landmarker → head yaw → bridge input events.
- * Runs entirely in-browser (macOS-friendly). Assigned to Tim; Kevin backup.
+ * Vision-based accessibility input orchestrator.
+ * Detection → signals → calibration → interpretation → bridge events.
  */
 
+import { DrawingUtils } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm';
+import { createCapture } from './lib/capture.js';
+import { createFaceDetector } from './lib/detectors/face.js';
+import { createHandDetector } from './lib/detectors/hands.js';
+import { extractSignals, applyBaseline } from './lib/signals.js';
+import { captureBaseline } from './lib/calibration.js';
+import { createInterpreter } from './lib/interpreter.js';
+import { createEmitter } from './lib/emitter.js';
 import {
-  FaceLandmarker,
-  FilesetResolver,
-  DrawingUtils,
-} from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm';
+  getActiveProfile,
+  saveProfile,
+  gestureConfigsFromProfile,
+  remapEntriesFromProfile,
+} from './lib/profiles.js';
+import { mountSetupUI } from './ui/setup.js';
 
 const statusEl = document.getElementById('status');
 const video = document.getElementById('video');
 const canvas = document.getElementById('overlay');
-const yawEl = document.getElementById('yaw');
 const ctx = canvas.getContext('2d');
+const setupRoot = document.getElementById('setup');
 
-const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-const wsUrl = `${proto}://${location.host}`;
+/** @type {import('./lib/profiles.js').CameraProfile} */
+let profile = getActiveProfile();
+let faceDetector = null;
+/** @type {Awaited<ReturnType<typeof createHandDetector>>|null} */
+let handDetector = null;
+let handLoading = null;
+let interpreter = createInterpreter(gestureConfigsFromProfile(profile));
+/** @type {object|null} */
+let lastFace = null;
+/** @type {object|null} */
+let lastHand = null;
 
-/** @type {WebSocket|null} */
-let socket = null;
-let lastSteer = 'none';
-const YAW_DEADZONE = 0.08; // normalized approx
-const YAW_FULL = 0.28;
+const capture = createCapture(video, { lostTimeoutMs: 2500 });
 
-function send(msg) {
-  if (socket && socket.readyState === WebSocket.OPEN) {
-    socket.send(JSON.stringify(msg));
+const emitter = createEmitter({
+  onStatus(s) {
+    if (s === 'connected') setStatus('Connected — tracking your movements');
+    else setStatus('Connection lost — retrying… On-screen controls still work in the extension.');
+  },
+});
+
+function setStatus(msg) {
+  statusEl.textContent = msg;
+}
+
+function rebuildInterpreter() {
+  interpreter = createInterpreter(gestureConfigsFromProfile(profile));
+}
+
+function needsHands() {
+  return !!(profile.categories.hands || profile.categories.fingers);
+}
+
+function needsFace() {
+  return !!(profile.categories.head || profile.categories.face);
+}
+
+async function ensureHandDetector() {
+  if (!needsHands()) {
+    if (handDetector) {
+      handDetector.close();
+      handDetector = null;
+    }
+    return;
+  }
+  if (handDetector || handLoading) return handLoading;
+  setStatus('Loading hand gesture model…');
+  handLoading = createHandDetector()
+    .then((d) => {
+      handDetector = d;
+      handLoading = null;
+      setStatus('Hand model ready');
+    })
+    .catch((err) => {
+      handLoading = null;
+      setStatus(`Hand model error: ${err.message || err}`);
+    });
+  return handLoading;
+}
+
+function beep() {
+  if (!profile.audioFeedback) return;
+  try {
+    const ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctxAudio.createOscillator();
+    const g = ctxAudio.createGain();
+    o.frequency.value = 880;
+    g.gain.value = 0.04;
+    o.connect(g);
+    g.connect(ctxAudio.destination);
+    o.start();
+    o.stop(ctxAudio.currentTime + 0.06);
+    setTimeout(() => ctxAudio.close(), 200);
+  } catch {
+    /* ignore */
   }
 }
 
-function input(action, state, strength = 1) {
-  send({
-    type: 'input',
-    source: 'camera',
-    action,
-    state,
-    strength,
-    ts: Date.now(),
-    v: 1,
-  });
-}
+const ui = mountSetupUI(setupRoot, {
+  getProfile: () => profile,
+  setProfile(p) {
+    profile = p;
+  },
+  onProfileChange() {
+    rebuildInterpreter();
+    ensureHandDetector();
+  },
+  async calibrate() {
+    setStatus('Calibrating — hold a comfortable neutral pose…');
+    const baseline = await captureBaseline({
+      durationMs: 2500,
+      sample: () => ({ face: lastFace, hand: lastHand }),
+      onProgress(p) {
+        setStatus(`Calibrating… ${Math.round(p * 100)}%`);
+      },
+    });
+    profile.calibration = baseline;
+    saveProfile(profile);
+    setStatus('Calibration saved — intentional movements relative to neutral');
+  },
+  togglePause() {
+    const next = !capture.isPaused();
+    capture.setPaused(next);
+    if (next) {
+      const ups = interpreter.releaseAll();
+      for (const e of ups) {
+        if (profile.emitToBridge !== false) emitter.emit(e.id, 'up', 0);
+      }
+      emitter.releaseAll();
+      setStatus('Camera control paused');
+    } else {
+      setStatus('Camera control resumed');
+    }
+  },
+  isPaused: () => capture.isPaused(),
+  applyRemap() {
+    const entries = remapEntriesFromProfile(profile);
+    emitter.setRemap(entries, true);
+  },
+  setStatus,
+});
 
-function connect() {
-  socket = new WebSocket(wsUrl);
-  socket.addEventListener('open', () => {
-    statusEl.textContent = 'Bridge connected — tracking…';
-    send({ type: 'hello', role: 'camera', v: 1, ts: Date.now() });
-  });
-  socket.addEventListener('close', () => {
-    statusEl.textContent = 'Bridge disconnected — retrying…';
-    setTimeout(connect, 2000);
-  });
-}
-
-/**
- * Rough yaw from face oval landmarks (nose tip vs cheek midpoint).
- * Landmarks: nose tip ~1, left cheek ~234, right cheek ~454 (Face Mesh topology).
- */
-function estimateYaw(landmarks) {
-  if (!landmarks || landmarks.length < 455) return 0;
-  const nose = landmarks[1];
-  const left = landmarks[234];
-  const right = landmarks[454];
-  const midX = (left.x + right.x) / 2;
-  const width = Math.abs(right.x - left.x) || 1e-6;
-  // Positive = turn right (nose right of mid)
-  return (nose.x - midX) / width;
-}
-
-function applyYaw(yaw) {
-  yawEl.textContent = yaw.toFixed(3);
-  let next = 'none';
-  if (yaw <= -YAW_DEADZONE) next = 'left';
-  else if (yaw >= YAW_DEADZONE) next = 'right';
-
-  const strength = Math.min(1, Math.max(0, (Math.abs(yaw) - YAW_DEADZONE) / (YAW_FULL - YAW_DEADZONE)));
-
-  if (next !== lastSteer) {
-    if (lastSteer === 'left') input('tiltLeft', 'up');
-    if (lastSteer === 'right') input('tiltRight', 'up');
-    if (next === 'left') input('tiltLeft', 'down', strength || 0.2);
-    if (next === 'right') input('tiltRight', 'down', strength || 0.2);
-    lastSteer = next;
-  } else if (next === 'left') {
-    input('tiltLeft', 'down', strength || 0.2);
-  } else if (next === 'right') {
-    input('tiltRight', 'down', strength || 0.2);
+capture.onLost((reason) => {
+  const ups = interpreter.releaseAll();
+  for (const e of ups) {
+    if (profile.emitToBridge !== false) emitter.emit(e.id, 'up', 0);
   }
-}
+  emitter.releaseAll();
+  if (reason === 'paused') return;
+  setStatus(`Tracking lost (${reason}) — inputs released`);
+});
 
 async function main() {
-  connect();
-
-  statusEl.textContent = 'Loading MediaPipe…';
-  const vision = await FilesetResolver.forVisionTasks(
-    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm'
-  );
-  const landmarker = await FaceLandmarker.createFromOptions(vision, {
-    baseOptions: {
-      modelAssetPath:
-        'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
-      delegate: 'GPU',
-    },
-    runningMode: 'VIDEO',
-    numFaces: 1,
-  });
-
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: 'user', width: 640, height: 480 },
-    audio: false,
-  });
-  video.srcObject = stream;
-  await video.play();
+  setStatus('Starting camera — allow permission if asked…');
+  faceDetector = await createFaceDetector();
+  await capture.start();
+  await ensureHandDetector();
 
   canvas.width = video.videoWidth || 640;
   canvas.height = video.videoHeight || 480;
   const drawer = new DrawingUtils(ctx);
 
-  statusEl.textContent = 'Camera ready';
+  setStatus('Camera ready — sit comfortably, then calibrate your neutral pose');
 
   let lastVideoTime = -1;
+  let trackingLost = false;
+
+  function releaseHeld(reason) {
+    const ups = interpreter.releaseAll();
+    for (const e of ups) {
+      if (profile.emitToBridge !== false) emitter.emit(e.id, e.state, e.strength);
+    }
+    emitter.releaseAll();
+    if (!trackingLost) {
+      trackingLost = true;
+      setStatus(`Tracking lost (${reason}) — inputs released`);
+    }
+  }
+
   const loop = () => {
-    if (video.currentTime !== lastVideoTime) {
-      lastVideoTime = video.currentTime;
-      const result = landmarker.detectForVideo(video, performance.now());
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (result.faceLandmarks?.[0]) {
-        drawer.drawConnectors(
-          result.faceLandmarks[0],
-          FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-          { color: '#7eb6ff33', lineWidth: 1 }
-        );
-        applyYaw(estimateYaw(result.faceLandmarks[0]));
+    requestAnimationFrame(loop);
+    if (capture.isPaused()) return;
+    if (video.currentTime === lastVideoTime) return;
+    lastVideoTime = video.currentTime;
+    capture.markFrame();
+
+    const ts = performance.now();
+    lastFace = needsFace() ? faceDetector.detect(video, ts) : null;
+    lastHand = handDetector && needsHands() ? handDetector.detect(video, ts) : null;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (lastFace?.faceLandmarks?.[0]) {
+      drawer.drawConnectors(
+        lastFace.faceLandmarks[0],
+        faceDetector.FaceLandmarker.FACE_LANDMARKS_TESSELATION,
+        { color: '#7eb6ff33', lineWidth: 1 }
+      );
+    }
+    if (lastHand?.landmarks?.[0]) {
+      try {
+        drawer.drawLandmarks(lastHand.landmarks[0], {
+          color: '#9fe870',
+          lineWidth: 1,
+          radius: 3,
+        });
+      } catch {
+        for (const pt of lastHand.landmarks[0]) {
+          const x = pt.x * canvas.width;
+          const y = pt.y * canvas.height;
+          ctx.fillStyle = '#9fe870';
+          ctx.beginPath();
+          ctx.arc(x, y, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
-    requestAnimationFrame(loop);
+
+    const faceOk = !needsFace() || !!lastFace?.faceLandmarks?.[0];
+    const handOk = !needsHands() || !!lastHand?.landmarks?.[0];
+    const trackingOk =
+      (!needsFace() || faceOk) && (!needsHands() || handOk || needsFace());
+
+    // Hands-only profile: require a hand. Face profile: require a face.
+    if (needsFace() && !faceOk) {
+      releaseHeld('no-face');
+      ui.updateLive(extractSignals(null, lastHand), []);
+      return;
+    }
+    if (!needsFace() && needsHands() && !handOk) {
+      releaseHeld('no-hand');
+      ui.updateLive(extractSignals(null, null), []);
+      return;
+    }
+
+    if (trackingLost && trackingOk) {
+      trackingLost = false;
+      setStatus('Tracking recovered');
+    }
+
+    const absolute = extractSignals(lastFace, lastHand, { mirrorSubject: true });
+    const relative = applyBaseline(absolute, profile.calibration);
+    const events = interpreter.update(relative, ts);
+
+    /** @type {string[]} */
+    const activeIds = [];
+    for (const ev of events) {
+      activeIds.push(ev.id);
+      if (ev.state === 'down' || ev.state === 'pulse') beep();
+      if (profile.emitToBridge !== false) {
+        emitter.emit(ev.id, ev.state, ev.strength);
+      }
+    }
+
+    for (const id of emitter.getHeld()) activeIds.push(id);
+    emitter.refresh(ts);
+    ui.updateLive(relative, [...new Set(activeIds)]);
   };
   loop();
 }
 
 main().catch((err) => {
   console.error(err);
-  statusEl.textContent = `Camera error: ${err.message || err}`;
+  const msg = String(err.message || err);
+  if (/NotAllowedError|Permission/i.test(msg)) {
+    setStatus('Camera permission needed — allow access in the browser, then reload this page.');
+  } else {
+    setStatus(`Could not start the camera: ${msg}`);
+  }
+});
+
+window.addEventListener('pagehide', () => {
+  interpreter.releaseAll();
+  emitter.dispose();
+  capture.dispose();
+  faceDetector?.close();
+  handDetector?.close();
 });

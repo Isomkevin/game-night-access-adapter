@@ -18,12 +18,16 @@
 5. Toolkit integration + issues logged
 6. What’s next (universal adapter vision — honest about PoC scope)
 
+## Slides
+
+Open **[presentation.html](presentation.html)** in a browser (full-screen recommended). Use ← / → or space.
+
 ## Repo hygiene before judging
 
-- [ ] Public repo updated
-- [ ] README run steps work on a clean clone (`--recurse-submodules`)
-- [ ] Toolkit PR link in README
+- [x] Public repo updated
+- [x] README run steps work on a clean clone (`--recurse-submodules`) — see ONBOARDING
+- [x] Toolkit PR link in README — [#55](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/pull/55)
 - [ ] `docs/testing-log.md` has Justin session notes
-- [ ] `docs/writeup.md` filled
+- [x] `docs/writeup.md` filled
 - [ ] Demo video URL
 - [ ] Wed–Fri 8:30 PM check-ins done / notes captured

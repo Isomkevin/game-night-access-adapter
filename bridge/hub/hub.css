@@ -1,0 +1,106 @@
+.hub {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+.back-home {
+  margin: 0 0 18px;
+}
+
+.back-home a {
+  color: var(--gnaa-teal);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.back-home a:hover,
+.back-home a:focus-visible {
+  text-decoration: underline;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gnaa-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.brand {
+  margin: 0 0 10px;
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  color: var(--gnaa-teal-deep);
+}
+
+.lede {
+  margin: 0 0 18px;
+  max-width: 40rem;
+  color: var(--gnaa-muted);
+  font-size: 1.05rem;
+}
+
+.conn {
+  margin-bottom: 22px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  background: var(--gnaa-card);
+  border: 2px solid var(--gnaa-border);
+  border-radius: var(--gnaa-radius);
+  text-decoration: none;
+  color: inherit;
+  min-height: 180px;
+  box-shadow: var(--gnaa-shadow);
+  transition: border-color var(--gnaa-transition), transform var(--gnaa-transition);
+}
+
+.card:hover,
+.card:focus-visible {
+  border-color: var(--gnaa-teal);
+  transform: translateY(-2px);
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.card p {
+  margin: 0;
+  color: var(--gnaa-muted);
+  flex: 1;
+}
+
+.help h2 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.help ol {
+  margin: 0 0 12px;
+  padding-left: 1.2rem;
+}
+
+.help li {
+  margin-bottom: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card:hover,
+  .card:focus-visible {
+    transform: none;
+  }
+}

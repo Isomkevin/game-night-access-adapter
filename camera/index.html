@@ -3,27 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Game Night — Head tracking</title>
+    <title>Game Night — Head &amp; vision</title>
+    <link rel="stylesheet" href="/ui/tokens.css" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <header>
-      <h1>Head tracking</h1>
-      <p id="status">Starting camera…</p>
-      <p class="owner">Owner: <strong>Tim</strong> (Kevin backup). Milestone 1 — MediaPipe in-browser, no native deps.</p>
+      <p class="eyebrow">Game Night</p>
+      <h1>Head &amp; vision</h1>
+      <p class="badge">Experimental</p>
+      <p><a href="head-steering.html">Use head-only steering with Start, Stop and Recenter</a></p>
+      <p id="status" aria-live="polite">Starting camera…</p>
+      <p class="lede">
+        Control the game with head, face, or hand movements using your webcam.
+        Choose only the movements you can perform comfortably. Nothing is recorded or uploaded.
+      </p>
     </header>
 
-    <div class="stage">
-      <video id="video" playsinline autoplay muted></video>
-      <canvas id="overlay"></canvas>
-    </div>
+    <div class="layout">
+      <div class="stage-wrap">
+        <div class="stage">
+          <video id="video" playsinline autoplay muted></video>
+          <canvas id="overlay"></canvas>
+        </div>
+        <p class="hint">
+          Keep this tab open beside the game. Sit in a relaxed pose, then calibrate.
+          Use <strong>Pause control</strong> to stop inputs immediately if something goes wrong.
+        </p>
+        <p class="back"><a href="/hub/">← All control methods</a></p>
+      </div>
 
-    <div class="gauge">
-      <span>Yaw (steer)</span>
-      <strong id="yaw">—</strong>
+      <div id="setup"></div>
     </div>
-
-    <p class="hint">Tilt your head left/right to steer. Works without a phone. Keep this tab open beside LibreCorsa.</p>
 
     <script type="module" src="camera.js"></script>
   </body>

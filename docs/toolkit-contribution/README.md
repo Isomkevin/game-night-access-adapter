@@ -18,9 +18,7 @@ Saturday deliverable: **pull request to the toolkit** from the fork.
 
 - Example committed on fork branch `feat/game-night-librecorsa-example`
 - Push succeeded to [Isomkevin/AI-for-Accessibility-Toolkit](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit/tree/feat/game-night-librecorsa-example)
-- `gh pr create` against upstream failed (`must be a collaborator`). Open the PR in the browser once you have rights, or ask a Collective maintainer:
-
-[Compare: upstream main ← Isomkevin feat branch](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/compare/main...Isomkevin:AI-for-Accessibility-Toolkit:feat/game-night-librecorsa-example)
+- **Upstream PR opened:** [AI-for-Accessibility-Toolkit#55](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/pull/55)
 
 ## Steps (if redoing)
 

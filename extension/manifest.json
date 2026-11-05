@@ -2,12 +2,11 @@
   "manifest_version": 3,
   "name": "Game Night Access Adapter",
   "version": "0.1.0",
-  "description": "Remap camera, voice, and phone inputs to LibreCorsa keyboard controls.",
-  "permissions": ["storage", "tabs"],
+  "description": "Remap camera, voice, and phone inputs onto keyboard controls for browser games.",
+  "permissions": ["storage", "tabs", "activeTab"],
   "host_permissions": [
-    "http://localhost:3000/*",
-    "http://127.0.0.1:3000/*",
-    "https://khazp.github.io/librecorsa/*"
+    "http://*/*",
+    "https://*/*"
   ],
   "background": {
     "service_worker": "background.js",
@@ -33,9 +32,8 @@
   "content_scripts": [
     {
       "matches": [
-        "http://localhost:3000/*",
-        "http://127.0.0.1:3000/*",
-        "https://khazp.github.io/librecorsa/*"
+        "http://*/*",
+        "https://*/*"
       ],
       "js": ["content/inject.js"],
       "run_at": "document_idle"
@@ -45,9 +43,8 @@
     {
       "resources": ["content/page-hook.js"],
       "matches": [
-        "http://localhost:3000/*",
-        "http://127.0.0.1:3000/*",
-        "https://khazp.github.io/librecorsa/*"
+        "http://*/*",
+        "https://*/*"
       ]
     }
   ]
