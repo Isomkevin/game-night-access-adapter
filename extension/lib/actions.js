@@ -1,5 +1,6 @@
 /**
  * Vendored from packages/shared/actions.js — rebuild by copying after shared edits.
+ * Defaults match LibreCorsa onboarding keys (WASD + Space boost). No game edits required.
  */
 
 export const GAME_ACTIONS = Object.freeze([

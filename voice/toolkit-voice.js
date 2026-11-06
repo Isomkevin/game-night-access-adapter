@@ -1,6 +1,7 @@
 /**
  * AI-for-Accessibility Toolkit VoiceCommands → bridge input events.
- * Sends shared-protocol logical actions; the phrases for each action are chosen in Voice settings.
+ * Supported path: works with an unmodified LibreCorsa tab via bridge + extension.
+ * Phrases for each action are chosen in Voice settings.
  */
 import { VoiceCommands } from '/toolkit/tools/adapters/voice-commands.js';
 import { applySettings, loadSettings } from './command-settings.js';
@@ -62,22 +63,84 @@ const ACTIONS = {
   go: {
     group: 'Driving',
     label: 'Accelerate (held until brake or coast)',
-    phrases: ['accelerate'],
-    run: () => { release('stop'); hold('go'); },
+    phrases: ['go', 'drive', 'accelerate', 'throttle'],
+    run: () => {
+      release('stop');
+      hold('go');
+    },
   },
   stop: {
     group: 'Driving',
     label: 'Brake (held until accelerate or coast)',
-    phrases: ['brake'],
-    run: () => { release('go'); hold('stop'); },
+    phrases: ['stop', 'brake'],
+    run: () => {
+      release('go');
+      hold('stop');
+    },
   },
-  coast: { group: 'Driving', label: 'Coast (release throttle and brake)', phrases: ['coast'], run: () => { release('go'); release('stop'); } },
-  turnLeft: { group: 'Driving', label: 'Steer left (0.3 s)', phrases: ['left'], run: () => steer('turnLeft') },
-  turnRight: { group: 'Driving', label: 'Steer right (0.3 s)', phrases: ['right'], run: () => steer('turnRight') },
-  gearUp: { group: 'Driving', label: 'Gear up', phrases: ['gear up'], run: () => send('gearUp', 'pulse') },
-  gearDown: { group: 'Driving', label: 'Gear down', phrases: ['gear down'], run: () => send('gearDown', 'pulse') },
-  boost: { group: 'Driving', label: 'Boost', phrases: ['boost'], run: () => send('boost', 'pulse') },
-  pause: { group: 'Driving', label: 'Pause (releases everything)', phrases: ['pause'], run: () => { releaseAll(); send('pause', 'pulse'); } },
+  coast: {
+    group: 'Driving',
+    label: 'Coast (release throttle and brake)',
+    phrases: ['coast', 'free', 'easy'],
+    run: () => {
+      release('go');
+      release('stop');
+    },
+  },
+  turnLeft: {
+    group: 'Driving',
+    label: 'Steer left (0.3 s)',
+    phrases: ['left', 'turn left'],
+    run: () => steer('turnLeft'),
+  },
+  turnRight: {
+    group: 'Driving',
+    label: 'Steer right (0.3 s)',
+    phrases: ['right', 'turn right'],
+    run: () => steer('turnRight'),
+  },
+  gearUp: {
+    group: 'Driving',
+    label: 'Gear up',
+    phrases: ['gear up'],
+    run: () => send('gearUp', 'pulse'),
+  },
+  gearDown: {
+    group: 'Driving',
+    label: 'Gear down',
+    phrases: ['gear down'],
+    run: () => send('gearDown', 'pulse'),
+  },
+  boost: {
+    group: 'Driving',
+    label: 'Boost',
+    phrases: ['boost'],
+    run: () => send('boost', 'pulse'),
+  },
+  aero: {
+    group: 'Driving',
+    label: 'Active aero / DRS',
+    phrases: ['wing', 'aero'],
+    run: () => send('aero', 'pulse'),
+  },
+  restart: {
+    group: 'Driving',
+    label: 'Restart race',
+    phrases: ['restart', 'again'],
+    run: () => {
+      releaseAll();
+      send('restart', 'pulse');
+    },
+  },
+  pause: {
+    group: 'Driving',
+    label: 'Pause (releases everything)',
+    phrases: ['pause'],
+    run: () => {
+      releaseAll();
+      send('pause', 'pulse');
+    },
+  },
 };
 
 let settings = loadSettings(SETTINGS_ID, ACTIONS, DEFAULT_LANGUAGE);
@@ -86,9 +149,15 @@ function renderPhrases() {
   const items = Object.entries(ACTIONS).map(([id, action]) => {
     const list = settings.phrases[id] || [];
     const said = list.length ? list.map((p) => `“${p}”`).join(' / ') : '(off)';
-    return Object.assign(document.createElement('li'), { textContent: `${said} — ${action.label}` });
+    return Object.assign(document.createElement('li'), {
+      textContent: `${said} — ${action.label}`,
+    });
   });
-  items.push(Object.assign(document.createElement('li'), { textContent: '“stop listening” — turn voice off' }));
+  items.push(
+    Object.assign(document.createElement('li'), {
+      textContent: '“stop listening” — turn voice off',
+    })
+  );
   phrasesEl.replaceChildren(...items);
 }
 
@@ -107,7 +176,7 @@ function startListening() {
   VoiceCommands.enable({ interimResults: false, language: settings.language });
   if (VoiceCommands.enabled) {
     btn.textContent = 'Stop listening';
-    statusEl.textContent = 'Listening (toolkit)…';
+    statusEl.textContent = 'Listening…';
   }
 }
 
@@ -134,7 +203,7 @@ const panel = mountVoiceSettings({
 function connect() {
   socket = new WebSocket(wsUrl);
   socket.addEventListener('open', () => {
-    statusEl.textContent = 'Bridge connected';
+    statusEl.textContent = 'Bridge connected — press Start listening';
     socket.send(JSON.stringify({ type: 'hello', role: 'voice', v: 1, ts: Date.now() }));
   });
   socket.addEventListener('close', () => {

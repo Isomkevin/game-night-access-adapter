@@ -1,10 +1,9 @@
 "use client";
 
 /**
- * Voice control inside the LibreCorsa tab, using the toolkit's VoiceCommands adapter.
- * Each action presses the game's default keys; the phrases are chosen by the player in
- * Voice settings (button bottom-left, or say "voice settings") and saved in this browser.
- * Loaded by game/src/app/layout.tsx in dev mode (see voice/game.patch).
+ * OPTIONAL / NOT SUPPORTED for product path.
+ * In-tab voice that would require patching LibreCorsa (see voice/game.patch).
+ * Do not use — prefer the bridge page at /voice/ (toolkit-voice.js) so the game stays unmodified.
  */
 import { VoiceCommands } from "../toolkit/tools/adapters/voice-commands.js";
 import { applySettings, loadSettings } from "./command-settings.js";

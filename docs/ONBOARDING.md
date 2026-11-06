@@ -141,7 +141,7 @@ Reload the extension (or click **Reconnect** in the popup). Badge should become 
 | Hub | `http://127.0.0.1:18765/hub/` | Chooser for all methods |
 | Phone | `http://127.0.0.1:18765/phone/` or `http://<your-lan-ip>:18765/phone/` | Same Wi‑Fi; Enable motion; Hold or Latch buttons |
 | Camera | `http://127.0.0.1:18765/camera/` | Experimental; calibrate; Pause control releases stuck inputs |
-| Voice | `http://127.0.0.1:18765/voice/` | Experimental short taps; Chrome + mic; auto-restarts listening |
+| Voice | `http://127.0.0.1:18765/voice/` | Bridge toolkit voice (holds throttle/brake); Chrome + mic; no game edits |
 
 Keep **LibreCorsa focused** while testing holds (throttle/steer). Voice uses `pulse` (short key taps) — not continuous drive.
 

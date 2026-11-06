@@ -134,7 +134,7 @@ python3 gyro_controller.py
 | `bridge/` | Local WebSocket hub | Omar (+ Kevin stub) | [bridge/README.md](bridge/README.md) |
 | `phone-controller/` | Gyro + big buttons | Omar / Kevin | [phone-controller/README.md](phone-controller/README.md) |
 | `camera/` | MediaPipe vision controller (head/face/hand/finger → remappable actions) | **Tim** (Kevin backup) | [camera/README.md](camera/README.md) |
-| `voice/` | Web Speech demo → protocol | Bunny → toolkit Controller | [voice/README.md](voice/README.md) |
+| `voice/` | Bridge voice (toolkit → WS); no game edits | Bunny → toolkit Controller | [voice/README.md](voice/README.md) |
 | `packages/shared/` | Action IDs + protocol | shared | [packages/shared/README.md](packages/shared/README.md) |
 | `access_adapter/` | PySide desktop app, mappings, local API | Omar | [docs/desktop-app.md](docs/desktop-app.md) |
 | `adapters/phone_tilt/` | ADB tilt → keystroke PoC | Omar | [docs/phone-tilt-adapter.md](docs/phone-tilt-adapter.md) |
