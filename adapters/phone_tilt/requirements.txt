@@ -1,0 +1,4 @@
+# Phone-tilt adapter dependencies (Game Night Access Adapter)
+pygame>=2.5.0
+pynput>=1.7.6
+websocket-client>=1.6.0   # optional; only needed for SensorServer WebSocket mode

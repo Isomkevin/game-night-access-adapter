@@ -6,7 +6,7 @@ Proof-of-concept accessibility adapter so players with different access needs �
 > **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → game → extension demo pad → optional bridge).  
 > Full doc index: **[docs/README.md](docs/README.md)**.
 
-> **Status:** Phase A scaffold + extension demo path landed. Test with Justin before calling features supported — see [`docs/testing-log.md`](docs/testing-log.md).
+> **Status:** Phase A scaffold + extension demo path landed. A phone-tilt desktop path is also implemented under `adapters/phone_tilt/` and `access_adapter/` (Linux + Samsung Galaxy A25). Test with Justin before calling features supported — see [`docs/testing-log.md`](docs/testing-log.md).
 
 ## Problem
 
@@ -24,7 +24,8 @@ Camera / voice / phone / demo UI
  KeyboardEvent.code (LibreCorsa defaults: KeyW/A/S/D, …)
 ```
 
-- **No extra hardware.** Phone is a LAN web page (software controller), not USB/ADB — works on Justin’s MacBook.
+- **No extra hardware for the web phone path.** The LAN web page controller works on Justin’s MacBook without USB/ADB.
+- **Desktop phone tilt (ADB).** Wireless ADB can also read motion sensors and map tilt to OS keystrokes aimed at the focused game window — see [Phone-tilt desktop adapter](#phone-tilt-desktop-adapter).
 - **Remap without code.** Extension Options / Setup maps logical inputs (`phone:tiltLeft`, `voice:go`, …) onto game actions and key codes; profiles export/import as JSON.
 - **Toolkit:** [AI for Accessibility Toolkit](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit) via fork [Isomkevin/AI-for-Accessibility-Toolkit](https://github.com/Isomkevin/AI-for-Accessibility-Toolkit). Contribution pack: [`docs/toolkit-contribution/`](docs/toolkit-contribution/).
 
@@ -37,6 +38,7 @@ Intended inputs, remapping rules, piece-by-piece roles, and “done” criteria:
 | Git | Submodule support |
 | Node.js 18+ | 20 LTS recommended |
 | Chrome / Chromium | MV3 extension + best MediaPipe / Web Speech support |
+| Python 3.10+ + `adb` | Only for the optional phone-tilt desktop app / installers |
 
 ## Clone
 
@@ -93,6 +95,35 @@ npm start
 
 For the hosted bridge, set the extension Setup connection address to `wss://game-night-bridge.onrender.com`. Free Render instances sleep after idle — expect a short cold start. Prefer local/LAN for Justin’s live tests.
 
+## Phone-tilt desktop adapter
+
+Configurable phone-sensor mappings, an Add device scan for USB and wireless ADB, and a local API. Windows and Linux installers ship the PySide window.
+
+**Downloads (v0.2.1 — current):**
+- Windows: [MSI installer](releases/game-night-access-adapter-0.2.1.msi) · [setup.exe](releases/game-night-access-adapter-0.2.1-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.1-windows.zip)
+
+**Previous (v0.2.0, still available):**
+- Linux: [game-night-access-adapter_0.2.0_all.deb](releases/game-night-access-adapter_0.2.0_all.deb)
+- Windows: [MSI installer](releases/game-night-access-adapter-0.2.0.msi) · [setup.exe](releases/game-night-access-adapter-0.2.0-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.0-windows.zip)
+
+On Windows the installer installs Python automatically if it is missing; put `adb` on `PATH` separately. On Linux: `sudo apt install ./game-night-access-adapter_0.2.0_all.deb` (Python 3 required). Or run Windows `setup.exe` / extract the zip and run `install.bat`.
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 -m access_adapter
+```
+
+Focus the game, then tilt the phone. Details: [docs/desktop-app.md](docs/desktop-app.md), [docs/phone-tilt-adapter.md](docs/phone-tilt-adapter.md), [docs/local-api.md](docs/local-api.md), and [docs/installers.md](docs/installers.md).
+
+CLI PoC without the desktop UI:
+
+```bash
+cd adapters/phone_tilt
+python3 pair_and_connect.py <PAIR_IP:PORT> <6_DIGIT_CODE>
+python3 -m pip install -r requirements.txt
+python3 gyro_controller.py
+```
+
 ## Repo layout
 
 | Path | Role | Owner | Docs |
@@ -105,6 +136,9 @@ For the hosted bridge, set the extension Setup connection address to `wss://game
 | `camera/` | MediaPipe vision controller (head/face/hand/finger → remappable actions) | **Tim** (Kevin backup) | [camera/README.md](camera/README.md) |
 | `voice/` | Web Speech demo → protocol | Bunny → toolkit Controller | [voice/README.md](voice/README.md) |
 | `packages/shared/` | Action IDs + protocol | shared | [packages/shared/README.md](packages/shared/README.md) |
+| `access_adapter/` | PySide desktop app, mappings, local API | Omar | [docs/desktop-app.md](docs/desktop-app.md) |
+| `adapters/phone_tilt/` | ADB tilt → keystroke PoC | Omar | [docs/phone-tilt-adapter.md](docs/phone-tilt-adapter.md) |
+| `packaging/` | Linux/Windows installers | Omar | [docs/installers.md](docs/installers.md) |
 | `docs/` | Onboarding, architecture, testing | team | [docs/README.md](docs/README.md) |
 
 ## Documentation map
@@ -122,6 +156,9 @@ For the hosted bridge, set the extension Setup connection address to `wss://game
 | [docs/presentation-checklist.md](docs/presentation-checklist.md) | Saturday demo / slides |
 | [docs/demo-video.md](docs/demo-video.md) | Video shot list |
 | [docs/toolkit-contribution/](docs/toolkit-contribution/) | Upstream toolkit PR |
+| [docs/phone-tilt-adapter.md](docs/phone-tilt-adapter.md) | Desktop ADB phone-tilt path |
+| [docs/desktop-app.md](docs/desktop-app.md) | PySide window and mappings |
+| [docs/installers.md](docs/installers.md) | Windows/Linux installer packages |
 
 ## Team workflow
 

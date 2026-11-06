@@ -21,6 +21,18 @@ Start here if you are new to the repo:
 | [demo-video.md](demo-video.md) | Shot list / upload placeholder |
 | [toolkit-contribution/](toolkit-contribution/) | Upstream toolkit PR pack + issue template |
 
+## Phone-tilt desktop adapter
+
+| Doc | Description |
+|-----|-------------|
+| [phone-tilt-adapter.md](phone-tilt-adapter.md) | Android tilt → keyboard adapter: USB/wireless debugging setup, architecture, tuning, limitations |
+| [desktop-app.md](desktop-app.md) | PySide desktop app: sensor mappings, devices, how to run |
+| [local-api.md](local-api.md) | Loopback JSON API for mappings, settings, and ADB scan |
+| [installers.md](installers.md) | Linux deb, Windows zip/MSI, and self-extracting setup.exe |
+| [development-phases.md](development-phases.md) | Phase plan and the tests that close each phase |
+
+Add a short doc for each new input adapter before opening a merge request, including: how to run it, what was tested (OS / browser / device), and known accessibility limitations.
+
 ## Component READMEs (in the tree)
 
 | Component | README |
@@ -31,6 +43,7 @@ Start here if you are new to the repo:
 | Camera / vision controller (MediaPipe) | [`../camera/README.md`](../camera/README.md) |
 | Voice demo | [`../voice/README.md`](../voice/README.md) |
 | Shared protocol package | [`../packages/shared/README.md`](../packages/shared/README.md) |
+| Desktop phone-tilt app | [`desktop-app.md`](desktop-app.md) |
 
 ## Root
 
