@@ -167,16 +167,34 @@ test('real extension background remaps camera inputs and releases them on discon
   const delivered = [], timers = new Map();
   let nextTimer = 0;
   const settings = {};
+  const session = {};
   const event = () => ({ addListener() {} });
   await load('extension/background.js', {
     WebSocket: Socket,
     setTimeout: (callback) => { timers.set(++nextTimer, callback); return nextTimer; },
     clearTimeout: (id) => timers.delete(id),
     chrome: {
-      storage: { local: { get: async () => ({ ...settings }), set: async (patch) => Object.assign(settings, patch) }, onChanged: event() },
+      storage: {
+        local: { get: async () => ({ ...settings }), set: async (patch) => Object.assign(settings, patch) },
+        session: {
+          get: async (keys) => {
+            const wanted = Array.isArray(keys) ? keys : [keys];
+            return Object.fromEntries(wanted.map((key) => [key, session[key]]));
+          },
+          set: async (patch) => Object.assign(session, patch),
+          remove: async (keys) => {
+            for (const key of Array.isArray(keys) ? keys : [keys]) delete session[key];
+          },
+        },
+        onChanged: event(),
+      },
       runtime: { onInstalled: event(), onStartup: event(), onMessage: event() },
       action: { setBadgeText() {}, setBadgeBackgroundColor() {} },
-      tabs: { query: async () => [{ id: 99 }], sendMessage: async (_tab, message) => delivered.push(message) },
+      tabs: {
+        query: async () => [{ id: 99 }],
+        sendMessage: async (_tab, message) => delivered.push(message),
+        onRemoved: event(),
+      },
     },
   });
   await instances[0].open();
@@ -201,16 +219,34 @@ test('merged extension accepts setRemap, camera pulses, disabled-binding release
   const delivered = [], timers = new Map(), messageListeners = [];
   let nextTimer = 0;
   const settings = {};
+  const session = {};
   const event = () => ({ addListener() {} });
   await load('extension/background.js', {
     WebSocket: Socket,
     setTimeout: (callback, ms) => { timers.set(++nextTimer, { callback, ms }); return nextTimer; },
     clearTimeout: (id) => timers.delete(id),
     chrome: {
-      storage: { local: { get: async () => ({ ...settings }), set: async (patch) => Object.assign(settings, patch) }, onChanged: event() },
+      storage: {
+        local: { get: async () => ({ ...settings }), set: async (patch) => Object.assign(settings, patch) },
+        session: {
+          get: async (keys) => {
+            const wanted = Array.isArray(keys) ? keys : [keys];
+            return Object.fromEntries(wanted.map((key) => [key, session[key]]));
+          },
+          set: async (patch) => Object.assign(session, patch),
+          remove: async (keys) => {
+            for (const key of Array.isArray(keys) ? keys : [keys]) delete session[key];
+          },
+        },
+        onChanged: event(),
+      },
       runtime: { onInstalled: event(), onStartup: event(), onMessage: { addListener: (fn) => messageListeners.push(fn) } },
       action: { setBadgeText() {}, setBadgeBackgroundColor() {} },
-      tabs: { query: async () => [{ id: 99 }], sendMessage: async (_tab, message) => delivered.push(message) },
+      tabs: {
+        query: async () => [{ id: 99 }],
+        sendMessage: async (_tab, message) => delivered.push(message),
+        onRemoved: event(),
+      },
     },
   });
   const socket = instances[0];
