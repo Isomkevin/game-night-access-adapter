@@ -445,18 +445,26 @@ function renderSetup() {
     );
   } else if (method === 'camera') {
     addStep('Start the access bridge on this computer.');
-    addStep('Open the vision controller and allow camera access.');
+    addStep('Open the game tab, then use the popup Camera overlay (keeps tracking while you play).');
+    addStep('Allow camera access; expand the dock for gesture mapping if needed.');
     addStep('Sit comfortably and run calibration in a neutral pose.');
-    addStep('Test left and right movement, then adjust sensitivity if needed.');
     addStep('This method is experimental — use Pause control if something goes wrong.');
     addAction(
-      'Open vision controller',
+      'Show camera overlay on game',
+      () =>
+        chrome.runtime.sendMessage({
+          type: 'gnaa-toggle-camera-dock',
+          action: 'show',
+        }),
+      'gnaa-btn--amber'
+    );
+    addAction(
+      'Open full vision controller',
       async () => {
         const state = await load();
         const base = httpFromBridge(state.bridgeUrl);
         window.open(`${base}/camera/`, '_blank', 'noopener');
-      },
-      'gnaa-btn--amber'
+      }
     );
     addAction('Reconnect access inputs', () =>
       chrome.runtime.sendMessage({ type: 'gnaa-reconnect' })

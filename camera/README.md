@@ -18,7 +18,12 @@ For the calibrated, proportional head-only controller from issue #11, open
 steering** on this page. It retains Start, Stop, Recenter, direction reversal,
 and live dead-zone/full-steering controls. Setup, permissions, tuning, and
 the manual test checklist are in [head-steering.md](head-steering.md).
-Use one camera controller at a time, in a separate visible window beside the game.
+**Preferred play setup:** use the extension popup **Camera overlay** so a small
+preview docks inside the game tab. Tracking keeps running while you play (no
+separate camera tab to keep visible). Expand the dock for gesture mapping; the
+full `/camera/` page remains available for deep setup.
+
+Use one camera controller at a time.
 
 ## Run
 
@@ -29,10 +34,10 @@ Use one camera controller at a time, in a separate visible window beside the gam
    cd bridge && npm start
    ```
 
-3. Open **http://127.0.0.1:18765/camera/** in Chrome
+3. Focus the game tab → extension popup → **Camera overlay** (embeds `/camera/?embed=1`)
 4. Allow camera access; wait for MediaPipe WASM/model download (needs network once)
-5. **Calibrate** a neutral pose, enable only gestures you can perform, map them to game actions, **Apply mappings to extension**
-6. Keep this tab open; focus LibreCorsa
+5. **Calibrate** a neutral pose; expand the dock to enable gestures, map them, **Apply mappings to extension**
+6. Optionally open **http://127.0.0.1:18765/camera/** for the full-page setup UI
 
 Camera-only must work **without** the phone (redundancy).
 

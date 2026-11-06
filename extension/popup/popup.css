@@ -130,6 +130,9 @@ h1.brand {
 
 .pin-row {
   margin: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .pin-hint {

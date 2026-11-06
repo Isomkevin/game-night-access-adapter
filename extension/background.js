@@ -5,6 +5,7 @@
 
 import {
   DEFAULT_BRIDGE_WS,
+  DEFAULT_BRIDGE_HTTP,
   DEFAULT_REMAP,
   isInputEvent,
   isSetRemapEvent,
@@ -26,7 +27,24 @@ const SESSION_KEYS = {
   targetTabTitle: 'targetTabTitle',
   targetTabUrl: 'targetTabUrl',
   targetTabHost: 'targetTabHost',
+  cameraDockOpen: 'cameraDockOpen',
 };
+
+/**
+ * @param {string} [wsUrl]
+ */
+function httpFromBridge(wsUrl) {
+  try {
+    const u = new URL(String(wsUrl || DEFAULT_BRIDGE_WS).replace(/^ws/i, 'http'));
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return DEFAULT_BRIDGE_HTTP;
+  }
+}
+
+function cameraEmbedUrl(wsUrl) {
+  return `${httpFromBridge(wsUrl)}/camera/?embed=1`;
+}
 
 /** @type {WebSocket|null} */
 let socket = null;
@@ -193,6 +211,7 @@ async function buildStatusPayload() {
   const pinned = await getPinnedTarget();
   const fallback = pinned.tab ? [] : await queryFallbackGameTabs();
   const gameTabOpen = Boolean(pinned.tab) || fallback.length > 0;
+  const session = await chrome.storage.session.get(SESSION_KEYS.cameraDockOpen);
   return {
     bridgeStatus,
     bridgeUrl,
@@ -202,8 +221,44 @@ async function buildStatusPayload() {
     targetTabTitle: pinned.targetTabTitle,
     targetTabUrl: pinned.targetTabUrl,
     targetTabHost: pinned.targetTabHost,
+    cameraDockOpen: !!session[SESSION_KEYS.cameraDockOpen],
     workerOk: true,
   };
+}
+
+/**
+ * Show/hide/toggle the in-game camera dock on resolved game tabs.
+ * @param {'show'|'hide'|'toggle'} action
+ */
+async function setCameraDock(action) {
+  const tabs = await resolveGameTabs();
+  if (!tabs.length) {
+    return { ok: false, error: 'No game tab open. Pin a tab with Use this tab, or Open game.' };
+  }
+  const url = cameraEmbedUrl(bridgeUrl);
+  let last = { ok: false, open: false };
+  for (const tab of tabs) {
+    try {
+      last = await chrome.tabs.sendMessage(tab.id, {
+        type: 'gnaa-camera-dock',
+        action,
+        url,
+      });
+    } catch {
+      last = {
+        ok: false,
+        error: 'Reload the game tab so the extension content script can inject the camera dock.',
+      };
+    }
+  }
+  if (last?.ok) {
+    await chrome.storage.session.set({
+      [SESSION_KEYS.cameraDockOpen]: !!last.open,
+    });
+  }
+  return last?.ok
+    ? { ok: true, open: !!last.open }
+    : { ok: false, error: last?.error || 'Could not update camera overlay.' };
 }
 
 /**
@@ -469,6 +524,21 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       await chrome.tabs.create({ url });
       sendResponse({ ok: true, created: true });
     })().catch((err) => sendResponse({ ok: false, error: String(err) }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-toggle-camera-dock') {
+    setCameraDock(msg.action || 'toggle')
+      .then((res) => sendResponse(res))
+      .catch((err) => sendResponse({ ok: false, error: String(err) }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-camera-dock-closed') {
+    chrome.storage.session
+      .set({ [SESSION_KEYS.cameraDockOpen]: false })
+      .then(() => sendResponse({ ok: true }))
+      .catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
   }
 

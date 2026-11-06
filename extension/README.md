@@ -25,7 +25,7 @@ After every `git pull` that touches `extension/`, click **Reload** on the extens
 
 | Surface | What it does |
 | --- | --- |
-| Toolbar popup | On-screen controls (Hold or Latch), **Use this tab**, Stop all inputs, Open game, Reconnect, Setup |
+| Toolbar popup | On-screen controls (Hold or Latch), **Use this tab**, **Camera overlay**, Stop all inputs, Open game, Reconnect, Setup |
 | Options page | Guided Welcome → Choose → Setup → Customize → Ready; presets; Advanced connection |
 | Badge `OFF` | Access bridge down — on-screen controls still work |
 | Badge `ON` | Access bridge connected |
@@ -70,6 +70,7 @@ extension/
 | background → content | `gnaa-apply` | `{ code, state }` after remap |
 | background → content | `gnaa-release-all` | Release every held key |
 | popup → background | `gnaa-use-this-tab` | Pin the active game tab (`chrome.storage.session`) |
+| popup → background | `gnaa-toggle-camera-dock` | Show/hide in-game camera preview iframe (`/camera/?embed=1`) |
 | popup → background | `gnaa-get-status` / `gnaa-reconnect` / `gnaa-release-all` / `gnaa-open-game` | Status & helpers |
 | content → background | `gnaa-content-ready` | Tab ready ping |
 

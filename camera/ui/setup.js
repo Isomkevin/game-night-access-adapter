@@ -44,6 +44,9 @@ const GAME_ACTIONS = [
  * @param {(msg: string) => void} [api.setStatus]
  */
 export function mountSetupUI(root, api) {
+  const embed = document.documentElement.classList.contains('embed')
+    || document.documentElement.dataset.gnaaEmbed === '1';
+
   root.innerHTML = `
     <div class="panel controls">
       <div class="toolbar">
@@ -53,6 +56,8 @@ export function mountSetupUI(root, api) {
         <label class="check"><input type="checkbox" id="chk-emit" checked /> Emit to game</label>
         <label class="check"><input type="checkbox" id="chk-audio" /> Audio feedback</label>
       </div>
+
+      ${embed ? '<details class="embed-advanced"><summary>Gestures &amp; mappings</summary>' : ''}
 
       <div class="toolbar profiles">
         <label>Profile
@@ -85,6 +90,7 @@ export function mountSetupUI(root, api) {
       <h2>Gestures &amp; mappings</h2>
       <p class="hint">Enable only movements you can perform comfortably. Map each to a game action, then Apply to extension.</p>
       <div id="gesture-table" class="gesture-table"></div>
+      ${embed ? '</details>' : ''}
     </div>
   `;
 

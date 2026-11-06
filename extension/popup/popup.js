@@ -119,9 +119,15 @@ function bindPulse(btn) {
 
 function updatePinHint(s) {
   const hint = document.getElementById('pin-hint');
+  const btn = document.getElementById('camera-overlay');
   const pin = describePinnedTab(s);
+  if (btn) {
+    btn.textContent = s?.cameraDockOpen ? 'Hide camera overlay' : 'Camera overlay';
+  }
   if (s?.targetTabId && pin) {
-    hint.textContent = `Inputs go to ${pin}.`;
+    hint.textContent = s?.cameraDockOpen
+      ? `Inputs go to ${pin}. Camera preview is on that tab.`
+      : `Inputs go to ${pin}.`;
     return;
   }
   if (s?.gameTabOpen) {
@@ -183,6 +189,26 @@ document.getElementById('use-this-tab').addEventListener('click', async () => {
     hint.textContent = String(err?.message || err || 'Could not pin this tab.');
   }
   setTimeout(refreshStatus, 200);
+});
+
+document.getElementById('camera-overlay').addEventListener('click', async () => {
+  const hint = document.getElementById('pin-hint');
+  try {
+    const res = await chrome.runtime.sendMessage({
+      type: 'gnaa-toggle-camera-dock',
+      action: 'toggle',
+    });
+    if (!res?.ok) {
+      hint.textContent = res?.error || 'Could not toggle camera overlay.';
+      return;
+    }
+    hint.textContent = res.open
+      ? 'Camera overlay on the game tab. Allow camera if asked, then expand for gestures.'
+      : 'Camera overlay hidden.';
+  } catch (err) {
+    hint.textContent = String(err?.message || err || 'Could not toggle camera overlay.');
+  }
+  setTimeout(refreshStatus, 250);
 });
 
 document.getElementById('reconnect').addEventListener('click', async () => {

@@ -35,7 +35,7 @@
         "http://*/*",
         "https://*/*"
       ],
-      "js": ["content/inject.js"],
+      "js": ["content/inject.js", "content/camera-dock.js"],
       "run_at": "document_idle"
     }
   ],

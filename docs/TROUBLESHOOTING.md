@@ -26,6 +26,10 @@ If that fails, check network access to GitHub and that you cloned with a GitHub 
 6. **Open DevTools on the game tab** → Console. After a demo press you should not see extension errors. On the service worker: `chrome://extensions` → Service worker → Inspect.
 7. **Known risk:** games that ignore untrusted events may still work via MAIN-world `page-hook.js` (`postMessage`). Confirm `window.__gnaaHookInstalled` in the page console. Pointer-only games are out of scope.
 
+## Camera stops when I switch to the game
+
+Use the extension popup **Camera overlay** so the preview runs inside the game tab. A separate `/camera/` tab pauses tracking when hidden (`document.hidden`). Start the bridge first; reload the game tab after updating the extension if the overlay does nothing.
+
 ## Badge stuck on `OFF` / bridge won’t connect
 
 1. Is the bridge running? `cd bridge && npm start`

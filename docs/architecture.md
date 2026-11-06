@@ -59,6 +59,8 @@ flowchart LR
 
 **Tab targeting:** content scripts load on all `http(s)` pages. Inputs are sent only to the tab pinned via popup **Use this tab** (`chrome.storage.session`). If nothing is pinned (or the pin closed), the extension falls back to LibreCorsa demo URL matches (`localhost:3000`, GitHub Pages).
 
+**In-game camera dock:** popup **Camera overlay** injects a floating iframe of `/camera/?embed=1` into the game tab so MediaPipe keeps running while you play (avoids `document.hidden` releasing inputs when a separate camera tab loses focus). Full gesture setup stays available inside the expanded dock or the standalone camera page.
+
 Demo mode works **without** the bridge so day-one testing does not block on Omar.
 
 ## Keystroke injection (spike result)

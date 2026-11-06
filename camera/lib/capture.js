@@ -43,6 +43,9 @@ export function createCapture(video, opts = {}) {
   }
 
   function onVisibility() {
+    // In-game embed (?embed=1): the camera lives in the game tab, so hiding
+    // the tab should still release holds. Standalone camera tabs also release
+    // when the player focuses the game — prefer the extension Camera overlay.
     if (document.hidden) {
       armLostTimer('tab-hidden');
     } else {

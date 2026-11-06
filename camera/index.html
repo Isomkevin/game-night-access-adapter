@@ -8,13 +8,20 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <script>
+      (function () {
+        var embed = new URLSearchParams(location.search).get('embed') === '1';
+        if (embed) document.documentElement.classList.add('embed');
+        document.documentElement.dataset.gnaaEmbed = embed ? '1' : '0';
+      })();
+    </script>
     <header>
       <p class="eyebrow">Game Night</p>
       <h1>Head &amp; vision</h1>
       <p class="badge">Experimental</p>
-      <p><a href="head-steering.html">Use head-only steering with Start, Stop and Recenter</a></p>
+      <p class="full-only"><a href="head-steering.html">Use head-only steering with Start, Stop and Recenter</a></p>
       <p id="status" aria-live="polite">Starting camera…</p>
-      <p class="lede">
+      <p class="lede full-only">
         Control the game with head, face, or hand movements using your webcam.
         Choose only the movements you can perform comfortably. Nothing is recorded or uploaded.
       </p>
@@ -26,11 +33,15 @@
           <video id="video" playsinline autoplay muted></video>
           <canvas id="overlay"></canvas>
         </div>
-        <p class="hint">
-          Keep this tab open beside the game. Sit in a relaxed pose, then calibrate.
+        <p class="hint full-only">
+          Prefer the in-game <strong>Camera overlay</strong> from the extension popup so tracking
+          stays live while you play. Or keep this tab open beside the game.
           Use <strong>Pause control</strong> to stop inputs immediately if something goes wrong.
         </p>
-        <p class="back"><a href="/hub/">← All control methods</a></p>
+        <p class="hint embed-only">
+          In-game preview — expand the dock for gesture setup. Pause anytime.
+        </p>
+        <p class="back full-only"><a href="/hub/">← All control methods</a></p>
       </div>
 
       <div id="setup"></div>
