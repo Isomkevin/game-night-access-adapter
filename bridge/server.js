@@ -22,6 +22,7 @@ const HUB_DIR = path.resolve(__dirname, 'hub');
 const PHONE_DIR = path.resolve(__dirname, '../phone-controller');
 const CAMERA_DIR = path.resolve(__dirname, '../camera');
 const VOICE_DIR = path.resolve(__dirname, '../voice');
+const TOOLKIT_TOOLS_DIR = path.resolve(__dirname, '../toolkit/tools');
 const UI_DIR = path.resolve(__dirname, '../packages/ui');
 
 /** @type {Map<import('ws').WebSocket, { role: string }>} */
@@ -126,6 +127,8 @@ const server = http.createServer((req, res) => {
     filePath = path.join(VOICE_DIR, 'index.html');
   } else if (url.pathname.startsWith('/voice/')) {
     filePath = path.join(VOICE_DIR, url.pathname.slice('/voice/'.length));
+  } else if (url.pathname.startsWith('/toolkit/tools/')) {
+    filePath = path.join(TOOLKIT_TOOLS_DIR, url.pathname.slice('/toolkit/tools/'.length));
   } else if (url.pathname.startsWith('/ui/')) {
     filePath = path.join(UI_DIR, url.pathname.slice('/ui/'.length));
   } else if (url.pathname.startsWith('/shared/')) {

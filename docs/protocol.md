@@ -66,7 +66,7 @@ Senders emit **logical** ids. The extension remaps with key `` `${source}:${acti
 | Source | Logical `action` values |
 | --- | --- |
 | `camera` | See **Camera logical actions** below |
-| `voice` | `turnLeft`, `turnRight`, `go`, `stop`, `boost`, `pause` |
+| `voice` | `turnLeft`, `turnRight`, `go`, `stop`, `boost`, `pause`, `gearUp`, `gearDown` |
 | `phone` | `tiltLeft`, `tiltRight`, `throttle`, `brake`, `boost` |
 | `demo` | `steerLeft`, `steerRight`, `throttle`, `brake`, `boost`, `pause` |
 
