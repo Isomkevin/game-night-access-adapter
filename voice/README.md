@@ -19,6 +19,22 @@ npm run dev
 
 Open `http://localhost:3000` in Chrome and allow the microphone. Listening starts when the page loads.
 
+### Choosing your own phrases
+
+Every action's phrases can be changed by the player. Open **Voice settings** with the button at the bottom-left of the game, or say "voice settings".
+
+- Type one or more phrases per action, separated by commas. Leave a box empty to turn that action off.
+- **Record** listens once and adds exactly what the recogniser heard. That works better for accents than typing.
+- **Language** sets the recognition language (English Kenya / US / UK, Kiswahili Kenya).
+- **Save** checks for problems first: one phrase used for two actions, or "stop listening" (reserved). It also warns when a phrase replaces a toolkit built-in command.
+- Settings are saved in this browser (`localStorage`, key `gnaa.voice.librecorsa-ingame.v1`) and apply straight away. **Reset to defaults** brings back the tables below.
+
+Phrases only fire as whole words, and longer phrases are checked first ("big left" before "left").
+
+The bridge page `/voice/toolkit.html` has the same **Voice settings** button. Its settings are stored separately (`gnaa.voice.bridge.v1`).
+
+The tables below are the **default** phrases.
+
 ### Menus
 
 | Say | Key | Action |
@@ -80,7 +96,7 @@ These come with the toolkit adapter and are left as they are.
 - "go" only fires as a whole word, so "good" or "going" do not trigger it. "go forward" is a toolkit command that leaves the page — avoid it.
 - Held keys are released when the tab loses focus, on "pause", "back", "restart" and "stop listening".
 - After editing `voice/game-voice.js`, reload the page; hot reload does not re-register commands.
-- To change the recognition language, edit `language: "en-KE"` near the end of `voice/game-voice.js`.
+- The language and phrases are set in **Voice settings** (see below), not in the code.
 
 ## Bridge demo
 
