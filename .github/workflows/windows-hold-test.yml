@@ -1,0 +1,62 @@
+# Install the shipped Windows package on a real Windows runner and check that
+# a "Hold continuously" mapping keeps the key down like a physical keyboard.
+name: Windows hold test
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version to test (default: access_adapter/version.py)"
+        required: false
+  push:
+    paths:
+      - ".github/workflows/windows-hold-test.yml"
+      - "access_adapter/keys.py"
+      - "packaging/windows/**"
+      - "releases/*-windows.zip"
+
+jobs:
+  hold:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pick release zip
+        id: pick
+        shell: pwsh
+        run: |
+          $v = "${{ github.event.inputs.version }}"
+          if (-not $v) {
+            $text = Get-Content access_adapter/version.py -Raw
+            if ($text -match '__version__\s*=\s*"([^"]+)"') { $v = $Matches[1] }
+          }
+          $zip = "releases/game-night-access-adapter-$v-windows.zip"
+          if (-not (Test-Path $zip)) { throw "missing $zip" }
+          "zip=$zip" >> $env:GITHUB_OUTPUT
+          Write-Host "Testing $zip"
+
+      - name: Install like setup.exe does
+        shell: pwsh
+        run: |
+          $stage = Join-Path $env:RUNNER_TEMP 'gnaa-setup'
+          Expand-Archive -LiteralPath "${{ steps.pick.outputs.zip }}" -DestinationPath $stage -Force
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $stage 'install.ps1')
+          if ($LASTEXITCODE -ne 0) { throw "install.ps1 exit $LASTEXITCODE" }
+          Get-Content "$env:ProgramData\GameNightAccessAdapter\install.log" -Tail 25
+
+      - name: Stop the auto-started app
+        shell: pwsh
+        run: |
+          Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -match 'access_adapter' } |
+            ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+
+      - name: Hold W through the installed adapter
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:ProgramW6432 'Game Night Access Adapter'
+          & (Join-Path $root 'venv\Scripts\python.exe') packaging/windows/test-hold.py $root
+          if ($LASTEXITCODE -ne 0) { throw "hold test failed" }
