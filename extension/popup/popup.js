@@ -124,6 +124,9 @@ function updatePinHint(s) {
   if (btn) {
     btn.textContent = s?.cameraDockOpen ? 'Hide camera overlay' : 'Camera overlay';
   }
+  const voiceBtn = document.getElementById('voice-toggle');
+  voiceBtn.textContent = s?.voiceOn ? 'Stop voice control' : 'Voice control';
+  voiceBtn.setAttribute('aria-pressed', s?.voiceOn ? 'true' : 'false');
   if (s?.targetTabId && pin) {
     hint.textContent = s?.cameraDockOpen
       ? `Inputs go to ${pin}. Camera preview is on that tab.`
@@ -207,6 +210,23 @@ document.getElementById('camera-overlay').addEventListener('click', async () => 
       : 'Camera overlay hidden.';
   } catch (err) {
     hint.textContent = String(err?.message || err || 'Could not toggle camera overlay.');
+  }
+  setTimeout(refreshStatus, 250);
+});
+
+document.getElementById('voice-toggle').addEventListener('click', async () => {
+  const hint = document.getElementById('pin-hint');
+  try {
+    const res = await chrome.runtime.sendMessage({ type: 'gnaa-voice', action: 'toggle' });
+    if (!res?.ok) {
+      hint.textContent = res?.error || 'Could not start voice control.';
+      return;
+    }
+    hint.textContent = res.listening
+      ? 'Listening on the game tab. Allow the microphone if Chrome asks. Say “stop listening” to end.'
+      : 'Voice control off.';
+  } catch (err) {
+    hint.textContent = String(err?.message || err || 'Could not start voice control.');
   }
   setTimeout(refreshStatus, 250);
 });

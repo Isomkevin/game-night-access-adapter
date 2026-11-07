@@ -210,7 +210,7 @@ function renderRemap(remap) {
       const hint = document.createElement('p');
       hint.className = 'gnaa-hint';
       hint.textContent =
-        'Voice sends a short tap for each phrase — not a continuous hold.';
+        '“Go” and “brake” hold until you say another driving command; steering is a short press.';
       section.append(hint);
     }
 
@@ -470,18 +470,15 @@ function renderSetup() {
       chrome.runtime.sendMessage({ type: 'gnaa-reconnect' })
     );
   } else if (method === 'voice') {
-    addStep('Start the access bridge on this computer.');
-    addStep('Open the voice page and allow microphone access.');
-    addStep('Click Start listening, then try saying “go” or “boost”.');
-    addStep('Remember: each phrase is a short tap, not a continuous hold.');
-    addStep('This method is experimental.');
+    addStep('For any game: run the desktop phone adapter with Send keys on. Voice presses its mapped keys system-wide.');
+    addStep('Without the adapter, voice goes to the browser game tab (pin it with Use this tab in the popup).');
+    addStep('Click Voice control in the popup, or press Alt+Shift+V, and allow the microphone.');
+    addStep('Say “go” to hold throttle, “brake” to hold brake, “coast” to let go, “left” / “right” to steer.');
+    addStep('Say “stop listening”, or press Stop on the game page, to turn it off.');
+    addStep('No bridge needed. Chrome sends speech to Google for recognition.');
     addAction(
-      'Open voice commands',
-      async () => {
-        const state = await load();
-        const base = httpFromBridge(state.bridgeUrl);
-        window.open(`${base}/voice/`, '_blank', 'noopener');
-      },
+      'Start voice on game tab',
+      () => chrome.runtime.sendMessage({ type: 'gnaa-voice', action: 'start' }),
       'gnaa-btn--amber'
     );
   } else {

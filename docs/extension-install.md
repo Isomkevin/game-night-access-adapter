@@ -52,8 +52,10 @@ automatic updates. It needs things only the project owner can provide:
 3. Store listing: description, a 128×128 icon (`extension/icons/icon128.png`), at least
    one 1280×800 screenshot, and a category (Accessibility).
 4. Privacy tab:
-   - A privacy policy URL. The extension reads camera/voice/phone input locally and
-     talks only to the local bridge on `localhost:18765`; say that no data leaves the machine.
+   - A privacy policy URL. Camera and phone input stay local and go only to the bridge on
+     `localhost:18765`. Voice control uses Chrome's built-in speech recognition, which sends
+     audio to Google while listening is on; say so, and that the extension stores no audio
+     or transcripts. Microphone permission is asked by the game page, not the extension.
    - Single-purpose statement: remaps accessibility inputs to keyboard controls in browser games.
    - Justify each permission:
      - `host_permissions` / content scripts on `http://*/*` and `https://*/*`: games run

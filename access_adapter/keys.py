@@ -116,6 +116,10 @@ class KeyInjector:
                     shown.append(key)
         return shown
 
+    def tap(self, key_names: Iterable[str]) -> None:
+        for name in key_names:
+            self._tap(canonical_key(name))
+
     def release_all(self) -> None:
         self._once_latched.clear()
         for name in list(self._held):

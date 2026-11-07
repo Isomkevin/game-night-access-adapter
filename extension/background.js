@@ -28,6 +28,7 @@ const SESSION_KEYS = {
   targetTabUrl: 'targetTabUrl',
   targetTabHost: 'targetTabHost',
   cameraDockOpen: 'cameraDockOpen',
+  voiceTabId: 'voiceTabId',
 };
 
 /**
@@ -44,6 +45,107 @@ function httpFromBridge(wsUrl) {
 
 function cameraEmbedUrl(wsUrl) {
   return `${httpFromBridge(wsUrl)}/camera/?embed=1`;
+}
+
+const ADAPTER_URL = 'http://127.0.0.1:8765';
+const ADAPTER_RULES_TTL_MS = 5000;
+const ADAPTER_DOWN_RETRY_MS = 3000;
+
+/** Voice command → desktop adapter mapping, by default id first, then by words in the label. */
+const VOICE_ADAPTER_IDS = {
+  go: 'tilt-forward',
+  stop: 'tilt-back',
+  turnLeft: 'tilt-left',
+  turnRight: 'tilt-right',
+};
+const VOICE_ADAPTER_LABEL_WORDS = {
+  go: ['accelerate', 'throttle', 'forward', 'gas'],
+  stop: ['brake', 'reverse'],
+  turnLeft: ['left'],
+  turnRight: ['right'],
+  boost: ['boost', 'nitro'],
+  pause: ['pause', 'menu'],
+  gearUp: ['gear up', 'shift up', 'upshift'],
+  gearDown: ['gear down', 'shift down', 'downshift'],
+  aero: ['aero', 'drs', 'wing'],
+  restart: ['restart', 'reset'],
+};
+
+let adapterRules = null;
+let adapterRulesAt = 0;
+let adapterDownAt = 0;
+
+async function adapterFetch(path, body) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 1500);
+  try {
+    const res = await fetch(`${ADAPTER_URL}${path}`, {
+      method: body ? 'POST' : 'GET',
+      headers: body ? { 'Content-Type': 'application/json' } : {},
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+    return await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** Mapping rules from the desktop adapter, or null when it isn't running. */
+async function loadAdapterRules() {
+  const now = Date.now();
+  if (adapterRules && now - adapterRulesAt < ADAPTER_RULES_TTL_MS) return adapterRules;
+  if (!adapterRules && now - adapterDownAt < ADAPTER_DOWN_RETRY_MS) return null;
+  try {
+    const body = await adapterFetch('/api/v1/mappings');
+    adapterRules = body?.data?.rules || [];
+    adapterRulesAt = now;
+  } catch {
+    adapterRules = null;
+    adapterDownAt = now;
+  }
+  return adapterRules;
+}
+
+function adapterRuleForVoice(rules, action) {
+  const enabled = rules.filter((r) => r.enabled !== false);
+  const byId = enabled.find((r) => r.id === VOICE_ADAPTER_IDS[action]);
+  if (byId) return byId;
+  const words = VOICE_ADAPTER_LABEL_WORDS[action] || [];
+  return enabled.find((r) => words.some((w) => String(r.label || '').toLowerCase().includes(w))) || null;
+}
+
+/**
+ * Voice goes to the desktop adapter (system-wide keys for any game) when it is
+ * running; otherwise to the browser game tab.
+ */
+async function handleVoiceInput(action, state) {
+  const rules = await loadAdapterRules();
+  if (!rules) {
+    await handleInputEvent({ source: 'voice', action, state });
+    return { ok: true, target: 'tab' };
+  }
+  const rule = adapterRuleForVoice(rules, action);
+  if (!rule) {
+    const spoken = action.replace(/([A-Z])/g, ' $1').toLowerCase();
+    return { ok: false, target: 'adapter', error: `No adapter mapping for “${spoken}”. Add one in the desktop adapter.` };
+  }
+  try {
+    const body = await adapterFetch('/api/v1/press', { mapping: rule.id, state });
+    if (!body?.ok) {
+      if (body?.error?.message === 'Endpoint not found') {
+        return { ok: false, target: 'adapter', error: 'Update the desktop adapter to 0.2.7 or newer for voice control.' };
+      }
+      if (body?.error?.code === 'NOT_FOUND') adapterRulesAt = 0;
+      return { ok: false, target: 'adapter', error: body?.error?.message || 'The adapter refused the key press.' };
+    }
+    return { ok: true, target: 'adapter', label: body.data.label, keys: body.data.keys };
+  } catch {
+    adapterRules = null;
+    adapterDownAt = Date.now();
+    await handleInputEvent({ source: 'voice', action, state });
+    return { ok: true, target: 'tab' };
+  }
 }
 
 /** @type {WebSocket|null} */
@@ -211,7 +313,7 @@ async function buildStatusPayload() {
   const pinned = await getPinnedTarget();
   const fallback = pinned.tab ? [] : await queryFallbackGameTabs();
   const gameTabOpen = Boolean(pinned.tab) || fallback.length > 0;
-  const session = await chrome.storage.session.get(SESSION_KEYS.cameraDockOpen);
+  const session = await chrome.storage.session.get([SESSION_KEYS.cameraDockOpen, SESSION_KEYS.voiceTabId]);
   return {
     bridgeStatus,
     bridgeUrl,
@@ -222,8 +324,30 @@ async function buildStatusPayload() {
     targetTabUrl: pinned.targetTabUrl,
     targetTabHost: pinned.targetTabHost,
     cameraDockOpen: !!session[SESSION_KEYS.cameraDockOpen],
+    voiceOn: typeof session[SESSION_KEYS.voiceTabId] === 'number',
     workerOk: true,
   };
+}
+
+/**
+ * Start/stop/toggle voice listening inside the game tab.
+ * @param {'start'|'stop'|'toggle'} action
+ */
+async function setVoice(action) {
+  let [tab] = await resolveGameTabs();
+  if (!tab) {
+    // With the desktop adapter the game can be any app, so listen in whatever page is open.
+    const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+    if (active && /^https?:/i.test(active.url || '')) tab = active;
+  }
+  if (!tab) {
+    return { ok: false, error: 'Open any web page (or your browser game) and try again.' };
+  }
+  try {
+    return await chrome.tabs.sendMessage(tab.id, { type: 'gnaa-voice', action });
+  } catch {
+    return { ok: false, error: 'Reload the game tab so the extension can listen there.' };
+  }
 }
 
 /**
@@ -314,6 +438,7 @@ async function releaseAllInputs() {
   await cameraInputQueue;
   await cameraKeys.releaseAll();
   await sendToGameTabs({ type: 'gnaa-release-all' });
+  if (adapterRules) await adapterFetch('/api/v1/press/release-all', {}).catch(() => {});
 }
 
 function scheduleReconnect() {
@@ -406,6 +531,10 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
   if (data[SESSION_KEYS.targetTabId] === tabId) {
     await clearPinnedTarget();
   }
+  const voice = await chrome.storage.session.get(SESSION_KEYS.voiceTabId);
+  if (voice[SESSION_KEYS.voiceTabId] === tabId) {
+    await chrome.storage.session.remove(SESSION_KEYS.voiceTabId);
+  }
 });
 
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -423,7 +552,11 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+chrome.commands.onCommand.addListener((command) => {
+  if (command === 'toggle-voice') setVoice('toggle');
+});
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg || !msg.type) return;
 
   if (msg.type === 'gnaa-demo-input') {
@@ -432,6 +565,29 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       action: msg.action,
       state: msg.state || 'pulse',
     }).then(() => sendResponse({ ok: true }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-voice-input') {
+    handleVoiceInput(msg.action, msg.state || 'pulse')
+      .then((res) => sendResponse(res))
+      .catch((err) => sendResponse({ ok: false, error: String(err?.message || err) }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-voice-state') {
+    const tabId = sender.tab?.id;
+    (msg.listening && tabId != null
+      ? chrome.storage.session.set({ [SESSION_KEYS.voiceTabId]: tabId })
+      : chrome.storage.session.remove(SESSION_KEYS.voiceTabId)
+    ).then(() => sendResponse({ ok: true }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-voice') {
+    setVoice(msg.action || 'toggle')
+      .then((res) => sendResponse(res))
+      .catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
   }
 
