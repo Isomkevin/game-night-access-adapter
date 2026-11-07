@@ -90,3 +90,15 @@ def test_once_mode_types_once_until_position_left():
     injector.apply_rules([rule])
     assert len(board.pressed) == 2
     assert len(board.released) == 2
+
+
+def test_letter_keys_use_hardware_keysym_when_available():
+    from pynput.keyboard import KeyCode
+
+    from access_adapter.keys import _to_pynput_key
+
+    key = _to_pynput_key("w")
+    if hasattr(KeyCode, "_from_symbol"):
+        assert getattr(key, "vk", None)
+    else:
+        assert key.char == "w"

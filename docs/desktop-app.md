@@ -37,7 +37,7 @@ python3 -m pip install -r requirements.txt
 python3 -m access_adapter
 ```
 
-Focus the game window, choose **Add device**, then **Start reading**. **Send keys to the focused window** pauses injection without forgetting the mapping. `--api-only` serves the API without a window. `--version` prints the release.
+Focus the game window, choose **Add device**, then **Start reading**. Injection is a real OS key-down / key-up (not typing into a text box), so games that steer with held WASD work. **Send keys to the focused window** pauses injection without forgetting the mapping. `--api-only` serves the API without a window. `--version` prints the release.
 
 ```bash
 QT_QPA_PLATFORM=offscreen python3 -m pytest tests/test_ui.py tests/test_bridge.py -q

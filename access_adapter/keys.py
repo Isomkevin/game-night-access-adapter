@@ -127,4 +127,16 @@ def _to_pynput_key(name: str) -> Any:
         return special[name]
     if name.startswith("f") and name[1:].isdigit():
         return getattr(Key, name)
+    # Letter keys must carry a keysym (vk). On X11, KeyCode.from_char() only
+    # stores the character, so pynput uses XSendEvent. Games ignore those
+    # fake type events and never see a held WASD key. _from_symbol uses XTest
+    # FakeKeyEvent, which keeps the OS key down for the focused game.
+    from_symbol = getattr(KeyCode, "_from_symbol", None)
+    if callable(from_symbol):
+        try:
+            key = from_symbol(name)
+        except Exception:
+            key = None
+        if key is not None and getattr(key, "vk", None):
+            return key
     return KeyCode.from_char(name)

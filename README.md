@@ -99,15 +99,15 @@ For the hosted bridge, set the extension Setup connection address to `wss://game
 
 Configurable phone-sensor mappings, an Add device scan for USB and wireless ADB, and a local API. Windows and Linux installers ship the PySide window. Each mapping can hold keys continuously or type once when you enter that pose.
 
-**Downloads (v0.2.1 — current):**
+**Downloads (v0.2.2 — current):**
+- Linux: [game-night-access-adapter_0.2.2_all.deb](releases/game-night-access-adapter_0.2.2_all.deb)
+- Windows: [MSI installer](releases/game-night-access-adapter-0.2.2.msi) · [setup.exe](releases/game-night-access-adapter-0.2.2-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.2-windows.zip)
+
+**Previous (v0.2.1, still available):**
 - Linux: [game-night-access-adapter_0.2.1_all.deb](releases/game-night-access-adapter_0.2.1_all.deb)
 - Windows: [MSI installer](releases/game-night-access-adapter-0.2.1.msi) · [setup.exe](releases/game-night-access-adapter-0.2.1-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.1-windows.zip)
 
-**Previous (v0.2.0, still available):**
-- Linux: [game-night-access-adapter_0.2.0_all.deb](releases/game-night-access-adapter_0.2.0_all.deb)
-- Windows: [MSI installer](releases/game-night-access-adapter-0.2.0.msi) · [setup.exe](releases/game-night-access-adapter-0.2.0-setup.exe) · [portable zip](releases/game-night-access-adapter-0.2.0-windows.zip)
-
-On Windows the installer installs Python automatically if it is missing; put `adb` on `PATH` separately. On Linux: `sudo apt install ./game-night-access-adapter_0.2.1_all.deb` (Python 3 required). Or run the Windows MSI / `setup.exe`.
+On Windows the installer installs Python automatically if it is missing; put `adb` on `PATH` separately. On Linux: `sudo apt install ./game-night-access-adapter_0.2.2_all.deb` (Python 3 required). Or run the Windows MSI / `setup.exe`.
 
 ```bash
 python3 -m pip install -r requirements.txt
