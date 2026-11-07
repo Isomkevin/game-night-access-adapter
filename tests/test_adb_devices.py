@@ -123,8 +123,22 @@ def test_missing_adb_is_reported():
     def runner(_args: list[str]) -> AdbResult:
         raise FileNotFoundError("adb")
 
-    with pytest.raises(RuntimeError, match="not on PATH"):
+    with pytest.raises(RuntimeError, match="not installed"):
         AdbClient(runner).scan()
+
+
+def test_bundled_adb_is_preferred(tmp_path, monkeypatch):
+    from access_adapter.adb_devices import adb_executable
+
+    bundled = tmp_path / "platform-tools"
+    bundled.mkdir()
+    binary = bundled / "adb"
+    binary.write_text("#!/bin/sh\n")
+    binary.chmod(0o755)
+    monkeypatch.setenv("GAME_NIGHT_INSTALL_ROOT", str(tmp_path))
+    monkeypatch.delenv("GAME_NIGHT_ADB", raising=False)
+    monkeypatch.setattr("access_adapter.adb_devices.os.name", "posix")
+    assert adb_executable() == str(binary)
 
 
 def test_hidden_subprocess_kwargs_hide_windows_consoles(monkeypatch):

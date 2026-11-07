@@ -33,6 +33,7 @@ REQUIRED=(
   register-autostart.ps1
   uninstall.ps1
   uninstall.bat
+  remove-previous.ps1
   run-app.cmd
   requirements.txt
   access_adapter/__main__.py
@@ -40,6 +41,9 @@ REQUIRED=(
   access_adapter/ui/phone_view.py
   access_adapter/ui/flow.py
   access_adapter/ui/style.py
+)
+PACKAGED=(
+  platform-tools/adb.exe
 )
 
 echo "-- Source script checks"
@@ -150,6 +154,12 @@ else
   pass 'run-app.cmd starts without extra consoles'
 fi
 
+if ! grep -q 'platform-tools' "$WIN/run-app.cmd"; then
+  fail 'run-app.cmd must put bundled adb on PATH'
+else
+  pass 'run-app.cmd puts bundled adb on PATH'
+fi
+
 if ! grep -q 'CREATE_NO_WINDOW' "$ROOT/access_adapter/adb_devices.py"; then
   fail 'adb_devices.py must hide Windows ADB consoles with CREATE_NO_WINDOW'
 else
@@ -162,6 +172,12 @@ else
   pass 'sensors.py hides dumpsys consoles'
 fi
 
+if ! grep -q 'Win32HoldController' "$ROOT/access_adapter/keys.py"; then
+  fail 'keys.py must send Windows hold via Win32HoldController scan codes'
+else
+  pass 'keys.py holds Windows keys with scan codes'
+fi
+
 if ! grep -q 'Repair-AdapterPackageLayout' "$WIN/post-install.ps1"; then
   fail 'post-install.ps1 must repair flattened MSI package layouts'
 else
@@ -172,6 +188,18 @@ if ! grep -q 'emit_directory' "$WIN/build-msi.sh"; then
   fail 'build-msi.sh must nest Directory entries so access_adapter/ is preserved'
 else
   pass 'build-msi.sh nests MSI Directory entries'
+fi
+
+if ! grep -q 'AllowSameVersionUpgrades' "$WIN/build-msi.sh"; then
+  fail 'MSI must replace an already-installed copy of the same version'
+else
+  pass 'MSI allows same-version upgrades (removes previous install)'
+fi
+
+if ! grep -q 'wix build' "$WIN/build-msi.sh"; then
+  fail 'MSI builder must prefer WiX 7 (the Windows-tested toolchain)'
+else
+  pass 'MSI builder prefers WiX 7 when wix is on PATH'
 fi
 
 echo "-- MSI checks"
@@ -199,7 +227,7 @@ else
   pass "zip exists: $(basename "$ZIP")"
   list_zip="$(mktemp)"
   unzip -l "$ZIP" > "$list_zip"
-  for file in "${REQUIRED[@]}"; do
+  for file in "${REQUIRED[@]}" "${PACKAGED[@]}"; do
     if grep -Fq "$file" "$list_zip"; then
       pass "zip contains $file"
     else
@@ -221,7 +249,7 @@ else
   fi
   list_sfx="$(mktemp)"
   7z l "$SFX" > "$list_sfx"
-  for file in "${REQUIRED[@]}"; do
+  for file in "${REQUIRED[@]}" "${PACKAGED[@]}"; do
     if grep -Fq "$file" "$list_sfx"; then
       pass "setup.exe contains $file"
     else

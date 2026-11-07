@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 VERSION="$(python3 -c "import sys; sys.path.insert(0, '$ROOT'); from access_adapter.version import __version__; print(__version__)")"
-PKG="game-night-access-adapter_${VERSION}_all"
+PKG="game-night-access-adapter_${VERSION}_amd64"
 STAGING="/tmp/${PKG}"
 DEBIAN="$STAGING/DEBIAN"
 APP_ROOT="$STAGING/opt/game-night-access-adapter"
@@ -23,6 +23,7 @@ rsync -a \
   --exclude '*.pyc' \
   "$ROOT/access_adapter/" "$APP_ROOT/access_adapter/"
 cp "$ROOT/requirements.txt" "$APP_ROOT/"
+bash "$ROOT/packaging/fetch-platform-tools.sh" linux "$APP_ROOT/platform-tools"
 cp "$SCRIPT_DIR/game-night-access-adapter.desktop" \
   "$STAGING/usr/share/applications/game-night-access-adapter.desktop"
 cp "$SCRIPT_DIR/game-night-access-adapter-autostart.desktop" \
@@ -31,6 +32,7 @@ cp "$SCRIPT_DIR/game-night-access-adapter-autostart.desktop" \
 cat > "$STAGING/usr/bin/game-night-access-adapter" << 'LAUNCHER'
 #!/bin/sh
 export PYTHONPATH="/opt/game-night-access-adapter${PYTHONPATH:+:$PYTHONPATH}"
+export PATH="/opt/game-night-access-adapter/platform-tools:$PATH"
 if [ -x /opt/game-night-access-adapter/venv/bin/python ]; then
   exec /opt/game-night-access-adapter/venv/bin/python -m access_adapter "$@"
 fi
@@ -45,6 +47,7 @@ Menu: Game Night Access Adapter
 Command: game-night-access-adapter
 
 The window shows live phone tilt, rest-pose calibration, and sensor-to-key mappings.
+adb is included at /opt/game-night-access-adapter/platform-tools.
 
 Local API (while the app is running):
   curl http://127.0.0.1:8765/api/v1/health
@@ -62,14 +65,14 @@ Package: game-night-access-adapter
 Version: ${VERSION}
 Section: utils
 Priority: optional
-Architecture: all
+Architecture: amd64
 Depends: python3 (>= 3.10), python3-venv, python3-pip, libglib2.0-0, libgl1, libegl1, libxkbcommon0, libfontconfig1, libdbus-1-3
-Recommends: adb
+Recommends: android-sdk-platform-tools-common
 Maintainer: Game Night Access Adapter <access@localhost>
 Description: Map phone sensors to keyboard input
  Desktop application and loopback API for accessible game controls.
  Installed under /opt/game-night-access-adapter with a per-user login autostart entry.
- Uses an isolated Python virtual environment.
+ Ships Android platform-tools (adb). Uses an isolated Python virtual environment.
 EOF
 
 cat > "$DEBIAN/postinst" << 'POSTINST'

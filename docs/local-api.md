@@ -34,7 +34,7 @@ Errors:
 | PUT | `/api/v1/settings` | Update one or more settings |
 | GET | `/api/v1/mappings` | Current sensor mappings |
 | PUT | `/api/v1/mappings` | Replace the list. Body: `{"rules": [ ... ]}` |
-| POST | `/api/v1/mappings` | Add one rule. `id` is optional. `keys` may be a string such as `ctrl+left` |
+| POST | `/api/v1/mappings` | Add one rule. `id` is optional. `keys` may be a string such as `ctrl+left`. `press_mode` is `hold` or `once` |
 | DELETE | `/api/v1/mappings/{id}` | Remove one rule |
 | GET | `/api/v1/devices` | Last scan |
 | POST | `/api/v1/devices/scan` | Run `adb devices -l` and `adb mdns services` |

@@ -18,9 +18,12 @@ rm -rf "$INSTALL_ROOT/access_adapter"
 cp -a "$SRC/access_adapter" "$INSTALL_ROOT/"
 cp "$SRC/requirements.txt" "$INSTALL_ROOT/"
 
+bash "$SCRIPT_DIR/../fetch-platform-tools.sh" linux "$INSTALL_ROOT/platform-tools"
+
 install -m 0755 /dev/stdin /usr/bin/game-night-access-adapter << 'LAUNCHER'
 #!/bin/sh
 export PYTHONPATH="/opt/game-night-access-adapter${PYTHONPATH:+:$PYTHONPATH}"
+export PATH="/opt/game-night-access-adapter/platform-tools:$PATH"
 if [ -x /opt/game-night-access-adapter/venv/bin/python ]; then
   exec /opt/game-night-access-adapter/venv/bin/python -m access_adapter "$@"
 fi

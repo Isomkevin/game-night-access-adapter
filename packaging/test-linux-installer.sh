@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUT="${1:-$ROOT/dist/installers}"
 VERSION="$(PYTHONPATH="$ROOT" python3 -c "from access_adapter.version import __version__; print(__version__)")"
-DEB="$OUT/game-night-access-adapter_${VERSION}_all.deb"
+DEB="$OUT/game-night-access-adapter_${VERSION}_amd64.deb"
 FAIL=0
 
 pass() { echo "  OK  $*"; }
@@ -21,7 +21,8 @@ for script in \
   "$ROOT/packaging/linux/uninstall.sh" \
   "$ROOT/packaging/windows/build-zip.sh" \
   "$ROOT/packaging/windows/build-sfx.sh" \
-  "$ROOT/packaging/windows/build-msi.sh"
+  "$ROOT/packaging/windows/build-msi.sh" \
+  "$ROOT/packaging/fetch-platform-tools.sh"
 do
   if bash -n "$script"; then
     pass "syntax $(basename "$script")"
@@ -50,7 +51,8 @@ else
     ./opt/game-night-access-adapter/access_adapter/ui/phone_view.py \
     ./opt/game-night-access-adapter/access_adapter/ui/flow.py \
     ./opt/game-night-access-adapter/access_adapter/ui/style.py \
-    ./opt/game-night-access-adapter/requirements.txt
+    ./opt/game-night-access-adapter/requirements.txt \
+    ./opt/game-night-access-adapter/platform-tools/adb
   do
     if grep -Fq "$path" <<<"$listing"; then
       pass "deb contains $path"

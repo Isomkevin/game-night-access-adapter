@@ -126,20 +126,37 @@ function Repair-AdapterPackageLayout {
         Remove-Item -LiteralPath $nested -Recurse -Force
     }
 
+    Get-ChildItem -LiteralPath $InstallDir -Filter '__pycache__' -Recurse -Directory -ErrorAction SilentlyContinue |
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
     $adbDevices = Join-Path $pkg 'adb_devices.py'
     $sensors = Join-Path $pkg 'sensors.py'
+    $keys = Join-Path $pkg 'keys.py'
     if (-not (Test-FileContains -Path $adbDevices -Needle 'CREATE_NO_WINDOW')) {
         throw 'Installed access_adapter\adb_devices.py is missing CREATE_NO_WINDOW (ADB consoles would flood the desktop).'
     }
     if (-not (Test-FileContains -Path $sensors -Needle 'hidden_subprocess_kwargs')) {
         throw 'Installed access_adapter\sensors.py is missing hidden_subprocess_kwargs.'
     }
-    Write-Log 'Package layout OK (ADB helper consoles stay hidden).'
+    if (-not (Test-FileContains -Path $keys -Needle '_win32_repeat_timing')) {
+        throw 'Installed access_adapter\keys.py is missing Windows key auto-repeat (hold would act like one tap).'
+    }
+    Write-Log 'Package layout OK (ADB helper consoles stay hidden; Windows hold uses scan codes).'
 }
 
 . (Join-Path $PSScriptRoot 'python-bootstrap.ps1')
 
+function Stop-AdapterProcesses {
+    Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+        $_.CommandLine -and ($_.CommandLine -match 'access_adapter')
+    } | ForEach-Object {
+        Write-Log "Stopping adapter process $($_.ProcessId)"
+        Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+    }
+}
+
 try {
+    Stop-AdapterProcesses
     $InstallDir = (Resolve-Path -LiteralPath $InstallDir).Path
     Write-Log "Post-install source: $InstallDir"
 
@@ -171,6 +188,11 @@ try {
     Register-AdapterUninstallKey -InstallDir $InstallDir
 
     $env:PYTHONPATH = $InstallDir
+    $tools = Join-Path $InstallDir 'platform-tools'
+    if (Test-Path -LiteralPath $tools) {
+        $env:PATH = "$tools;" + $env:PATH
+        $env:GAME_NIGHT_INSTALL_ROOT = $InstallDir
+    }
     $pyw = Join-Path $InstallDir 'venv\Scripts\pythonw.exe'
     $py = Join-Path $InstallDir 'venv\Scripts\python.exe'
     $launcher = Join-Path $InstallDir 'run-app.cmd'

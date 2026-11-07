@@ -37,7 +37,7 @@ python3 -m pip install -r requirements.txt
 python3 -m access_adapter
 ```
 
-Focus the game window, choose **Add device**, then **Start reading**. **Send keys to the focused window** pauses injection without forgetting the mapping. `--api-only` serves the API without a window. `--version` prints the release.
+Focus the game window, choose **Add device**, then **Start reading**. Injection is a real OS key-down / key-up (not typing into a text box), so games that steer with held WASD work. **Send keys to the focused window** pauses injection without forgetting the mapping. `--api-only` serves the API without a window. `--version` prints the release.
 
 ```bash
 QT_QPA_PLATFORM=offscreen python3 -m pytest tests/test_ui.py tests/test_bridge.py -q
@@ -81,7 +81,14 @@ The file is created when you save from the app or the API. Until then the built-
 | Accelerate | accelerometer Y | below −2.8 m/s² | `w` |
 | Brake | accelerometer Y | above 2.8 m/s² | `s` |
 
-A mapping's `keys` list is a **combination**: every listed key is held at the same time while the condition is true. `["ctrl", "left"]` holds Ctrl and Left together.
+A mapping's `keys` list is a **combination**: every listed key is used together. `["ctrl", "left"]` is Ctrl and Left.
+
+Each mapping also has `press_mode`:
+
+| Value | In the window | Behavior |
+|-------|---------------|----------|
+| `hold` | Hold continuously | Keys stay down while the phone stays in that pose (default; games treat this as steering) |
+| `once` | Type once | Keys tap once when you enter that pose, then wait until you leave it before they can tap again |
 
 ### Behavior settings
 

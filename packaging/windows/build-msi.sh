@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
-# Build a Windows Installer (.msi) with a standard GUI wizard (wixl).
+# Build a Windows Installer (.msi) with a standard GUI wizard.
+# The MSI that was tested on a Windows PC used WiX Toolset 7.0.1. Prefer that
+# when `wix` is on PATH (Windows). Linux msitools/wixl is a fallback only.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 OUT_DIR="${1:-$ROOT/dist/installers}"
 VENDOR="$SCRIPT_DIR/vendor/wixl"
-VERSION="$(python3 -c "import sys; sys.path.insert(0, '$ROOT'); from access_adapter.version import __version__; print(__version__)")"
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON=python3
+else
+  PYTHON=python
+fi
+VERSION="$("$PYTHON" -c "import sys; sys.path.insert(0, '$ROOT'); from access_adapter.version import __version__; print(__version__)")"
 STAGE="$(mktemp -d /tmp/access-adapter-msi-XXXXXX)"
 MSI_NAME="game-night-access-adapter-${VERSION}.msi"
 
@@ -40,7 +47,13 @@ ensure_wixl() {
   WIXL_EXTDIR="$VENDOR/usr/share/wixl-0.103/ext"
 }
 
-rsync -a --exclude '__pycache__' --exclude '*.pyc' "$ROOT/access_adapter" "$STAGE/"
+if command -v rsync >/dev/null 2>&1; then
+  rsync -a --exclude '__pycache__' --exclude '*.pyc' "$ROOT/access_adapter" "$STAGE/"
+else
+  mkdir -p "$STAGE/access_adapter"
+  cp -R "$ROOT/access_adapter/." "$STAGE/access_adapter/"
+  find "$STAGE/access_adapter" -type d -name '__pycache__' -prune -exec rm -rf {} + 2>/dev/null || true
+fi
 cp "$ROOT/requirements.txt" "$STAGE/"
 cp "$SCRIPT_DIR/python-bootstrap.ps1" \
    "$SCRIPT_DIR/install.ps1" \
@@ -50,11 +63,13 @@ cp "$SCRIPT_DIR/python-bootstrap.ps1" \
    "$SCRIPT_DIR/run-app.cmd" \
    "$SCRIPT_DIR/uninstall.ps1" \
    "$SCRIPT_DIR/uninstall.bat" \
+   "$SCRIPT_DIR/remove-previous.ps1" \
    "$SCRIPT_DIR/msi-postinstall.cmd" \
    "$SCRIPT_DIR/License.rtf" \
    "$STAGE/"
+bash "$ROOT/packaging/fetch-platform-tools.sh" windows "$STAGE/platform-tools"
 
-python3 - "$STAGE" "$VERSION" "$STAGE/product.wxs" <<'PY'
+"$PYTHON" - "$STAGE" "$VERSION" "$STAGE/product.wxs" <<'PY'
 from __future__ import annotations
 
 import hashlib
@@ -126,7 +141,8 @@ out.write_text(
            Version="{escape(version)}" Manufacturer="Game Night"
            UpgradeCode="7C2E9A14-5B18-4E3A-9F01-6D4A2B8C1E70">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
-    <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+    <MajorUpgrade AllowSameVersionUpgrades="yes"
+                  DowngradeErrorMessage="A newer version is already installed." />
     <MediaTemplate EmbedCab="yes" />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
     <UIRef Id="WixUI_Minimal" />
@@ -177,13 +193,24 @@ out.write_text(
 print(f"Wrote {out} ({len(files)} files)")
 PY
 
-ensure_wixl
-cp "$STAGE/License.rtf" "$PWD/License.rtf" 2>/dev/null || true
-(
-  cd "$STAGE"
-  "$WIXL" --ext ui --extdir "$WIXL_EXTDIR" -a x64 -o "$OUT_DIR/$MSI_NAME" product.wxs
-)
-rm -f "$PWD/License.rtf"
+if command -v wix >/dev/null 2>&1; then
+  echo "Building MSI with WiX $(wix --version 2>/dev/null | head -1) (Windows-tested toolchain)"
+  (
+    cd "$STAGE"
+    # convert exits 40 when it rewrites v3 authoring to v4; that is success.
+    wix convert product.wxs || true
+    wix build product.wxs -arch x64 -ext WixToolset.UI.wixext -pdbtype none -o "$OUT_DIR/$MSI_NAME"
+  )
+else
+  echo "wix CLI not found; falling back to Linux wixl (not the Windows-tested MSI format)"
+  ensure_wixl
+  cp "$STAGE/License.rtf" "$PWD/License.rtf" 2>/dev/null || true
+  (
+    cd "$STAGE"
+    "$WIXL" --ext ui --extdir "$WIXL_EXTDIR" -a x64 -o "$OUT_DIR/$MSI_NAME" product.wxs
+  )
+  rm -f "$PWD/License.rtf"
+fi
 rm -rf "$STAGE"
 
 BYTES=$(wc -c < "$OUT_DIR/$MSI_NAME")

@@ -10,7 +10,7 @@ bash packaging/build-installers.sh
 
 ## Linux
 
-Current Windows packages: [`game-night-access-adapter-0.2.1.msi`](../releases/game-night-access-adapter-0.2.1.msi), [`game-night-access-adapter-0.2.1-setup.exe`](../releases/game-night-access-adapter-0.2.1-setup.exe), and [`game-night-access-adapter-0.2.1-windows.zip`](../releases/game-night-access-adapter-0.2.1-windows.zip). Previous packages (including Linux) remain under [`releases/`](../releases/), e.g. [`game-night-access-adapter_0.2.0_all.deb`](../releases/game-night-access-adapter_0.2.0_all.deb) and [`game-night-access-adapter-0.2.0.msi`](../releases/game-night-access-adapter-0.2.0.msi).
+Current packages: [`game-night-access-adapter_0.2.6_amd64.deb`](../releases/game-night-access-adapter_0.2.6_amd64.deb), [`game-night-access-adapter-0.2.6-setup.exe`](../releases/game-night-access-adapter-0.2.6-setup.exe), and [`game-night-access-adapter-0.2.6-windows.zip`](../releases/game-night-access-adapter-0.2.6-windows.zip). Previous packages remain under [`releases/`](../releases/).
 
 | Path | Role |
 |------|------|
@@ -19,7 +19,7 @@ Current Windows packages: [`game-night-access-adapter-0.2.1.msi`](../releases/ga
 | `/usr/share/applications/game-night-access-adapter.desktop` | Application menu |
 | `/etc/xdg/autostart/game-night-access-adapter.desktop` | Open at graphical login |
 
-The package `postinst` creates the virtual environment and installs `requirements.txt`. `adb` is recommended, not required, because the package name differs across distributions. Install it separately if `adb` is not already on `PATH`.
+The package `postinst` creates the virtual environment and installs `requirements.txt`. Android **platform-tools** (`adb`) is copied into `/opt/game-night-access-adapter/platform-tools`. USB debugging on Linux still benefits from distro udev rules (`android-sdk-platform-tools-common`).
 
 Remove the autostart file to stop the window opening at login. User settings stay in `~/.config/game-night-access-adapter/`.
 
@@ -41,7 +41,9 @@ Two artifacts, plus an Inno Setup script you can compile on Windows with Inno Se
 | `game-night-access-adapter-<version>-setup.exe` | 7-Zip SFX. It runs `install.bat` after extract. The builder downloads `7zSD.sfx` from the 7-Zip LZMA SDK (`https://www.7-zip.org/a/lzma2501.7z`) |
 | `packaging/windows/game-night-access-adapter.iss` | Compile with `iscc` on Windows |
 
-Prefer the `.msi` on Windows. It opens the usual installer wizard (license, install, finish). If Python 3 is missing, `post-install.ps1` installs it automatically (winget when available, otherwise the official python.org silent installer for all users). `adb` still needs to be on `PATH` separately. The MSI keeps the `access_adapter/` package folders intact so sensor reads do not open a console window on every ADB poll. `post-install.ps1` also repairs older flattened MSI layouts.
+Prefer the `.msi` on Windows. The copy that was tested on a Windows PC is built with **WiX Toolset 7.0.1** (not Linux `msitools`). It opens the usual installer wizard (license, install, finish) and removes a previous Game Night Access Adapter install first so versions do not conflict. If Python 3 is missing, `post-install.ps1` installs it automatically (winget when available, otherwise the official python.org silent installer for all users). **adb** is included under `platform-tools`. The MSI keeps the `access_adapter/` package folders intact so sensor reads do not open a console window on every ADB poll. `post-install.ps1` also repairs older flattened MSI layouts.
+
+If an older copy is already on the PC, uninstall it from Apps & Features, or run `remove-previous.ps1` as Administrator, then install the new MSI.
 
 `setup.exe` unpacks to a temporary folder that disappears when the installer exits. `post-install.ps1` copies the payload to `C:\Program Files\Game Night Access Adapter` before it creates the virtual environment. Do not run `install.bat` from inside an archive preview; extract the full zip first, or use `setup.exe`.
 
@@ -57,7 +59,7 @@ If the window does not appear, run `C:\Program Files\Game Night Access Adapter\r
 
 Uninstall from that copy's `uninstall.bat`, or from Apps & Features. Settings remain in `%APPDATA%\GameNightAccessAdapter`.
 
-You do not need to install Python first on Windows — the installer does that when needed. Android platform-tools (`adb`) must still be on `PATH`. The installer does not download the Android SDK.
+You do not need to install Python or the Android SDK first. The installer installs Python when needed and copies Google platform-tools (`adb`) next to the app.
 
 ## Tests
 

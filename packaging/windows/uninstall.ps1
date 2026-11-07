@@ -4,6 +4,19 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+    $_.CommandLine -and ($_.CommandLine -match 'access_adapter')
+} | ForEach-Object {
+    Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+}
+
+$cleaner = Join-Path $PSScriptRoot 'remove-previous.ps1'
+if ((Test-Path -LiteralPath $cleaner) -and (-not $InstallRoot)) {
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $cleaner
+    exit 0
+}
+
 if (-not $InstallRoot) {
     $InstallRoot = $PSScriptRoot
 }

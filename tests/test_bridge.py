@@ -4,12 +4,14 @@ import json
 import time
 from urllib.request import Request, urlopen
 
+import pytest
+
 from access_adapter.adb_devices import AdbResult
 from access_adapter.api import ApiService
 from access_adapter.bridge import SensorBridge
 from access_adapter.keys import KeyInjector
 from access_adapter.mapping import SensorSample
-from access_adapter.sensors import SensorReader, parse_dumpsys
+from access_adapter.sensors import SensorReader, parse_dumpsys, parse_dumpsys_with_event_ts
 from access_adapter.state import AppState
 from tests.test_keys import FakeKeyboard
 
@@ -39,6 +41,58 @@ def test_parse_dumpsys_reads_accel_and_gyro():
     assert sample.az == 9.20
     assert (sample.gx, sample.gy, sample.gz) == (0.10, -0.20, 0.30)
     assert sample.source == "dumpsys"
+
+
+def test_parse_dumpsys_exposes_newest_event_timestamp():
+    dump = """
+ACCELEROMETER: last 50 events
+	 1 (ts=10.0, wall=12:00:00.000) 1.83, 6.85, 7.65,
+	50 (ts=11.5, wall=12:00:01.000) -3.25, 0.50, 9.20,
+"""
+    sample, event_ts = parse_dumpsys_with_event_ts(dump)
+    assert sample.ax == -3.25
+    assert event_ts == 11.5
+
+
+def test_parse_dumpsys_uses_newest_accel_event():
+    dump = """
+ACCELEROMETER: last 50 events
+	 1 (ts=10.0, wall=12:00:00.000) 1.83, 6.85, 7.65,
+	50 (ts=11.0, wall=12:00:01.000) -3.25, 0.50, 9.20,
+LIGHT: last 1000 events
+	 1 (ts=900.0, wall=12:10:00.000) 12.0,
+"""
+    sample = parse_dumpsys(dump)
+    assert sample.ax == -3.25
+    assert sample.ay == 0.50
+    assert sample.az == 9.20
+    assert sample.source == "dumpsys"
+
+
+def test_parse_dumpsys_converts_fresher_orientation():
+    dump = """
+ORIENTATION: last 10 events
+	10 (ts=2000.0, wall=12:15:00.000) 180.0, 0.0, 90.0,
+ACCELEROMETER: last 50 events
+	50 (ts=11.0, wall=12:00:01.000) 1.83, 6.85, 7.65,
+"""
+    sample = parse_dumpsys(dump)
+    assert sample.source == "orientation"
+    assert sample.ax == pytest.approx(9.80665, abs=0.01)
+    assert sample.ay == pytest.approx(0.0, abs=0.01)
+    assert sample.az == pytest.approx(0.0, abs=0.01)
+
+
+def test_parse_dumpsys_skips_linear_accel_and_works_without_gyro():
+    dump = """
+LINEARACCEL: last 10 events
+	10 (ts=50.0, wall=12:00:00.000) 9.0, 9.0, 9.0,
+ICM42632M Accelerometer: last 50 events
+	50 (ts=11.0, wall=12:00:01.000) -3.25, 0.50, 9.20,
+"""
+    sample = parse_dumpsys(dump)
+    assert sample.ax == -3.25
+    assert (sample.gx, sample.gy, sample.gz) == (0.0, 0.0, 0.0)
 
 
 def test_parse_dumpsys_reads_filtered_phone_output():
@@ -73,6 +127,8 @@ def test_apply_sample_presses_and_releases_with_injection_flag(tmp_path):
     bridge = SensorBridge(state, injector=KeyInjector(controller=board))
     keys = bridge.apply_sample(SensorSample(ax=-5, source="test"))
     assert keys == ["a"]
+    assert bridge.injector.held_names == ["a"]
+    bridge.apply_sample(SensorSample(ax=-5, source="test"))
     assert bridge.injector.held_names == ["a"]
 
     state.update_settings({"injection_enabled": False})
