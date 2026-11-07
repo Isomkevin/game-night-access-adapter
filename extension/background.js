@@ -48,15 +48,17 @@ function cameraEmbedUrl(wsUrl) {
 }
 
 const ADAPTER_URL = 'http://127.0.0.1:8765';
-const ADAPTER_RULES_TTL_MS = 5000;
-const ADAPTER_DOWN_RETRY_MS = 3000;
+const ADAPTER_RULES_TTL_MS = 60_000;
+const ADAPTER_DOWN_RETRY_MS = 2000;
+const ADAPTER_PRESS_TIMEOUT_MS = 400;
+const ADAPTER_WARM_MS = 8000;
 
-/** Voice command → desktop adapter mapping, by default id first, then by words in the label. */
-const VOICE_ADAPTER_IDS = {
-  go: 'tilt-forward',
-  stop: 'tilt-back',
-  turnLeft: 'tilt-left',
-  turnRight: 'tilt-right',
+/** Built-in voice → mapping ids (pressed immediately; no mappings GET on the hot path). */
+const VOICE_ADAPTER_DEFAULTS = {
+  go: { id: 'tilt-forward', label: 'Accelerate', keys: ['w'] },
+  stop: { id: 'tilt-back', label: 'Brake', keys: ['s'] },
+  turnLeft: { id: 'tilt-left', label: 'Steer left', keys: ['a'] },
+  turnRight: { id: 'tilt-right', label: 'Steer right', keys: ['d'] },
 };
 const VOICE_ADAPTER_LABEL_WORDS = {
   go: ['accelerate', 'throttle', 'forward', 'gas'],
@@ -74,21 +76,43 @@ const VOICE_ADAPTER_LABEL_WORDS = {
 let adapterRules = null;
 let adapterRulesAt = 0;
 let adapterDownAt = 0;
+/** @type {Record<string, {id: string, label: string, keys: string[]}>} */
+let voicePressMap = { ...VOICE_ADAPTER_DEFAULTS };
+let adapterWarmTimer = null;
+let adapterSeen = false;
 
-async function adapterFetch(path, body) {
+async function adapterFetch(path, body, timeoutMs = 800) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 1500);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(`${ADAPTER_URL}${path}`, {
       method: body ? 'POST' : 'GET',
       headers: body ? { 'Content-Type': 'application/json' } : {},
       body: body ? JSON.stringify(body) : undefined,
       signal: controller.signal,
+      cache: 'no-store',
     });
     return await res.json();
   } finally {
     clearTimeout(timer);
   }
+}
+
+function rebuildVoicePressMap(rules) {
+  const next = { ...VOICE_ADAPTER_DEFAULTS };
+  const enabled = (rules || []).filter((r) => r.enabled !== false);
+  for (const [action, def] of Object.entries(VOICE_ADAPTER_DEFAULTS)) {
+    const byId = enabled.find((r) => r.id === def.id);
+    if (byId) next[action] = { id: byId.id, label: byId.label, keys: [...byId.keys] };
+  }
+  for (const [action, words] of Object.entries(VOICE_ADAPTER_LABEL_WORDS)) {
+    if (VOICE_ADAPTER_DEFAULTS[action]) continue;
+    const hit = enabled.find((r) =>
+      words.some((w) => String(r.label || '').toLowerCase().includes(w))
+    );
+    if (hit) next[action] = { id: hit.id, label: hit.label, keys: [...hit.keys] };
+  }
+  voicePressMap = next;
 }
 
 /** Mapping rules from the desktop adapter, or null when it isn't running. */
@@ -97,9 +121,11 @@ async function loadAdapterRules() {
   if (adapterRules && now - adapterRulesAt < ADAPTER_RULES_TTL_MS) return adapterRules;
   if (!adapterRules && now - adapterDownAt < ADAPTER_DOWN_RETRY_MS) return null;
   try {
-    const body = await adapterFetch('/api/v1/mappings');
+    const body = await adapterFetch('/api/v1/mappings', undefined, 600);
     adapterRules = body?.data?.rules || [];
     adapterRulesAt = now;
+    adapterSeen = true;
+    rebuildVoicePressMap(adapterRules);
   } catch {
     adapterRules = null;
     adapterDownAt = now;
@@ -107,45 +133,119 @@ async function loadAdapterRules() {
   return adapterRules;
 }
 
-function adapterRuleForVoice(rules, action) {
-  const enabled = rules.filter((r) => r.enabled !== false);
-  const byId = enabled.find((r) => r.id === VOICE_ADAPTER_IDS[action]);
-  if (byId) return byId;
-  const words = VOICE_ADAPTER_LABEL_WORDS[action] || [];
-  return enabled.find((r) => words.some((w) => String(r.label || '').toLowerCase().includes(w))) || null;
+function warmAdapter() {
+  loadAdapterRules().catch(() => {});
+  adapterFetch('/api/v1/health', undefined, 400)
+    .then((body) => {
+      if (body?.ok) adapterSeen = true;
+    })
+    .catch(() => {});
+}
+
+function startAdapterWarm() {
+  warmAdapter();
+  if (adapterWarmTimer) return;
+  adapterWarmTimer = setInterval(warmAdapter, ADAPTER_WARM_MS);
+}
+
+function stopAdapterWarm() {
+  if (!adapterWarmTimer) return;
+  clearInterval(adapterWarmTimer);
+  adapterWarmTimer = null;
 }
 
 /**
  * Voice goes to the desktop adapter (system-wide keys for any game) when it is
  * running; otherwise to the browser game tab.
+ * Hot path: one POST /press using the cached mapping id (no mappings GET).
  */
 async function handleVoiceInput(action, state) {
-  const rules = await loadAdapterRules();
-  if (!rules) {
-    await handleInputEvent({ source: 'voice', action, state });
-    return { ok: true, target: 'tab' };
-  }
-  const rule = adapterRuleForVoice(rules, action);
-  if (!rule) {
-    const spoken = action.replace(/([A-Z])/g, ' $1').toLowerCase();
-    return { ok: false, target: 'adapter', error: `No adapter mapping for “${spoken}”. Add one in the desktop adapter.` };
-  }
-  try {
-    const body = await adapterFetch('/api/v1/press', { mapping: rule.id, state });
-    if (!body?.ok) {
+  const cached = voicePressMap[action];
+  if (cached && (adapterSeen || adapterRules)) {
+    try {
+      const body = await adapterFetch(
+        '/api/v1/press',
+        { mapping: cached.id, state },
+        ADAPTER_PRESS_TIMEOUT_MS
+      );
+      if (body?.ok) {
+        adapterSeen = true;
+        return {
+          ok: true,
+          target: 'adapter',
+          label: body.data.label || cached.label,
+          keys: body.data.keys || cached.keys,
+        };
+      }
       if (body?.error?.message === 'Endpoint not found') {
         return { ok: false, target: 'adapter', error: 'Update the desktop adapter to 0.2.7 or newer for voice control.' };
       }
-      if (body?.error?.code === 'NOT_FOUND') adapterRulesAt = 0;
-      return { ok: false, target: 'adapter', error: body?.error?.message || 'The adapter refused the key press.' };
+      if (body?.error?.code === 'NOT_FOUND') {
+        adapterRulesAt = 0;
+        await loadAdapterRules();
+        const again = voicePressMap[action];
+        if (again && again.id !== cached.id) {
+          const retry = await adapterFetch(
+            '/api/v1/press',
+            { mapping: again.id, state },
+            ADAPTER_PRESS_TIMEOUT_MS
+          );
+          if (retry?.ok) {
+            return {
+              ok: true,
+              target: 'adapter',
+              label: retry.data.label,
+              keys: retry.data.keys,
+            };
+          }
+        }
+      }
+      if (body?.error?.code === 'INJECTION_OFF') {
+        return { ok: false, target: 'adapter', error: body.error.message };
+      }
+      // Adapter answered but refused — don't silently fall back mid-press.
+      if (body?.error) {
+        return { ok: false, target: 'adapter', error: body.error.message };
+      }
+    } catch {
+      adapterRules = null;
+      adapterDownAt = Date.now();
+      adapterSeen = false;
     }
-    return { ok: true, target: 'adapter', label: body.data.label, keys: body.data.keys };
-  } catch {
-    adapterRules = null;
-    adapterDownAt = Date.now();
-    await handleInputEvent({ source: 'voice', action, state });
-    return { ok: true, target: 'tab' };
+  } else if (!adapterSeen) {
+    // First command before warm finished: try defaults once, else tab.
+    if (VOICE_ADAPTER_DEFAULTS[action]) {
+      try {
+        const body = await adapterFetch(
+          '/api/v1/press',
+          { mapping: VOICE_ADAPTER_DEFAULTS[action].id, state },
+          ADAPTER_PRESS_TIMEOUT_MS
+        );
+        if (body?.ok) {
+          adapterSeen = true;
+          warmAdapter();
+          return {
+            ok: true,
+            target: 'adapter',
+            label: body.data.label,
+            keys: body.data.keys,
+          };
+        }
+      } catch {
+        adapterDownAt = Date.now();
+      }
+    }
+  } else if (!cached) {
+    await loadAdapterRules();
+    if (!voicePressMap[action]) {
+      const spoken = action.replace(/([A-Z])/g, ' $1').toLowerCase();
+      return { ok: false, target: 'adapter', error: `No adapter mapping for “${spoken}”. Add one in the desktop adapter.` };
+    }
+    return handleVoiceInput(action, state);
   }
+
+  await handleInputEvent({ source: 'voice', action, state });
+  return { ok: true, target: 'tab' };
 }
 
 /** @type {WebSocket|null} */
@@ -325,7 +425,7 @@ async function buildStatusPayload() {
     targetTabHost: pinned.targetTabHost,
     cameraDockOpen: !!session[SESSION_KEYS.cameraDockOpen],
     voiceOn: typeof session[SESSION_KEYS.voiceTabId] === 'number',
-    adapterConnected: Boolean(await loadAdapterRules()),
+    adapterConnected: adapterSeen || Boolean(await loadAdapterRules()),
     workerOk: true,
   };
 }
@@ -350,9 +450,14 @@ async function setVoice(action) {
   if (!tabs.length) {
     return { ok: false, error: 'Open any https web page (or your browser game) and try again.' };
   }
+  // Warm the adapter before the first spoken command so /press is one round-trip.
+  if (action !== 'stop') startAdapterWarm();
   for (const tab of tabs) {
     try {
-      return await chrome.tabs.sendMessage(tab.id, { type: 'gnaa-voice', action });
+      const res = await chrome.tabs.sendMessage(tab.id, { type: 'gnaa-voice', action });
+      if (res?.listening) startAdapterWarm();
+      else if (res?.ok && action !== 'start') stopAdapterWarm();
+      return res;
     } catch {
       /* page loaded before the extension, or an error page; try the next one */
     }
@@ -587,6 +692,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (msg.type === 'gnaa-voice-state') {
     const tabId = sender.tab?.id;
+    if (msg.listening) startAdapterWarm();
+    else stopAdapterWarm();
     (msg.listening && tabId != null
       ? chrome.storage.session.set({ [SESSION_KEYS.voiceTabId]: tabId })
       : chrome.storage.session.remove(SESSION_KEYS.voiceTabId)

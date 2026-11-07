@@ -6,7 +6,8 @@
 
 (() => {
   const PILL_ID = 'gnaa-voice-pill';
-  const STEER_PULSE_MS = 300;
+  // Short steer so left/right feel snappy; hold commands still stay down until released.
+  const STEER_PULSE_MS = 160;
   const { matchVoiceCommands } = globalThis.gnaaVoicePhrases;
 
   /** @type {SpeechRecognition|null} */
@@ -16,7 +17,8 @@
   /** Commands already run for each in-progress result, so interim + final don't repeat. */
   let firedPerResult = [];
 
-  const KEEPALIVE_MS = 1000;
+  // Adapter lease is 2.5 s; refresh well under that without waiting a full second.
+  const KEEPALIVE_MS = 700;
   let keepalive = null;
   let lastHeard = '';
 
@@ -30,6 +32,8 @@
   }
 
   function send(action, state, quiet = false) {
+    // Fire the key immediately; update the pill when the adapter answers.
+    if (!quiet && wanted && lastHeard) showPill(`“${lastHeard}”…`, true);
     chrome.runtime
       .sendMessage({ type: 'gnaa-voice-input', action, state })
       .then((res) => {
@@ -171,9 +175,10 @@
     for (let i = ev.resultIndex; i < ev.results.length; i++) {
       const result = ev.results[i];
       const transcript = result[0]?.transcript || '';
+      // Prefer the tail of the phrase so “uhh go” still fires as soon as “go” appears.
       const commands = matchVoiceCommands(transcript);
       const already = firedPerResult[i] || 0;
-      if (commands.length > already) lastHeard = transcript.trim();
+      if (commands.length > already) lastHeard = transcript.trim().split(/\s+/).slice(-3).join(' ');
       for (const command of commands.slice(already)) {
         RUN[command]?.();
         if (!wanted) return;
@@ -202,12 +207,15 @@
     firedPerResult = [];
     const rec = new SR();
     recognition = rec;
-    rec.continuous = true;
+    // Short non-continuous bursts return faster for one-word commands than a long continuous stream.
+    rec.continuous = false;
     rec.interimResults = true;
+    rec.maxAlternatives = 1;
     rec.lang = 'en-US';
     let failedRestarts = 0;
     rec.onresult = (ev) => {
       failedRestarts = 0;
+      micLive = true;
       onResult(ev);
     };
     rec.onstart = () => {
@@ -234,7 +242,7 @@
           stop('Voice stopped and could not restart. Press Start to listen again.');
           return;
         }
-        setTimeout(restart, Math.min(400 * failedRestarts, 2000));
+        setTimeout(restart, Math.min(250 * failedRestarts, 1500));
       }
     };
     rec.onend = () => {
@@ -242,6 +250,7 @@
       micDownSince = Date.now();
       if (!wanted || recognition !== rec) return;
       firedPerResult = [];
+      // Restart immediately so the next command isn't waiting on a cooldown.
       restart();
     };
     try {
