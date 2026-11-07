@@ -33,6 +33,7 @@ REQUIRED=(
   register-autostart.ps1
   uninstall.ps1
   uninstall.bat
+  remove-previous.ps1
   run-app.cmd
   requirements.txt
   access_adapter/__main__.py
@@ -172,6 +173,18 @@ if ! grep -q 'emit_directory' "$WIN/build-msi.sh"; then
   fail 'build-msi.sh must nest Directory entries so access_adapter/ is preserved'
 else
   pass 'build-msi.sh nests MSI Directory entries'
+fi
+
+if ! grep -q 'AllowSameVersionUpgrades' "$WIN/build-msi.sh"; then
+  fail 'MSI must replace an already-installed copy of the same version'
+else
+  pass 'MSI allows same-version upgrades (removes previous install)'
+fi
+
+if ! grep -q 'wix build' "$WIN/build-msi.sh"; then
+  fail 'MSI builder must prefer WiX 7 (the Windows-tested toolchain)'
+else
+  pass 'MSI builder prefers WiX 7 when wix is on PATH'
 fi
 
 echo "-- MSI checks"

@@ -9,6 +9,11 @@ if (-not $InstallRoot) {
 }
 $InstallRoot = (Resolve-Path -LiteralPath $InstallRoot).Path
 
+$remove = Join-Path $InstallRoot 'remove-previous.ps1'
+if (Test-Path -LiteralPath $remove) {
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $remove
+}
+
 $post = Join-Path $InstallRoot 'post-install.ps1'
 if (-not (Test-Path -LiteralPath $post)) {
     throw "Missing installer script: $post"

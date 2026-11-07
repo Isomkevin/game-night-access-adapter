@@ -39,12 +39,14 @@ Source: "register-autostart.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "run-app.cmd"; DestDir: "{app}"; Flags: ignoreversion
 Source: "uninstall.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "uninstall.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "remove-previous.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\Game Night Access Adapter"; Filename: "{app}\run-app.cmd"
 Name: "{group}\Uninstall Game Night Access Adapter"; Filename: "{app}\uninstall.bat"
 
 [Run]
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\remove-previous.ps1"""; StatusMsg: "Removing previous Game Night Access Adapter..."; Flags: runhidden waituntilterminated
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\post-install.ps1"" -InstallDir ""{app}"""; StatusMsg: "Configuring Game Night Access Adapter..."; Flags: runhidden waituntilterminated
 
 [UninstallRun]

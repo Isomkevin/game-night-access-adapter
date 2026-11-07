@@ -1,0 +1,48 @@
+# Build the Windows MSI with WiX 7.0.1 — the same toolchain as the
+# installer that was tested on a Windows PC.
+name: Windows MSI
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/windows-msi.yml"
+      - "packaging/windows/**"
+      - "access_adapter/**"
+      - "requirements.txt"
+  pull_request:
+    paths:
+      - ".github/workflows/windows-msi.yml"
+      - "packaging/windows/**"
+      - "access_adapter/**"
+      - "requirements.txt"
+
+jobs:
+  msi:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install WiX 7.0.1
+        shell: bash
+        run: |
+          dotnet tool install --global wix --version 7.0.1
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Build MSI
+        shell: bash
+        run: |
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          wix eula accept wix7
+          wix extension add -g WixToolset.UI.wixext/7.0.1
+          bash packaging/windows/build-msi.sh dist/installers
+
+      - name: Upload MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi
+          path: dist/installers/*.msi

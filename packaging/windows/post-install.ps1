@@ -139,7 +139,17 @@ function Repair-AdapterPackageLayout {
 
 . (Join-Path $PSScriptRoot 'python-bootstrap.ps1')
 
+function Stop-AdapterProcesses {
+    Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+        $_.CommandLine -and ($_.CommandLine -match 'access_adapter')
+    } | ForEach-Object {
+        Write-Log "Stopping adapter process $($_.ProcessId)"
+        Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue
+    }
+}
+
 try {
+    Stop-AdapterProcesses
     $InstallDir = (Resolve-Path -LiteralPath $InstallDir).Path
     Write-Log "Post-install source: $InstallDir"
 

@@ -17,7 +17,7 @@ rsync -a \
   "$ROOT/access_adapter" \
   "$STAGE/"
 cp "$ROOT/requirements.txt" "$STAGE/"
-cp "$WIN/install.ps1" "$WIN/install.bat" "$WIN/uninstall.ps1" "$WIN/uninstall.bat" "$STAGE/"
+cp "$WIN/install.ps1" "$WIN/install.bat" "$WIN/uninstall.ps1" "$WIN/uninstall.bat" "$WIN/remove-previous.ps1" "$STAGE/"
 cp "$WIN/post-install.ps1" "$WIN/python-bootstrap.ps1" "$WIN/register-autostart.ps1" "$STAGE/"
 cp "$WIN/run-app.cmd" "$STAGE/"
 

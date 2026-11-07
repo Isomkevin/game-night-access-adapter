@@ -46,6 +46,7 @@ cp "$SCRIPT_DIR/python-bootstrap.ps1" \
    "$SCRIPT_DIR/run-app.cmd" \
    "$SCRIPT_DIR/uninstall.ps1" \
    "$SCRIPT_DIR/uninstall.bat" \
+   "$SCRIPT_DIR/remove-previous.ps1" \
    "$STAGE/"
 
 cat > "$STAGE/sfx-config.txt" <<'EOF'

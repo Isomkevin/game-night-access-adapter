@@ -41,7 +41,9 @@ Two artifacts, plus an Inno Setup script you can compile on Windows with Inno Se
 | `game-night-access-adapter-<version>-setup.exe` | 7-Zip SFX. It runs `install.bat` after extract. The builder downloads `7zSD.sfx` from the 7-Zip LZMA SDK (`https://www.7-zip.org/a/lzma2501.7z`) |
 | `packaging/windows/game-night-access-adapter.iss` | Compile with `iscc` on Windows |
 
-Prefer the `.msi` on Windows. It opens the usual installer wizard (license, install, finish). If Python 3 is missing, `post-install.ps1` installs it automatically (winget when available, otherwise the official python.org silent installer for all users). `adb` still needs to be on `PATH` separately. The MSI keeps the `access_adapter/` package folders intact so sensor reads do not open a console window on every ADB poll. `post-install.ps1` also repairs older flattened MSI layouts.
+Prefer the `.msi` on Windows. The copy that was tested on a Windows PC is built with **WiX Toolset 7.0.1** (not Linux `msitools`). It opens the usual installer wizard (license, install, finish) and removes a previous Game Night Access Adapter install first so versions do not conflict. If Python 3 is missing, `post-install.ps1` installs it automatically (winget when available, otherwise the official python.org silent installer for all users). `adb` still needs to be on `PATH` separately. The MSI keeps the `access_adapter/` package folders intact so sensor reads do not open a console window on every ADB poll. `post-install.ps1` also repairs older flattened MSI layouts.
+
+If an older copy is already on the PC, uninstall it from Apps & Features, or run `remove-previous.ps1` as Administrator, then install the new MSI.
 
 `setup.exe` unpacks to a temporary folder that disappears when the installer exits. `post-install.ps1` copies the payload to `C:\Program Files\Game Night Access Adapter` before it creates the virtual environment. Do not run `install.bat` from inside an archive preview; extract the full zip first, or use `setup.exe`.
 
