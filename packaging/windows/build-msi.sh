@@ -67,6 +67,7 @@ cp "$SCRIPT_DIR/python-bootstrap.ps1" \
    "$SCRIPT_DIR/msi-postinstall.cmd" \
    "$SCRIPT_DIR/License.rtf" \
    "$STAGE/"
+bash "$ROOT/packaging/fetch-platform-tools.sh" windows "$STAGE/platform-tools"
 
 "$PYTHON" - "$STAGE" "$VERSION" "$STAGE/product.wxs" <<'PY'
 from __future__ import annotations

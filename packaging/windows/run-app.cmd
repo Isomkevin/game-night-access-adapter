@@ -2,6 +2,7 @@
 setlocal EnableExtensions
 cd /d "%~dp0"
 set "PYTHONPATH=%~dp0"
+set "PATH=%~dp0platform-tools;%PATH%"
 set "PYW=%~dp0venv\Scripts\pythonw.exe"
 set "PY=%~dp0venv\Scripts\python.exe"
 if exist "%PYW%" (

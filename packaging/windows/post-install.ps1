@@ -181,6 +181,11 @@ try {
     Register-AdapterUninstallKey -InstallDir $InstallDir
 
     $env:PYTHONPATH = $InstallDir
+    $tools = Join-Path $InstallDir 'platform-tools'
+    if (Test-Path -LiteralPath $tools) {
+        $env:PATH = "$tools;" + $env:PATH
+        $env:GAME_NIGHT_INSTALL_ROOT = $InstallDir
+    }
     $pyw = Join-Path $InstallDir 'venv\Scripts\pythonw.exe'
     $py = Join-Path $InstallDir 'venv\Scripts\python.exe'
     $launcher = Join-Path $InstallDir 'run-app.cmd'

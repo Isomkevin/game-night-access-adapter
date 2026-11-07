@@ -9,6 +9,7 @@ so a bad form never reaches the tool.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 import os
 import re
 import subprocess
@@ -210,7 +211,10 @@ class AdbClient:
         try:
             return self._runner(args)
         except FileNotFoundError as exc:
-            raise RuntimeError("adb is not installed or not on PATH") from exc
+            raise RuntimeError(
+                "adb is not installed. Reinstall Game Night Access Adapter "
+                "(it includes platform-tools) or put adb on PATH"
+            ) from exc
 
 
 def _detail_fields(tokens: list[str]) -> dict[str, str]:
@@ -246,9 +250,34 @@ def hidden_subprocess_kwargs() -> dict[str, Any]:
     return kwargs
 
 
+def adb_executable() -> str:
+    """Prefer the platform-tools copy shipped next to the app, then PATH."""
+    override = os.environ.get("GAME_NIGHT_ADB", "").strip()
+    if override:
+        return override
+    bundled = _bundled_adb_path()
+    if bundled is not None:
+        return bundled
+    return "adb.exe" if os.name == "nt" else "adb"
+
+
+def _bundled_adb_path() -> str | None:
+    name = "adb.exe" if os.name == "nt" else "adb"
+    candidates: list[Path] = []
+    install_root = os.environ.get("GAME_NIGHT_INSTALL_ROOT", "").strip()
+    if install_root:
+        candidates.append(Path(install_root) / "platform-tools" / name)
+    here = Path(__file__).resolve()
+    candidates.append(here.parents[1] / "platform-tools" / name)
+    for path in candidates:
+        if path.is_file():
+            return str(path)
+    return None
+
+
 def _run_adb(args: list[str]) -> AdbResult:
     proc = subprocess.run(
-        ["adb", *args],
+        [adb_executable(), *args],
         capture_output=True,
         text=True,
         timeout=20,

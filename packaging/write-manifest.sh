@@ -4,7 +4,7 @@ OUT="${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/dist/installers}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 VERSION="$(PYTHONPATH="${ROOT}" python3 -c "from access_adapter.version import __version__; print(__version__)")"
 
-deb=$(ls -1 "$OUT"/game-night-access-adapter_${VERSION}_all.deb 2>/dev/null | head -1 || true)
+deb=$(ls -1 "$OUT"/game-night-access-adapter_${VERSION}_amd64.deb "$OUT"/game-night-access-adapter_${VERSION}_all.deb 2>/dev/null | head -1 || true)
 deb_name=$(basename "${deb:-}")
 deb_size=$(stat -c%s "$deb" 2>/dev/null || echo 0)
 

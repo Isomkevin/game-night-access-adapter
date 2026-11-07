@@ -48,6 +48,7 @@ cp "$SCRIPT_DIR/python-bootstrap.ps1" \
    "$SCRIPT_DIR/uninstall.bat" \
    "$SCRIPT_DIR/remove-previous.ps1" \
    "$STAGE/"
+bash "$ROOT/packaging/fetch-platform-tools.sh" windows "$STAGE/platform-tools"
 
 cat > "$STAGE/sfx-config.txt" <<'EOF'
 ;!@Install@!UTF-8!

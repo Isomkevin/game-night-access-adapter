@@ -7,13 +7,13 @@ on:
   push:
     paths:
       - ".github/workflows/windows-msi.yml"
-      - "packaging/windows/**"
+      - "packaging/**"
       - "access_adapter/**"
       - "requirements.txt"
   pull_request:
     paths:
       - ".github/workflows/windows-msi.yml"
-      - "packaging/windows/**"
+      - "packaging/**"
       - "access_adapter/**"
       - "requirements.txt"
 

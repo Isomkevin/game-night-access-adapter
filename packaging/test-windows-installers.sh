@@ -42,6 +42,9 @@ REQUIRED=(
   access_adapter/ui/flow.py
   access_adapter/ui/style.py
 )
+PACKAGED=(
+  platform-tools/adb.exe
+)
 
 echo "-- Source script checks"
 for file in "${REQUIRED[@]}"; do
@@ -151,6 +154,12 @@ else
   pass 'run-app.cmd starts without extra consoles'
 fi
 
+if ! grep -q 'platform-tools' "$WIN/run-app.cmd"; then
+  fail 'run-app.cmd must put bundled adb on PATH'
+else
+  pass 'run-app.cmd puts bundled adb on PATH'
+fi
+
 if ! grep -q 'CREATE_NO_WINDOW' "$ROOT/access_adapter/adb_devices.py"; then
   fail 'adb_devices.py must hide Windows ADB consoles with CREATE_NO_WINDOW'
 else
@@ -212,7 +221,7 @@ else
   pass "zip exists: $(basename "$ZIP")"
   list_zip="$(mktemp)"
   unzip -l "$ZIP" > "$list_zip"
-  for file in "${REQUIRED[@]}"; do
+  for file in "${REQUIRED[@]}" "${PACKAGED[@]}"; do
     if grep -Fq "$file" "$list_zip"; then
       pass "zip contains $file"
     else
@@ -234,7 +243,7 @@ else
   fi
   list_sfx="$(mktemp)"
   7z l "$SFX" > "$list_sfx"
-  for file in "${REQUIRED[@]}"; do
+  for file in "${REQUIRED[@]}" "${PACKAGED[@]}"; do
     if grep -Fq "$file" "$list_sfx"; then
       pass "setup.exe contains $file"
     else

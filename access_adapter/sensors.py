@@ -15,6 +15,7 @@ from typing import Callable, TextIO
 from access_adapter.adb_devices import (
     AdbResult,
     CommandResult,
+    adb_executable,
     hidden_subprocess_kwargs,
     validate_serial,
 )
@@ -63,7 +64,10 @@ class SensorReader:
                 return parse_dumpsys(result.stdout or "")
             return _read_streaming(self.serial)
         except FileNotFoundError as exc:
-            raise RuntimeError("adb is not installed or not on PATH") from exc
+            raise RuntimeError(
+                "adb is not installed. Reinstall Game Night Access Adapter "
+                "(it includes platform-tools) or put adb on PATH"
+            ) from exc
 
     def close(self) -> None:
         return None
@@ -106,7 +110,7 @@ def _parse_motion_events(lines) -> tuple[tuple[float, float, float] | None, tupl
 def _read_streaming(serial: str) -> SensorSample:
     """Stop the dumpsys stream as soon as accel and gyro last-events appear."""
     proc = subprocess.Popen(
-        ["adb", "-s", serial, "exec-out", "dumpsys", "sensorservice"],
+        [adb_executable(), "-s", serial, "exec-out", "dumpsys", "sensorservice"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
