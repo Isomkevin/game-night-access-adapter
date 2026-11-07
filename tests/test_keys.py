@@ -102,3 +102,24 @@ def test_letter_keys_use_hardware_keysym_when_available():
         assert getattr(key, "vk", None)
     else:
         assert key.char == "w"
+
+
+def test_win32_hold_keys_use_scancodes_not_unicode():
+    from access_adapter.keys import KEYEVENTF_EXTENDEDKEY, KEYEVENTF_SCANCODE, win32_key_spec
+
+    vk, scan, flags = win32_key_spec("w")
+    assert vk == 0x57
+    assert scan == 0x11
+    assert flags & KEYEVENTF_SCANCODE
+    assert not flags & KEYEVENTF_EXTENDEDKEY
+
+    vk, scan, flags = win32_key_spec("a")
+    assert vk == 0x41
+    assert scan == 0x1E
+    assert flags & KEYEVENTF_SCANCODE
+
+    vk, scan, flags = win32_key_spec("left")
+    assert vk == 0x25
+    assert scan == 0x4B
+    assert flags & KEYEVENTF_SCANCODE
+    assert flags & KEYEVENTF_EXTENDEDKEY
