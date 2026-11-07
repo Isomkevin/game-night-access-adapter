@@ -38,11 +38,21 @@
       .catch(() => {});
   }
 
+  const MIC_SILENT_RELEASE_MS = 3000;
+  let micLive = false;
+  let micDownSince = 0;
+
   // The desktop adapter drops holds that aren't refreshed, so a closed tab can't leave a key down.
+  // Holds are only refreshed while recognition is running: if it dies, the car must not keep going.
   function refreshHolds() {
     if (!held.size) {
       clearInterval(keepalive);
       keepalive = null;
+      return;
+    }
+    if (!micLive && Date.now() - micDownSince > MIC_SILENT_RELEASE_MS) {
+      releaseAll();
+      showPill('Voice stopped hearing you, so all keys were released. Reconnecting…', true);
       return;
     }
     for (const action of held) send(action, 'down', true);
@@ -187,14 +197,23 @@
     }
     if (wanted) return { ok: true, listening: true };
     wanted = true;
+    micLive = false;
+    micDownSince = Date.now();
     firedPerResult = [];
     const rec = new SR();
     recognition = rec;
     rec.continuous = true;
     rec.interimResults = true;
     rec.lang = 'en-US';
-    rec.onresult = onResult;
-    rec.onstart = () => showPill('Listening — say “go”, “left”, “brake”…', true);
+    let failedRestarts = 0;
+    rec.onresult = (ev) => {
+      failedRestarts = 0;
+      onResult(ev);
+    };
+    rec.onstart = () => {
+      micLive = true;
+      showPill('Listening — say “go”, “left”, “brake”…', true);
+    };
     rec.onerror = (e) => {
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
         stop('Microphone blocked — allow it in the address bar, then press Start.');
@@ -204,16 +223,26 @@
         showPill(`Speech issue: ${e.error}. Retrying…`, true);
       }
     };
-    rec.onend = () => {
+    const restart = () => {
       if (!wanted || recognition !== rec) return;
-      firedPerResult = [];
       try {
         rec.start();
-      } catch {
-        setTimeout(() => {
-          if (wanted && recognition === rec) rec.start();
-        }, 400);
+      } catch (err) {
+        if (err?.name === 'InvalidStateError') return;
+        failedRestarts += 1;
+        if (failedRestarts > 8) {
+          stop('Voice stopped and could not restart. Press Start to listen again.');
+          return;
+        }
+        setTimeout(restart, Math.min(400 * failedRestarts, 2000));
       }
+    };
+    rec.onend = () => {
+      micLive = false;
+      micDownSince = Date.now();
+      if (!wanted || recognition !== rec) return;
+      firedPerResult = [];
+      restart();
     };
     try {
       rec.start();
