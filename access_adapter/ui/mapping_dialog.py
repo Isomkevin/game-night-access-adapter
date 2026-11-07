@@ -15,7 +15,12 @@ from PySide6.QtWidgets import (
 )
 
 from access_adapter.mapping import AXES, SENSORS, MappingRule, parse_key_combination
-from access_adapter.ui.style import COMPARATOR_LABELS, LABEL_TO_COMPARATOR
+from access_adapter.ui.style import (
+    COMPARATOR_LABELS,
+    LABEL_TO_COMPARATOR,
+    LABEL_TO_PRESS_MODE,
+    PRESS_MODE_LABELS,
+)
 
 
 class MappingDialog(QDialog):
@@ -49,11 +54,15 @@ class MappingDialog(QDialog):
         self.keys = QLineEdit()
         self.keys.setPlaceholderText("a    or    ctrl+left")
         self.keys.setAccessibleName("Key combination")
+        self.press_mode = QComboBox()
+        self.press_mode.addItems(list(PRESS_MODE_LABELS.values()))
+        self.press_mode.setAccessibleName("Type mode")
         if rule:
             self.sensor.setCurrentText(rule.sensor)
             self.axis.setCurrentText(rule.axis)
             self.comparator.setCurrentText(COMPARATOR_LABELS[rule.comparator])
             self.keys.setText("+".join(rule.keys))
+            self.press_mode.setCurrentText(PRESS_MODE_LABELS.get(rule.press_mode, PRESS_MODE_LABELS["hold"]))
 
         self.enabled = QCheckBox("Enabled")
         self.enabled.setChecked(True if rule is None else rule.enabled)
@@ -82,6 +91,7 @@ class MappingDialog(QDialog):
         layout.addWidget(labeled_field("When reading is", self.comparator))
         layout.addWidget(labeled_field("Threshold", self.threshold))
         layout.addWidget(labeled_field("Keys", self.keys))
+        layout.addWidget(labeled_field("While in this position", self.press_mode))
         layout.addWidget(self.enabled)
         layout.addStretch(1)
         layout.addWidget(buttons)
@@ -100,6 +110,7 @@ class MappingDialog(QDialog):
             "threshold": float(self.threshold.value()),
             "keys": keys,
             "enabled": self.enabled.isChecked(),
+            "press_mode": LABEL_TO_PRESS_MODE[self.press_mode.currentText()],
         }
         if self._rule_id:
             body["id"] = self._rule_id

@@ -63,7 +63,7 @@ class SensorBridge:
     def apply_sample(self, sample: SensorSample) -> list[str]:
         keys = self.state.note_sample(sample)
         if self.state.config.injection_enabled:
-            self.injector.sync(keys)
+            self.injector.apply_rules(self.state.matched_rules)
         else:
             self.injector.release_all()
         return list(self.state.active_keys)

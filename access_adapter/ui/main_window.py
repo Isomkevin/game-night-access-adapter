@@ -29,7 +29,7 @@ from access_adapter.ui.devices_dialog import DeviceDialog
 from access_adapter.ui.flow import FlowPanel
 from access_adapter.ui.mapping_dialog import MappingDialog
 from access_adapter.ui.phone_view import PhoneTiltView, tilt_from_sample
-from access_adapter.ui.style import COMPARATOR_LABELS, STYLESHEET
+from access_adapter.ui.style import COMPARATOR_LABELS, PRESS_MODE_LABELS, STYLESHEET
 from access_adapter.version import APP_NAME
 
 COMPACT_WIDTH = 980
@@ -121,9 +121,9 @@ class MainWindow(QMainWindow):
 
         map_title = QLabel("Sensor mappings")
         map_title.setObjectName("cardTitle")
-        self.table = QTableWidget(0, 4)
+        self.table = QTableWidget(0, 5)
         self.table.setObjectName("mappingTable")
-        self.table.setHorizontalHeaderLabels(["Action", "When", "Keys", "On"])
+        self.table.setHorizontalHeaderLabels(["Action", "When", "Keys", "Type", "On"])
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QTableWidget.SelectionMode.SingleSelection)
         self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
@@ -133,7 +133,7 @@ class MainWindow(QMainWindow):
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
-        for column in (2, 3):
+        for column in (2, 3, 4):
             self.table.horizontalHeader().setSectionResizeMode(column, QHeaderView.ResizeMode.ResizeToContents)
         self.table.cellDoubleClicked.connect(lambda *_: self.edit_mapping())
 
@@ -244,6 +244,7 @@ class MainWindow(QMainWindow):
                 rule.label,
                 when,
                 "+".join(rule.keys),
+                PRESS_MODE_LABELS.get(rule.press_mode, rule.press_mode),
                 "yes" if rule.enabled else "no",
             ]
             for column, value in enumerate(values):

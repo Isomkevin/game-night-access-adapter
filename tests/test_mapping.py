@@ -130,3 +130,20 @@ def test_rule_from_dict_accepts_combination_string():
         }
     )
     assert rule.keys == ["shift", "space"]
+    assert rule.press_mode == "hold"
+
+
+def test_rule_from_dict_accepts_once_press_mode():
+    rule = rule_from_dict(
+        {
+            "id": "tap-left",
+            "label": "Tap left",
+            "sensor": "accelerometer",
+            "axis": "x",
+            "comparator": "lt",
+            "threshold": -2.8,
+            "keys": ["a"],
+            "press_mode": "tap",
+        }
+    )
+    assert rule.press_mode == "once"

@@ -16,6 +16,14 @@ from typing import Any, Iterable
 SENSORS = ("accelerometer", "gyroscope")
 AXES = ("x", "y", "z")
 COMPARATORS = ("gt", "lt", "abs_gt")
+PRESS_MODES = ("hold", "once")
+PRESS_MODE_ALIASES = {
+    "hold": "hold",
+    "continuous": "hold",
+    "once": "once",
+    "tap": "once",
+    "one": "once",
+}
 
 # Names accepted in mapping config. Single letters and digits are also valid.
 _SPECIAL_KEYS = {
@@ -69,6 +77,7 @@ class MappingRule:
     threshold: float
     keys: list[str]
     enabled: bool = True
+    press_mode: str = "hold"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -118,6 +127,9 @@ def validate_rule(rule: MappingRule) -> None:
     if not rule.keys:
         raise ValueError("A mapping needs at least one key")
     rule.keys = [canonical_key(key) for key in rule.keys]
+    rule.press_mode = PRESS_MODE_ALIASES.get(str(rule.press_mode).strip().lower(), "")
+    if rule.press_mode not in PRESS_MODES:
+        raise ValueError("Type mode must be hold (continuously) or once")
 
 
 def rule_from_dict(data: dict[str, Any]) -> MappingRule:
@@ -134,6 +146,7 @@ def rule_from_dict(data: dict[str, Any]) -> MappingRule:
             threshold=float(data["threshold"]),
             keys=list(keys),
             enabled=bool(data.get("enabled", True)),
+            press_mode=str(data.get("press_mode", "hold") or "hold"),
         )
     except KeyError as exc:
         raise ValueError(f"Mapping is missing {exc.args[0]}") from exc

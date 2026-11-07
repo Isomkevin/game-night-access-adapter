@@ -13,6 +13,7 @@ from access_adapter.mapping import (
     MappingRule,
     SensorSample,
     active_key_names,
+    active_rules,
     rest_offsets_from_sample,
     rule_from_dict,
 )
@@ -38,6 +39,7 @@ class AppState:
         self.wireless: list[WirelessService] = []
         self.last_sample = SensorSample()
         self.active_keys: list[str] = []
+        self.matched_rules: list[MappingRule] = []
         self.bridge_running = False
         self.bridge_error = ""
         self.bridge = None
@@ -203,8 +205,6 @@ class AppState:
         return self.update_settings({"offset_ax": 0.0, "offset_ay": 0.0, "offset_az": 0.0})
 
     def _refresh_active_keys_locked(self) -> None:
-        self.active_keys = active_key_names(
-            self.config.rules,
-            self.last_sample,
-            **self.config.mapping_kwargs(),
-        )
+        kwargs = self.config.mapping_kwargs()
+        self.matched_rules = active_rules(self.config.rules, self.last_sample, **kwargs)
+        self.active_keys = active_key_names(self.config.rules, self.last_sample, **kwargs)
