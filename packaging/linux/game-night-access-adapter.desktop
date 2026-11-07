@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Game Night Access Adapter
+Comment=Live phone tilt mapped to keyboard keys
+Exec=game-night-access-adapter
+Icon=input-gaming
+Terminal=false
+Categories=Utility;Accessibility;
+StartupNotify=true

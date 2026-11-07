@@ -1,6 +1,6 @@
 /**
  * Shared action IDs and LibreCorsa default key codes (KeyboardEvent.code).
- * Keep in sync with game/src/lib/input/bindings.ts DEFAULT_KEY_BINDINGS.
+ * Defaults match LibreCorsa onboarding keys (WASD + Space boost). No game edits required.
  */
 
 /** @typedef {'steerLeft'|'steerRight'|'throttle'|'brake'|'boost'|'pause'|'shiftUp'|'shiftDown'|'aero'|'restart'} GameAction */

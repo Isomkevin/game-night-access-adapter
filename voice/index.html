@@ -11,34 +11,32 @@
     <main class="voice-page">
       <p class="eyebrow">Game Night</p>
       <h1 class="brand">Voice commands</h1>
-      <p class="badge gnaa-chip gnaa-chip--warn">Experimental — short taps</p>
+      <p class="badge gnaa-chip gnaa-chip--ok">Bridge path — no game edits</p>
       <p class="lede">
-        Speak a phrase to send a quick tap to the game. Voice does not hold throttle or steering
-        continuously. Keep this tab open, allow the microphone, and keep the game focused while driving.
+        Speak phrases here; the bridge and Chrome extension remap them onto LibreCorsa’s keys.
+        Keep this tab open, allow the microphone, pin or focus the game tab, and stay in a driving
+        session. Throttle and brake stay held until you say brake, accelerate, or coast.
       </p>
 
       <p id="status" class="status" aria-live="polite">Idle</p>
 
       <div class="cta-row">
         <button type="button" id="listen" class="gnaa-btn gnaa-btn--amber big">Start listening</button>
-        <button type="button" id="stop" class="gnaa-btn gnaa-btn--secondary big" disabled>Stop</button>
+        <button type="button" id="settings" class="gnaa-btn gnaa-btn--secondary big">Voice settings</button>
       </div>
 
-      <h2>Try saying</h2>
-      <ul class="phrases">
-        <li><strong>“turn left”</strong> or <strong>“left”</strong> — short steer left</li>
-        <li><strong>“turn right”</strong> or <strong>“right”</strong> — short steer right</li>
-        <li><strong>“go”</strong> / <strong>“accelerate”</strong> — short throttle tap</li>
-        <li><strong>“stop”</strong> / <strong>“brake”</strong> — short brake tap</li>
-        <li><strong>“boost”</strong> — short boost tap</li>
-        <li><strong>“pause”</strong> — open pause menu</li>
-      </ul>
+      <h2>Phrases</h2>
+      <ul id="phrases" class="phrases"></ul>
 
       <h2>Heard</h2>
       <pre id="log" aria-live="polite"></pre>
 
-      <p class="back"><a href="/hub/">← All control methods</a></p>
+      <p class="back">
+        <a href="/hub/">← All control methods</a>
+        ·
+        <a href="/voice/tap.html">Short-tap demo</a>
+      </p>
     </main>
-    <script type="module" src="voice.js"></script>
+    <script type="module" src="toolkit-voice.js"></script>
   </body>
 </html>
