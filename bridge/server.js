@@ -24,6 +24,8 @@ const CAMERA_DIR = path.resolve(__dirname, '../camera');
 const VOICE_DIR = path.resolve(__dirname, '../voice');
 const TOOLKIT_TOOLS_DIR = path.resolve(__dirname, '../toolkit/tools');
 const UI_DIR = path.resolve(__dirname, '../packages/ui');
+const DOCS_DIR = path.resolve(__dirname, '../docs');
+const PRESENTATION_FILE = path.join(DOCS_DIR, 'presentation.html');
 
 /** @type {Map<import('ws').WebSocket, { role: string }>} */
 const clients = new Map();
@@ -40,13 +42,13 @@ function mime(filePath) {
   return 'application/octet-stream';
 }
 
-function serveFile(res, filePath) {
+function serveFile(res, filePath, headers = {}) {
   fs.readFile(filePath, (err, data) => {
     if (err) {
       res.writeHead(404).end('Not found');
       return;
     }
-    res.writeHead(200, { 'Content-Type': mime(filePath) }).end(data);
+    res.writeHead(200, { 'Content-Type': mime(filePath), ...headers }).end(data);
   });
 }
 
@@ -109,6 +111,18 @@ const server = http.createServer((req, res) => {
   let filePath;
   if (url.pathname === '/' || url.pathname === '/index.html') {
     filePath = path.join(LANDING_DIR, 'index.html');
+  } else if (
+    url.pathname === '/presentation' ||
+    url.pathname === '/presentation/' ||
+    url.pathname === '/presentation.html'
+  ) {
+    serveFile(res, PRESENTATION_FILE);
+    return;
+  } else if (url.pathname === '/presentation/download') {
+    serveFile(res, PRESENTATION_FILE, {
+      'Content-Disposition': 'attachment; filename="game-night-presentation.html"',
+    });
+    return;
   } else if (url.pathname.startsWith('/landing/')) {
     filePath = path.join(LANDING_DIR, url.pathname.slice('/landing/'.length));
   } else if (url.pathname === '/hub' || url.pathname === '/hub/') {
@@ -194,12 +208,13 @@ wss.on('connection', (ws) => {
 server.listen(PORT, '0.0.0.0', () => {
   const lans = lanAddresses();
   console.log(`Game Night bridge on http://127.0.0.1:${PORT}`);
-  console.log(`  Landing    http://127.0.0.1:${PORT}/`);
-  console.log(`  Hub        http://127.0.0.1:${PORT}/hub/`);
-  console.log(`  WebSocket  ws://127.0.0.1:${PORT}`);
-  console.log(`  Phone UI   http://127.0.0.1:${PORT}/phone/`);
-  console.log(`  Camera UI  http://127.0.0.1:${PORT}/camera/`);
-  console.log(`  Voice UI   http://127.0.0.1:${PORT}/voice/`);
+  console.log(`  Landing       http://127.0.0.1:${PORT}/`);
+  console.log(`  Presentation  http://127.0.0.1:${PORT}/presentation/`);
+  console.log(`  Hub           http://127.0.0.1:${PORT}/hub/`);
+  console.log(`  WebSocket     ws://127.0.0.1:${PORT}`);
+  console.log(`  Phone UI      http://127.0.0.1:${PORT}/phone/`);
+  console.log(`  Camera UI     http://127.0.0.1:${PORT}/camera/`);
+  console.log(`  Voice UI      http://127.0.0.1:${PORT}/voice/`);
   for (const ip of lans) {
     console.log(`  Phone LAN  http://${ip}:${PORT}/phone/`);
     console.log(`  Hub LAN    http://${ip}:${PORT}/hub/`);

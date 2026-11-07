@@ -20,7 +20,7 @@
 
 ## Slides
 
-Open **[presentation.html](presentation.html)** in a browser (full-screen recommended). Use ← / → or space.
+With the bridge running, open **http://127.0.0.1:18765/presentation/** from the landing page (**View presentation**), or open **[presentation.html](presentation.html)** directly. Fullscreen recommended. Use ← / → or space; **F** toggles fullscreen; **Esc** exits fullscreen (or returns to the landing page). Download via `/presentation/download`.
 
 ## Repo hygiene before judging
 

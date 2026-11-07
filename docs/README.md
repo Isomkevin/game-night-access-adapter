@@ -22,7 +22,7 @@ Root overview / quick start: [`../README.md`](../README.md).
 | [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) | Full product intent — purpose, inputs, remap, ownership, status |
 | [writeup.md](writeup.md) | Short project write-up for judging |
 | [testing-log.md](testing-log.md) | Justin (and other) session notes — fill before claiming “works” |
-| [presentation.html](presentation.html) | Saturday slide deck (←/→ keys) |
+| [presentation.html](presentation.html) | Saturday slide deck — also served at `/presentation/` on the bridge |
 | [presentation-checklist.md](presentation-checklist.md) | Demo video + slides checklist |
 | [demo-video.md](demo-video.md) | Shot list / upload placeholder |
 | [toolkit-contribution/](toolkit-contribution/) | Upstream toolkit PR pack + issue template |

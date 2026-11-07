@@ -86,6 +86,7 @@ npm start
 | UI | Local | Hosted (Render) |
 | --- | --- | --- |
 | Landing | `http://127.0.0.1:18765/` | https://game-night-bridge.onrender.com/ |
+| Presentation | `http://127.0.0.1:18765/presentation/` | https://game-night-bridge.onrender.com/presentation/ |
 | Control hub | `http://127.0.0.1:18765/hub/` | https://game-night-bridge.onrender.com/hub/ |
 | Phone | `http://127.0.0.1:18765/phone/` (or LAN IP) | https://game-night-bridge.onrender.com/phone/ |
 | Camera | `http://127.0.0.1:18765/camera/` | https://game-night-bridge.onrender.com/camera/ |
@@ -178,7 +179,7 @@ Full index with reading order: **[docs/README.md](docs/README.md)**.
 - [x] Pull request to the toolkit — [#55](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/pull/55)
 - [x] README + short write-up ([docs/writeup.md](docs/writeup.md))
 - [ ] Short demo video — shot list in [docs/demo-video.md](docs/demo-video.md)
-- [x] Presentation — open [docs/presentation.html](docs/presentation.html) (←/→ keys); checklist in [docs/presentation-checklist.md](docs/presentation-checklist.md)
+- [x] Presentation — bridge **[/presentation/](http://127.0.0.1:18765/presentation/)** (or [docs/presentation.html](docs/presentation.html)); ←/→ keys, download from the deck; checklist in [docs/presentation-checklist.md](docs/presentation-checklist.md)
 - [ ] Toolkit issues logged from Justin testing — template in [docs/toolkit-contribution/ISSUE_TEMPLATE.md](docs/toolkit-contribution/ISSUE_TEMPLATE.md)
 
 ## Credits
