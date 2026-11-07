@@ -10,7 +10,7 @@ bash packaging/build-installers.sh
 
 ## Linux
 
-Current packages: [`game-night-access-adapter_0.2.6_amd64.deb`](../releases/game-night-access-adapter_0.2.6_amd64.deb), [`game-night-access-adapter-0.2.6-setup.exe`](../releases/game-night-access-adapter-0.2.6-setup.exe), and [`game-night-access-adapter-0.2.6-windows.zip`](../releases/game-night-access-adapter-0.2.6-windows.zip). Previous packages remain under [`releases/`](../releases/).
+Current packages: [`game-night-access-adapter_0.2.7_amd64.deb`](../releases/game-night-access-adapter_0.2.7_amd64.deb), [`game-night-access-adapter-0.2.7-setup.exe`](../releases/game-night-access-adapter-0.2.7-setup.exe), and [`game-night-access-adapter-0.2.7-windows.zip`](../releases/game-night-access-adapter-0.2.7-windows.zip). Previous packages remain under [`releases/`](../releases/).
 
 | Path | Role |
 |------|------|
