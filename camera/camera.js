@@ -51,6 +51,7 @@ function setStatus(msg) {
 }
 
 function rebuildInterpreter() {
+  emitter.releaseAll();
   interpreter = createInterpreter(gestureConfigsFromProfile(profile));
 }
 

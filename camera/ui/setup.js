@@ -89,6 +89,7 @@ export function mountSetupUI(root, api) {
 
       <h2>Gestures &amp; mappings</h2>
       <p class="hint">Enable only movements you can perform comfortably. Map each to a game action, then Apply to extension.</p>
+      <p class="hint">Head turns and tilts mapped to steering in hold mode steer gradually: small movements send short presses; larger movements steer continuously.</p>
       <div id="gesture-table" class="gesture-table"></div>
       ${embed ? '</details>' : ''}
     </div>

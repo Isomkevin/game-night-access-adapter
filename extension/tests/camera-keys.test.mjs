@@ -1,6 +1,52 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import vm from 'node:vm';
 import { CameraKeys } from '../lib/camera-keys.js';
+
+test('default browser timers retain their global receiver for holds, refresh, pulses and stop', async () => {
+  const context = vm.createContext({ console });
+  // WebIDL browser timers reject calls whose receiver is a CameraKeys instance.
+  vm.runInContext(`
+    'use strict';
+    globalThis.timers = new Map();
+    let nextTimer = 0;
+    globalThis.setTimeout = function(callback, delay) {
+      if (this !== globalThis) throw new TypeError('Illegal invocation');
+      const id = ++nextTimer;
+      timers.set(id, { callback, delay });
+      return id;
+    };
+    globalThis.clearTimeout = function(id) {
+      if (this !== globalThis) throw new TypeError('Illegal invocation');
+      timers.delete(id);
+    };
+  `, context);
+  const module = new vm.SourceTextModule(await readFile(new URL('../lib/camera-keys.js', import.meta.url), 'utf8'), { context });
+  await module.link(() => { throw new Error('Unexpected dependency'); });
+  await module.evaluate();
+  const events = [];
+  const receiver = new module.namespace.CameraKeys((code, state) => events.push([code, state]));
+  await receiver.apply('tiltLeft', 'KeyA', 'down');
+  await receiver.apply('tiltLeft', 'KeyA', 'down');
+  assert.equal(context.timers.size, 1);
+  assert.equal([...context.timers.values()][0].delay, 800);
+  await receiver.release('tiltLeft');
+  assert.equal(context.timers.size, 0);
+  await receiver.apply('blinkLeft', 'Escape', 'pulse');
+  const pulse = [...context.timers.values()][0];
+  assert.equal(pulse.delay, 120);
+  pulse.callback();
+  await receiver.pending;
+  await receiver.apply('tiltRight', 'KeyD', 'down');
+  await receiver.releaseAll();
+  assert.equal(context.timers.size, 0);
+  assert.deepEqual(events, [
+    ['KeyA', 'down'], ['KeyA', 'up'],
+    ['Escape', 'down'], ['Escape', 'up'],
+    ['KeyD', 'down'], ['KeyD', 'up'],
+  ]);
+});
 
 function fixture(send) {
   const events = [], timers = new Map(), delays = [];

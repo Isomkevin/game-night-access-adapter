@@ -1,7 +1,12 @@
 // Camera-only receiver lease: a lost tab/socket must not leave a steering key held.
 // Down events are refreshed by the camera at least every 100 ms while held.
 export class CameraKeys {
-  constructor(send, { timeoutMs = 800, setTimer = setTimeout, clearTimer = clearTimeout } = {}) {
+  constructor(send, {
+    timeoutMs = 800,
+    // Browser timers require the worker global as their receiver, not this instance.
+    setTimer = globalThis.setTimeout.bind(globalThis),
+    clearTimer = globalThis.clearTimeout.bind(globalThis),
+  } = {}) {
     this.send = send;
     this.timeoutMs = timeoutMs;
     this.setTimer = setTimer;

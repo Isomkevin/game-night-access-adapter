@@ -83,6 +83,15 @@ Profiles (enablement, thresholds, bindings, calibration) save in `localStorage` 
 
 Defaults enable **only** `tiltLeft` / `tiltRight` so existing demos keep working without surprise inputs.
 
+Head yaw and roll gestures mapped to `steerLeft` or `steerRight` in hold mode
+use proportional key timing, including in previously saved profiles. Steering
+starts at the activation threshold and increases to continuous steering at a
+signal magnitude of 0.28 (or activation + 0.20 for higher thresholds). Returning
+below the release threshold releases steering immediately. The 120 ms key cycles
+approximate steering strength in keyboard games; they do not provide a true
+analog steering angle. Steering uses fresh tracking signals without additional
+EMA smoothing, while the other gestures retain their normal smoothing and modes.
+
 ### Known limitations (not claimed as reliable)
 
 - True head translation toward/away from camera is a **monocular face-scale proxy** (`headCloser` / `headFarther`) — off by default
