@@ -196,7 +196,8 @@ if command -v wix >/dev/null 2>&1; then
   echo "Building MSI with WiX $(wix --version 2>/dev/null | head -1) (Windows-tested toolchain)"
   (
     cd "$STAGE"
-    wix convert product.wxs
+    # convert exits 40 when it rewrites v3 authoring to v4; that is success.
+    wix convert product.wxs || true
     wix build product.wxs -arch x64 -ext WixToolset.UI.wixext -pdbtype none -o "$OUT_DIR/$MSI_NAME"
   )
 else
