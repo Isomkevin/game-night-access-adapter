@@ -176,13 +176,20 @@ export function gestureConfigsFromProfile(profile) {
     const def = GESTURE_CATALOG.find((x) => x.id === id);
     if (!def) continue;
     const catOn = profile.categories?.[def.category] !== false;
+    const mode = g.mode || def.defaultMode;
+    const headSteering = def.category === 'head'
+      && ['yaw', 'roll'].includes(def.signal)
+      && ['steerLeft', 'steerRight'].includes(profile.bindings?.[id]);
     out[id] = {
       enabled: !!(g.enabled && catOn),
-      mode: g.mode || def.defaultMode,
+      mode,
       activate: g.activate ?? def.defaultActivate,
       release: g.release ?? def.defaultRelease,
       smooth: g.smooth ?? 0.35,
       cooldownMs: g.cooldownMs,
+      // Derive this for saved profiles too; no reset or remapping is needed.
+      proportional: headSteering && mode === 'hold',
+      full: Math.max(0.28, (g.activate ?? def.defaultActivate) + 0.20),
     };
   }
   return out;

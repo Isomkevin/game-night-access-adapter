@@ -19,7 +19,7 @@ function blendMap(blendshapes) {
 
 /**
  * Rough yaw from face oval (legacy heuristic — stable for steering).
- * Positive = turn right (nose right of mid).
+ * Positive = the person's right (nose left of mid in the unmirrored input).
  */
 export function estimateYawFromLandmarks(landmarks) {
   if (!landmarks || landmarks.length < 455) return 0;
@@ -28,7 +28,7 @@ export function estimateYawFromLandmarks(landmarks) {
   const right = landmarks[454];
   const midX = (left.x + right.x) / 2;
   const width = Math.abs(right.x - left.x) || 1e-6;
-  return (nose.x - midX) / width;
+  return (midX - nose.x) / width;
 }
 
 /** Pitch proxy: nose vs eye midline vertical offset normalized by face height */

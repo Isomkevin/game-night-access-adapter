@@ -21,6 +21,8 @@ import { gestureById } from './catalog.js';
  * @property {number} [smooth] EMA alpha 0..1
  * @property {number} [cooldownMs]
  * @property {number} [minActiveMs]
+ * @property {boolean} [proportional] Head steering: vary key duty with movement.
+ * @property {number} [full] Signal magnitude for continuous steering.
  */
 
 /**
@@ -38,6 +40,7 @@ export function createInterpreter(gestureConfigs) {
         toggled: false,
         lastFire: 0,
         activeSince: 0,
+        pressed: false,
       });
     }
     return state.get(id);
@@ -57,6 +60,7 @@ export function createInterpreter(gestureConfigs) {
         const st = state.get(id);
         if (st?.active) {
           st.active = false;
+          st.pressed = false;
           events.push({ id, state: 'up', strength: 0 });
         }
         continue;
@@ -70,6 +74,26 @@ export function createInterpreter(gestureConfigs) {
       const value = polarity < 0 ? -raw : raw;
 
       const st = ensure(id);
+      if (cfg.proportional) {
+        // Use the same fresh signal as the preview, without EMA trailing the head.
+        // Activation/release hysteresis keeps small neutral-position jitter quiet.
+        const activate = cfg.activate ?? def.defaultActivate;
+        const release = Math.min(cfg.release ?? def.defaultRelease, activate);
+        const full = Math.max(cfg.full ?? 0.28, activate + 0.02);
+        const active = Number.isFinite(value)
+          && (st.active ? value > release : value >= activate);
+        if (active && !st.active) st.activeSince = now;
+        st.active = active;
+        const strength = active ? Math.min(1, Math.max(0, (value - release) / (full - release))) : 0;
+        // Keyboard games accept on/off input: short holds approximate light steering.
+        // Start a cycle on engagement so a fresh turn responds immediately.
+        const phase = ((now - st.activeSince) % 120) / 120;
+        const down = strength > 0 && (strength >= 1 || phase < strength);
+        if (down) events.push({ id, state: 'down', strength });
+        else if (st.pressed) events.push({ id, state: 'up', strength: 0 });
+        st.pressed = down;
+        continue;
+      }
       const alpha = cfg.smooth ?? 0.35;
       st.smoothed = alpha * value + (1 - alpha) * st.smoothed;
 
@@ -123,7 +147,8 @@ export function createInterpreter(gestureConfigs) {
       }
     }
 
-    return events;
+    // Release the previous direction before pressing its opposite on the same frame.
+    return [...events.filter((e) => e.state === 'up'), ...events.filter((e) => e.state !== 'up')];
   }
 
   /** Force-release all held gestures (lost tracking / pause). */
@@ -137,6 +162,9 @@ export function createInterpreter(gestureConfigs) {
         }
         st.active = false;
         st.toggled = false;
+        st.pressed = false;
+        st.smoothed = 0;
+        st.lastFire = 0;
       }
     }
     return events;

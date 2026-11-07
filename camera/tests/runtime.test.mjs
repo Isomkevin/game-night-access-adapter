@@ -173,10 +173,10 @@ test('real extension background remaps camera inputs and releases them on discon
     setTimeout: (callback) => { timers.set(++nextTimer, callback); return nextTimer; },
     clearTimeout: (id) => timers.delete(id),
     chrome: {
-      storage: { local: { get: async () => ({ ...settings }), set: async (patch) => Object.assign(settings, patch) }, onChanged: event() },
+      storage: { local: { get: async () => ({ ...settings }), set: async (patch) => Object.assign(settings, patch) }, session: { get: async () => ({}) }, onChanged: event() },
       runtime: { onInstalled: event(), onStartup: event(), onMessage: event() },
       action: { setBadgeText() {}, setBadgeBackgroundColor() {} },
-      tabs: { query: async () => [{ id: 99 }], sendMessage: async (_tab, message) => delivered.push(message) },
+      tabs: { onRemoved: event(), query: async () => [{ id: 99 }], sendMessage: async (_tab, message) => delivered.push(message) },
     },
   });
   await instances[0].open();
@@ -207,10 +207,10 @@ test('merged extension accepts setRemap, camera pulses, disabled-binding release
     setTimeout: (callback, ms) => { timers.set(++nextTimer, { callback, ms }); return nextTimer; },
     clearTimeout: (id) => timers.delete(id),
     chrome: {
-      storage: { local: { get: async () => ({ ...settings }), set: async (patch) => Object.assign(settings, patch) }, onChanged: event() },
+      storage: { local: { get: async () => ({ ...settings }), set: async (patch) => Object.assign(settings, patch) }, session: { get: async () => ({}) }, onChanged: event() },
       runtime: { onInstalled: event(), onStartup: event(), onMessage: { addListener: (fn) => messageListeners.push(fn) } },
       action: { setBadgeText() {}, setBadgeBackgroundColor() {} },
-      tabs: { query: async () => [{ id: 99 }], sendMessage: async (_tab, message) => delivered.push(message) },
+      tabs: { onRemoved: event(), query: async () => [{ id: 99 }], sendMessage: async (_tab, message) => delivered.push(message) },
     },
   });
   const socket = instances[0];
