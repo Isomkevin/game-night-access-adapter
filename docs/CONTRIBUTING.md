@@ -2,22 +2,45 @@
 
 Judging rewards **working code + documentation**. Treat docs as part of the feature, not a follow-up.
 
+New here? Finish [ONBOARDING.md](ONBOARDING.md) (demo pad working) before your first code PR.
+
 ## Before you write code
 
 1. Read [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) so the product intent is clear.
-2. Complete [ONBOARDING.md](ONBOARDING.md) once on your machine.
-3. Read [protocol.md](protocol.md) if you touch inputs, remap, or the bridge.
-4. Confirm ownership (do not silently rewrite someone else’s component):
+2. Complete [ONBOARDING.md](ONBOARDING.md) once on your machine (day-one success criteria).
+3. Skim [GLOSSARY.md](GLOSSARY.md) and [FAQ.md](FAQ.md).
+4. Read [protocol.md](protocol.md) if you touch inputs, remap, or the bridge.
+5. Confirm ownership (do not silently rewrite someone else’s component):
 
 | Area | Primary | Backup |
 | --- | --- | --- |
 | Monorepo / extension / coordination | Kevin | Bunny (merges) |
-| Bridge / phone | Omar | Kevin |
+| Bridge / phone (web) | Omar | Kevin |
+| Phone-tilt desktop / ADB | Omar | Kevin |
 | Voice + toolkit PR | Bunny | Kevin |
 | Camera / MediaPipe | Tim | Kevin |
 | Co-designer testing log | Whoever ran the session | Kevin |
 
 If ownership is unclear, say so in WhatsApp before large changes.
+
+## First PR walkthrough (suggested)
+
+A good first contribution is small and documented:
+
+1. **Pick a tiny task** — e.g. fix a README typo in your component, tune a dead-zone constant with a comment, or add a Troubleshooting bullet you hit while onboarding.
+2. **Branch** (see below).
+3. **Make the change** + update the nearest README / this docs set if behaviour or run steps changed.
+4. **Self-test** using the verify checklist in [ONBOARDING.md](ONBOARDING.md) §6. Paste OS / browser into the PR or WhatsApp note.
+5. **Push and notify** the group so someone else can pull.
+6. If you touched protocol or shared actions, include the vendored `extension/lib/` copies in the same commit.
+
+Definition of done for a feature PR:
+
+- [ ] Behaviour works on your machine (checklist filled)
+- [ ] Component README or docs updated in the same change
+- [ ] No submodule gameplay hacks for accessibility (extension path only)
+- [ ] `testing-log.md` entry if you claim a new input “works”
+- [ ] WhatsApp / PR note with What / How to test / OS / Docs / Limits
 
 ## Branching
 

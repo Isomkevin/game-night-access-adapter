@@ -2,7 +2,19 @@
 
 Goal of this guide: on a clean machine, go from zero to **steering LibreCorsa with the extension demo pad** in under 30 minutes, then optionally add bridge inputs (phone / camera / voice).
 
-Before you dig into commands, skim **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** for what the adapter is supposed to be and do (problem, inputs, remap, status).
+## Learning path (read in order)
+
+| Step | Time | Doc |
+| --- | --- | --- |
+| 1. Why this exists | 10 min | [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) |
+| 2. Words we use | 5 min | [GLOSSARY.md](GLOSSARY.md) |
+| 3. Run the stack (this file) | 20–40 min | Sections 1–3 below |
+| 4. Terminals / ports | 5 min | [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) |
+| 5. How data flows | 10 min | [architecture.md](architecture.md) + [protocol.md](protocol.md) |
+| 6. Ship a change | 10 min | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| 7. When stuck | as needed | [TROUBLESHOOTING.md](TROUBLESHOOTING.md), [FAQ.md](FAQ.md) |
+
+You do **not** need to understand the toolkit submodule or the Python desktop adapter on day one.
 
 ## Who this project is for
 
@@ -10,10 +22,10 @@ Before you dig into commands, skim **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)*
 | --- | --- | --- |
 | Anyone joining | This file + [architecture.md](architecture.md) | — |
 | Kevin | [extension/README.md](../extension/README.md) | Extension, monorepo, coordination |
-| Omar | [bridge/README.md](../bridge/README.md), [phone-controller/README.md](../phone-controller/README.md) | Bridge, phone sensors |
+| Omar | [bridge/README.md](../bridge/README.md), [phone-controller/README.md](../phone-controller/README.md), [desktop-app.md](desktop-app.md) | Bridge, phone (web + optional ADB) |
 | Bunny | [voice/README.md](../voice/README.md), [toolkit-contribution/](toolkit-contribution/) | Toolkit voice + merges |
 | Tim | [camera/README.md](../camera/README.md) | MediaPipe vision controller |
-| Testers (Justin) | Quick start below + remap UI | Feedback in [testing-log.md](testing-log.md) |
+| Testers (Justin) | Sections 2–2d below + remap UI | Feedback in [testing-log.md](testing-log.md) |
 
 ## Prerequisites
 
@@ -31,7 +43,21 @@ Optional:
 - Webcam for head tracking
 - Microphone for the voice demo
 
-**OS:** develop on Windows, macOS, or Linux. **Justin tests on macOS** — prefer WebSocket + in-browser APIs; do not require ADB or Windows-only native helpers for the Saturday PoC.
+**OS:** develop on Windows, macOS, or Linux. **Justin tests on macOS** — prefer WebSocket + in-browser APIs for his sessions. The optional Python/ADB desktop path is documented separately and is **not** required to onboard.
+
+Shell tips (PowerShell vs Bash): [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md)#shell-notes.
+
+## Success criteria (day one)
+
+You are onboarded when **all** of these are true:
+
+1. LibreCorsa runs at `http://localhost:3000` and you reach a **driving** session.
+2. The Chrome extension is loaded from `extension/` (not the repo root).
+3. Popup demo pad steers or throttles the car (Hold or Latch).
+4. You opened **Setup → Customize**, changed one mapping (or confirmed defaults), and understand Export JSON exists.
+5. You know where [TROUBLESHOOTING.md](TROUBLESHOOTING.md) and [FAQ.md](FAQ.md) live.
+
+Optional same day: bridge badge `ON` + one of phone / camera / voice.
 
 ## 1. Clone the monorepo
 
@@ -46,10 +72,16 @@ If `game/` or `toolkit/` is empty:
 git submodule update --init --recursive
 ```
 
-Confirm:
+Confirm (Bash / Git Bash / macOS):
 
 ```bash
 ls game/package.json toolkit/README.md extension/manifest.json
+```
+
+PowerShell:
+
+```powershell
+Test-Path game/package.json, toolkit/README.md, extension/manifest.json
 ```
 
 Canonical paths are **`game/`** (LibreCorsa) and **`toolkit/`** (AI-for-Accessibility fork) via git submodules. Do not use ad-hoc folders like `librecorsa-game/` or a second toolkit clone at the repo root — those are ignored local duplicates if present.
@@ -103,8 +135,9 @@ Badge meanings:
 3. Use **Hold** or **Latch** mode for Throttle / Left / Right
 4. You should see the car respond
 5. Use **Stop all inputs** if a control sticks
+6. Click **Use this tab** while LibreCorsa is active so the pin is explicit (recommended)
 
-If nothing happens → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)#extension-demo-pad-does-nothing
+If nothing happens → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)#extension-demo-pad-does-nothing · [FAQ.md](FAQ.md)
 
 ### 2d. Remap (Justin’s core need)
 
@@ -194,15 +227,28 @@ Copy this into a PR or WhatsApp note when you claim “works on my machine”:
 [ ] (optional) Phone / camera / voice tested
 ```
 
-## 7. Next reading by task
+## 7. Day-two paths (pick your ownership)
 
-- Shipping a code change → [CONTRIBUTING.md](CONTRIBUTING.md)
-- Something broken → [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
+| You own… | Do this next |
+| --- | --- |
+| Extension | [extension/README.md](../extension/README.md) — message types, pin, camera dock |
+| Bridge / phone web | [bridge/README.md](../bridge/README.md), [phone-controller/README.md](../phone-controller/README.md) |
+| Camera | [camera/README.md](../camera/README.md) — calibrate, overlay, head-steering |
+| Voice / toolkit | [voice/README.md](../voice/README.md), [toolkit-contribution/](toolkit-contribution/) |
+| Desktop ADB tilt | [phone-tilt-adapter.md](phone-tilt-adapter.md), [desktop-app.md](desktop-app.md) |
+| Protocol change | [packages/shared/README.md](../packages/shared/README.md) then vendor into `extension/lib/` |
+
+## 8. Next reading by task
+
+- Shipping a code change → [CONTRIBUTING.md](CONTRIBUTING.md) (includes first-PR walkthrough)
+- Something broken → [TROUBLESHOOTING.md](TROUBLESHOOTING.md) · [FAQ.md](FAQ.md)
 - Saturday deliverables → root [README.md](../README.md) + [presentation-checklist.md](presentation-checklist.md)
 - Co-designer sessions → [testing-log.md](testing-log.md)
+- Doc index → [README.md](README.md) (this folder)
 
-## 8. Team contacts / rhythm
+## 9. Team contacts / rhythm
 
 - Daily check-ins **Wed–Fri 20:30** (local)
 - Notify the WhatsApp group after every push so others can pull and retest
 - Documentation is part of judging — update the relevant README **in the same PR** as the code
+- Stuck after Troubleshooting + FAQ → GitHub issue with [.github/ISSUE_TEMPLATE/component.yml](../.github/ISSUE_TEMPLATE/component.yml)

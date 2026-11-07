@@ -2,6 +2,8 @@
 
 Work top-down: game → extension → bridge → input source.
 
+Also see **[FAQ.md](FAQ.md)** for short answers, and **[ONBOARDING.md](ONBOARDING.md)** if you have not completed a demo-pad drive yet.
+
 ## Submodules empty / `game/` missing `package.json`
 
 ```bash

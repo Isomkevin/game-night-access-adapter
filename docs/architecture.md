@@ -121,14 +121,23 @@ the camera receiver's expiry and the updated extension payload format.
 
 The toolkit’s `extension/` runs accessibility **page adapters** (DOM/CSS). Continuous racing input needs a dedicated content script + remap store. Voice still uses the toolkit **Controller**; Bunny maps phrases to bridge `input` events ([toolkit-contribution/](toolkit-contribution/)).
 
+## Two phone paths (do not confuse them)
+
+| Path | Location | Mechanism | When to use |
+| --- | --- | --- | --- |
+| **Web phone (default for onboarding / Justin macOS)** | `phone-controller/` via bridge | DeviceOrientation → WebSocket → extension keys | Challenge “no extra hardware”; LAN demo |
+| **Desktop ADB tilt (optional)** | `access_adapter/`, `adapters/phone_tilt/` | Wireless/USB ADB sensors → OS keystrokes | Windows/Linux desktop app; see [phone-tilt-adapter.md](phone-tilt-adapter.md) |
+
+New developers should learn the **web** path first ([ONBOARDING.md](ONBOARDING.md)).
+
 ## Cross-platform
 
-- Target: Chrome on Windows **and** macOS
-- Prefer WebSocket + getUserMedia + Web Speech — no OS key hooks for the PoC
-- ADB/USB phone path is out of scope for Saturday
+- Target: Chrome on Windows **and** macOS for the web stack
+- Prefer WebSocket + getUserMedia + Web Speech for co-designer sessions
+- ADB desktop path is optional and not required to claim the web PoC works
 
 ## Deployment
 
-Default: everything local (game `npm run dev`, bridge, Load unpacked).
+Default: everything local (game `npm run dev`, bridge, Load unpacked). Details: [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md).
 
-**Cloud (Render):** the bridge can be hosted as a Node web service so judges / teammates can open phone, camera, and voice UIs over HTTPS without running Node locally. Point the extension Setup → connection address at `wss://<service>.onrender.com`. Latency-sensitive co-designer racing still prefers LAN/localhost; cloud is for demos and remote access to the controller pages. The game itself can stay on `localhost:3000` or [khazp.github.io/librecorsa](https://khazp.github.io/librecorsa/).
+**Cloud (Render):** the bridge can be hosted as a Node web service so judges / teammates can open phone, camera, and voice UIs over HTTPS without running Node locally. Point the extension Setup → connection address at `wss://<service>.onrender.com` (example: `wss://game-night-bridge.onrender.com`). Latency-sensitive co-designer racing still prefers LAN/localhost; cloud is for demos and remote access to the controller pages. The game itself can stay on `localhost:3000` or [khazp.github.io/librecorsa](https://khazp.github.io/librecorsa/).

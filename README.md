@@ -143,20 +143,25 @@ python3 gyro_controller.py
 
 ## Documentation map
 
+Full index with reading order: **[docs/README.md](docs/README.md)**.
+
 | Doc | When to read |
 | --- | --- |
 | [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | What the project is supposed to be and do |
+| [docs/GLOSSARY.md](docs/GLOSSARY.md) | Shared terms (logical action, pin, pulse, …) |
 | [docs/ONBOARDING.md](docs/ONBOARDING.md) | First day — get a working demo |
+| [docs/DEV_ENVIRONMENT.md](docs/DEV_ENVIRONMENT.md) | Terminals, ports, env vars, shells |
 | [docs/architecture.md](docs/architecture.md) | Understand data flow / injection |
 | [docs/protocol.md](docs/protocol.md) | Before changing inputs or remap |
-| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Before your first push |
+| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Before your first push / first PR walkthrough |
+| [docs/FAQ.md](docs/FAQ.md) | Common questions |
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | When something fails |
 | [docs/writeup.md](docs/writeup.md) | Challenge short write-up |
 | [docs/testing-log.md](docs/testing-log.md) | Justin / smoke-test records |
 | [docs/presentation-checklist.md](docs/presentation-checklist.md) | Saturday demo / slides |
 | [docs/demo-video.md](docs/demo-video.md) | Video shot list |
 | [docs/toolkit-contribution/](docs/toolkit-contribution/) | Upstream toolkit PR |
-| [docs/phone-tilt-adapter.md](docs/phone-tilt-adapter.md) | Desktop ADB phone-tilt path |
+| [docs/phone-tilt-adapter.md](docs/phone-tilt-adapter.md) | Desktop ADB phone-tilt path (optional) |
 | [docs/desktop-app.md](docs/desktop-app.md) | PySide window and mappings |
 | [docs/installers.md](docs/installers.md) | Windows/Linux installer packages |
 

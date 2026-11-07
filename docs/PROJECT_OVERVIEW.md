@@ -4,7 +4,7 @@
 
 The game itself is **not** rewritten. Alternate inputs are translated into the keyboard codes LibreCorsa already understands.
 
-New developers: run the stack with [ONBOARDING.md](ONBOARDING.md). Technical data flow: [architecture.md](architecture.md). Wire contract: [protocol.md](protocol.md). Short judging write-up: [writeup.md](writeup.md).
+New developers: [ONBOARDING.md](ONBOARDING.md) (run the stack) → [GLOSSARY.md](GLOSSARY.md) (terms) → [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) (ports/terminals). Technical data flow: [architecture.md](architecture.md). Wire contract: [protocol.md](protocol.md). Short judging write-up: [writeup.md](writeup.md). Full index: [README.md](README.md).
 
 ## Problem
 
