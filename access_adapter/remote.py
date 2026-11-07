@@ -7,6 +7,7 @@ leaves a key stuck down.
 
 from __future__ import annotations
 
+from collections import deque
 import threading
 import time
 from typing import Any, Callable
@@ -32,6 +33,7 @@ class RemotePresses:
         self.lease_seconds = lease_seconds
         self._clock = clock
         self._leases: dict[str, tuple[float, list[str]]] = {}
+        self.recent: deque[dict[str, Any]] = deque(maxlen=20)
         self._lock = threading.Lock()
         self._thread: threading.Thread | None = None
 
@@ -50,6 +52,8 @@ class RemotePresses:
             raise ValueError(f"state must be one of: {', '.join(PRESS_STATES)}")
         rule = self._find_rule(mapping_id)
         with self._lock:
+            if press_state != "down" or rule.id not in self._leases:
+                self.recent.append({"mapping": rule.id, "keys": list(rule.keys), "state": press_state, "at": time.time()})
             if press_state == "down":
                 self._leases[rule.id] = (self._clock() + self.lease_seconds, list(rule.keys))
             elif press_state == "up":

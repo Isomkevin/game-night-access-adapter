@@ -50,6 +50,7 @@ Errors:
 | POST | `/api/v1/calibrate/reset` | Clear rest-pose offsets |
 | POST | `/api/v1/press` | Press a mapping's keys system-wide: `{"mapping": "tilt-forward", "state": "down"}`. `state` is `down`, `up`, or `pulse` (tap). A `down` lasts 2.5 s; repeat it to keep holding |
 | POST | `/api/v1/press/release-all` | Release everything held through `/press` |
+| GET | `/api/v1/press` | Mappings held through `/press` and the last 20 presses (refreshes of a held mapping are not listed) |
 
 ### Pressing keys from other programs
 

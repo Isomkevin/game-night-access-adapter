@@ -153,6 +153,9 @@ class AdapterApiHandler(BaseHTTPRequestHandler):
             if "enabled" not in body:
                 raise ValueError("enabled is required")
             return 200, state.update_settings({"injection_enabled": bool(body["enabled"])})
+        if method == "GET" and path == "/api/v1/press":
+            remote = state.ensure_remote()
+            return 200, {"held": remote.held_mappings(), "recent": list(remote.recent)}
         if method == "POST" and path in {"/api/v1/press", "/api/v1/press/release-all"}:
             self._require_trusted_origin()
             remote = state.ensure_remote()
