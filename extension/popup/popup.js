@@ -150,9 +150,17 @@ async function refreshStatus() {
     // Prefer the more urgent signal in the title
     const primary =
       s.workerOk === false ? conn : !s.gameTabOpen ? game : conn;
-    el.textContent = primary.title;
-    el.className = `status ${primary.tone}`;
-    detail.textContent = `${game.title}. ${conn.detail}`;
+    if (s.adapterConnected && s.workerOk !== false) {
+      el.textContent = 'Desktop adapter connected';
+      el.className = 'status ok';
+      detail.textContent = s.voiceOn
+        ? 'Voice is listening. Commands press the adapter’s keys in whatever game is focused.'
+        : 'Voice control presses the adapter’s keys in any game — click Voice control on any https page.';
+    } else {
+      el.textContent = primary.title;
+      el.className = `status ${primary.tone}`;
+      detail.textContent = `${game.title}. ${conn.detail}`;
+    }
     updatePinHint(s);
   } catch {
     el.textContent = 'Extension stopped';

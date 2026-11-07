@@ -325,6 +325,7 @@ async function buildStatusPayload() {
     targetTabHost: pinned.targetTabHost,
     cameraDockOpen: !!session[SESSION_KEYS.cameraDockOpen],
     voiceOn: typeof session[SESSION_KEYS.voiceTabId] === 'number',
+    adapterConnected: Boolean(await loadAdapterRules()),
     workerOk: true,
   };
 }
@@ -334,20 +335,29 @@ async function buildStatusPayload() {
  * @param {'start'|'stop'|'toggle'} action
  */
 async function setVoice(action) {
-  let [tab] = await resolveGameTabs();
-  if (!tab) {
-    // With the desktop adapter the game can be any app, so listen in whatever page is open.
-    const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-    if (active && /^https?:/i.test(active.url || '')) tab = active;
+  // Listening can happen in any page: keys go to the desktop adapter or the game tab either way.
+  const session = await chrome.storage.session.get(SESSION_KEYS.voiceTabId);
+  const candidates = [];
+  const listening = session[SESSION_KEYS.voiceTabId];
+  if (typeof listening === 'number') {
+    candidates.push(await chrome.tabs.get(listening).catch(() => null));
   }
-  if (!tab) {
-    return { ok: false, error: 'Open any web page (or your browser game) and try again.' };
+  const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  candidates.push(active, ...(await resolveGameTabs()));
+  const tabs = candidates.filter(
+    (t, i) => t && /^https?:/i.test(t.url || '') && candidates.findIndex((c) => c?.id === t.id) === i
+  );
+  if (!tabs.length) {
+    return { ok: false, error: 'Open any https web page (or your browser game) and try again.' };
   }
-  try {
-    return await chrome.tabs.sendMessage(tab.id, { type: 'gnaa-voice', action });
-  } catch {
-    return { ok: false, error: 'Reload the game tab so the extension can listen there.' };
+  for (const tab of tabs) {
+    try {
+      return await chrome.tabs.sendMessage(tab.id, { type: 'gnaa-voice', action });
+    } catch {
+      /* page loaded before the extension, or an error page; try the next one */
+    }
   }
+  return { ok: false, error: 'Reload this page so the extension can listen here, then try again.' };
 }
 
 /**
