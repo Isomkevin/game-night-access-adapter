@@ -842,7 +842,7 @@
         <p class="eyebrow">Game Night Access Adapter</p>
         <h1>Play together without assuming fast fingers.</h1>
         <p class="lede">
-          Remappable camera, voice, phone, and on-screen inputs for LibreCorsa — software only,
+          Remappable camera, voice, phone, and on-screen inputs for Any In-Browser Gaming — software only,
           laptop + phone, no game rewrite.
         </p>
         <div class="chip-row">
@@ -1270,11 +1270,21 @@
         fullscreenBtn.addEventListener("click", toggleFullscreen);
         document.addEventListener("fullscreenchange", syncFullscreenLabel);
 
-        const hash = location.hash.match(/slide-(\d+)/i);
-        if (hash) {
+        function indexFromHash() {
+          const hash = location.hash.match(/slide-(\d+)/i);
+          if (!hash) return null;
           const n = parseInt(hash[1], 10) - 1;
-          if (!Number.isNaN(n)) index = n;
+          if (Number.isNaN(n) || n < 0 || n >= slides.length) return null;
+          return n;
         }
+
+        window.addEventListener("hashchange", () => {
+          const fromHash = indexFromHash();
+          if (fromHash !== null && fromHash !== index) show(fromHash);
+        });
+
+        const initial = indexFromHash();
+        if (initial !== null) index = initial;
         show(index);
         syncFullscreenLabel();
       })();
