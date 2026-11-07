@@ -138,8 +138,8 @@ function Repair-AdapterPackageLayout {
     if (-not (Test-FileContains -Path $sensors -Needle 'hidden_subprocess_kwargs')) {
         throw 'Installed access_adapter\sensors.py is missing hidden_subprocess_kwargs.'
     }
-    if (-not (Test-FileContains -Path $keys -Needle 'Win32HoldController')) {
-        throw 'Installed access_adapter\keys.py is missing Win32HoldController (hold would not reach games).'
+    if (-not (Test-FileContains -Path $keys -Needle '_win32_repeat_timing')) {
+        throw 'Installed access_adapter\keys.py is missing Windows key auto-repeat (hold would act like one tap).'
     }
     Write-Log 'Package layout OK (ADB helper consoles stay hidden; Windows hold uses scan codes).'
 }

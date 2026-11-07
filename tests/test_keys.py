@@ -114,18 +114,43 @@ def test_win32_hold_controller_keeps_scan_code_down_until_release():
     )
 
     sent: list[tuple[int, int, int]] = []
-    injector = KeyInjector(controller=Win32HoldController(sender=sent.extend))
+    controller = Win32HoldController(sender=sent.extend, repeat_delay=60.0, repeat_interval=60.0)
+    injector = KeyInjector(controller=controller)
     injector.sync(["w"])
     injector.sync(["w"])
     down = win32_hold_events("w", is_press=True)
+    assert down == [(0, 0x11, KEYEVENTF_SCANCODE)]
     assert sent == down
-    assert down[0] == (0, 0x11, KEYEVENTF_SCANCODE)
-    assert down[1][0] == 0x57
     injector.sync([])
     up = win32_hold_events("w", is_press=False)
-    assert sent[len(down) :] == up
-    assert up[0][2] & KEYEVENTF_KEYUP
-    assert up[1][2] & KEYEVENTF_SCANCODE and up[1][2] & KEYEVENTF_KEYUP
+    assert up == [(0, 0x11, KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP)]
+    assert sent == down + up
+
+
+def test_win32_hold_auto_repeats_key_down_like_a_physical_keyboard():
+    import time
+
+    from access_adapter.keys import KEYEVENTF_KEYUP, KeyInjector, Win32HoldController
+
+    sent: list[tuple[int, int, int]] = []
+    controller = Win32HoldController(sender=sent.extend, repeat_delay=0.05, repeat_interval=0.01)
+    injector = KeyInjector(controller=controller)
+    injector.sync(["w"])
+    time.sleep(0.3)
+    injector.sync([])
+    downs = [event for event in sent if not event[2] & KEYEVENTF_KEYUP]
+    assert len(downs) >= 10
+    assert sent[-1][2] & KEYEVENTF_KEYUP
+    count = len(sent)
+    time.sleep(0.1)
+    assert len(sent) == count
+
+    sent.clear()
+    injector.apply_rules([])
+    controller.press("a")
+    controller.release("a")
+    time.sleep(0.1)
+    assert len(sent) == 2
 
 
 def test_win32_hold_keys_use_scancodes_not_unicode():

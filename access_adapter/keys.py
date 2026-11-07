@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import ctypes
 import sys
+import threading
+import time
 from typing import Any, Callable, Iterable, Protocol
 
 from access_adapter.mapping import MappingRule, canonical_key
@@ -25,6 +27,8 @@ KEYEVENTF_EXTENDEDKEY = 0x0001
 KEYEVENTF_KEYUP = 0x0002
 KEYEVENTF_SCANCODE = 0x0008
 INPUT_KEYBOARD = 1
+SPI_GETKEYBOARDSPEED = 0x000A
+SPI_GETKEYBOARDDELAY = 0x0016
 
 # Virtual-key and set-1 scan codes for canonical mapping names.
 _WIN32_KEYS: dict[str, tuple[int, int, bool]] = {
@@ -149,16 +153,60 @@ class _PynputController:
 
 
 class Win32HoldController:
-    """Scan-code key down/up that games treat as a held hardware key."""
+    """Scan-code key down/up that games treat as a held hardware key.
 
-    def __init__(self, sender: Win32Sender | None = None) -> None:
+    Windows does not auto-repeat injected keys; a physical keyboard does. While
+    a key is held this controller re-sends key-down at the user's keyboard
+    repeat delay and rate, the way X11 auto-repeats XTest keys on Linux.
+    """
+
+    def __init__(
+        self,
+        sender: Win32Sender | None = None,
+        *,
+        repeat_delay: float | None = None,
+        repeat_interval: float | None = None,
+    ) -> None:
         self._sender = sender or send_win32_inputs
+        delay, interval = _win32_repeat_timing()
+        self._delay = delay if repeat_delay is None else repeat_delay
+        self._interval = interval if repeat_interval is None else repeat_interval
+        self._next_repeat: dict[str, float] = {}
+        self._lock = threading.Lock()
+        self._wake = threading.Event()
+        self._thread: threading.Thread | None = None
 
     def press(self, key: Any) -> None:
-        self._sender(win32_hold_events(str(key), is_press=True))
+        name = str(key)
+        with self._lock:
+            self._sender(win32_hold_events(name, is_press=True))
+            self._next_repeat[name] = time.monotonic() + self._delay
+            self._ensure_thread()
+        self._wake.set()
 
     def release(self, key: Any) -> None:
-        self._sender(win32_hold_events(str(key), is_press=False))
+        name = str(key)
+        with self._lock:
+            self._next_repeat.pop(name, None)
+            self._sender(win32_hold_events(name, is_press=False))
+
+    def _ensure_thread(self) -> None:
+        if self._thread is not None and self._thread.is_alive():
+            return
+        self._thread = threading.Thread(target=self._repeat_loop, name="key-repeat", daemon=True)
+        self._thread.start()
+
+    def _repeat_loop(self) -> None:
+        while True:
+            with self._lock:
+                now = time.monotonic()
+                for name, due in list(self._next_repeat.items()):
+                    if due <= now:
+                        self._sender(win32_hold_events(name, is_press=True))
+                        self._next_repeat[name] = now + self._interval
+                wait = min((due - now for due in self._next_repeat.values()), default=None)
+            self._wake.clear()
+            self._wake.wait(timeout=None if wait is None else max(0.0, wait))
 
 
 def win32_key_spec(name: str) -> tuple[int, int, int]:
@@ -174,19 +222,27 @@ def win32_key_spec(name: str) -> tuple[int, int, int]:
 
 
 def win32_hold_events(name: str, *, is_press: bool) -> list[tuple[int, int, int]]:
-    """``(wVk, wScan, dwFlags)`` packets for one hold or release.
+    """``(wVk, wScan, dwFlags)`` packet for one key-down or key-up.
 
-    Scan-code only (``wVk=0``) is what DirectInput and many Unity builds
-    honor. A second virtual-key packet covers browser ``keydown`` / ``code``.
+    A scan-code event (``wVk=0``) reaches DirectInput games, and Windows maps
+    it to the virtual key so browsers and normal windows get ``keydown`` too.
     """
-    vk, scan, flags = win32_key_spec(name)
-    extended = flags & KEYEVENTF_EXTENDEDKEY
+    _vk, scan, flags = win32_key_spec(name)
     up = 0 if is_press else KEYEVENTF_KEYUP
-    scan_event = (0, scan, KEYEVENTF_SCANCODE | extended | up)
-    vk_event = (vk, scan, extended | up)
-    if is_press:
-        return [scan_event, vk_event]
-    return [vk_event, scan_event]
+    return [(0, scan, flags | up)]
+
+
+def _win32_repeat_timing() -> tuple[float, float]:
+    """Keyboard repeat delay and interval from Windows settings (seconds)."""
+    delay_index, speed_index = 1, 31
+    if sys.platform == "win32":
+        value = ctypes.c_uint(0)
+        if ctypes.windll.user32.SystemParametersInfoW(SPI_GETKEYBOARDDELAY, 0, ctypes.byref(value), 0):
+            delay_index = min(max(value.value, 0), 3)
+        if ctypes.windll.user32.SystemParametersInfoW(SPI_GETKEYBOARDSPEED, 0, ctypes.byref(value), 0):
+            speed_index = min(max(value.value, 0), 31)
+    rate = 2.5 + speed_index * (27.5 / 31)
+    return 0.25 * (delay_index + 1), 1.0 / rate
 
 
 def send_win32_inputs(events: list[tuple[int, int, int]]) -> None:
