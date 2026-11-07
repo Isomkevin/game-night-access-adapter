@@ -104,6 +104,30 @@ def test_letter_keys_use_hardware_keysym_when_available():
         assert key.char == "w"
 
 
+def test_win32_hold_controller_keeps_scan_code_down_until_release():
+    from access_adapter.keys import (
+        KEYEVENTF_KEYUP,
+        KEYEVENTF_SCANCODE,
+        KeyInjector,
+        Win32HoldController,
+        win32_hold_events,
+    )
+
+    sent: list[tuple[int, int, int]] = []
+    injector = KeyInjector(controller=Win32HoldController(sender=sent.extend))
+    injector.sync(["w"])
+    injector.sync(["w"])
+    down = win32_hold_events("w", is_press=True)
+    assert sent == down
+    assert down[0] == (0, 0x11, KEYEVENTF_SCANCODE)
+    assert down[1][0] == 0x57
+    injector.sync([])
+    up = win32_hold_events("w", is_press=False)
+    assert sent[len(down) :] == up
+    assert up[0][2] & KEYEVENTF_KEYUP
+    assert up[1][2] & KEYEVENTF_SCANCODE and up[1][2] & KEYEVENTF_KEYUP
+
+
 def test_win32_hold_keys_use_scancodes_not_unicode():
     from access_adapter.keys import KEYEVENTF_EXTENDEDKEY, KEYEVENTF_SCANCODE, win32_key_spec
 

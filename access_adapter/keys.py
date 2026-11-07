@@ -1,25 +1,30 @@
 """Hold and release operating-system keys for the active sensor mappings.
 
-``KeyInjector`` talks to ``pynput`` unless a controller is passed in. Tests pass
-a fake controller and never touch the real keyboard.
+``KeyInjector`` talks to a platform controller unless tests pass a fake one.
 
-On Windows, letter keys are sent as hardware scan codes (``KEYEVENTF_SCANCODE``)
-so DirectInput / Unity games see a held WASD key. ``KeyCode.from_char`` becomes
-a Unicode type event that notepad shows but games ignore. On X11, letters use
-``KeyCode._from_symbol`` so pynput emits XTest FakeKeyEvent instead of
-XSendEvent.
+Windows hold must not go through ``pynput``. ``KeyCode.from_char`` becomes a
+Unicode type event; ``from_vk`` still leaves ``wVk`` set, and games using
+DirectInput or browser ``event.code`` never see a held WASD key. This module
+sends ``SendInput`` scan-code down/up (the pydirectinput pattern) and keeps
+the key down until the mapping stops matching.
+
+On X11, letters use ``KeyCode._from_symbol`` so pynput emits XTest
+FakeKeyEvent instead of XSendEvent.
 """
 
 from __future__ import annotations
 
+import ctypes
 import sys
-from typing import Any, Iterable, Protocol
+from typing import Any, Callable, Iterable, Protocol
 
 from access_adapter.mapping import MappingRule, canonical_key
 
 
 KEYEVENTF_EXTENDEDKEY = 0x0001
+KEYEVENTF_KEYUP = 0x0002
 KEYEVENTF_SCANCODE = 0x0008
+INPUT_KEYBOARD = 1
 
 # Virtual-key and set-1 scan codes for canonical mapping names.
 _WIN32_KEYS: dict[str, tuple[int, int, bool]] = {
@@ -52,6 +57,8 @@ _WIN32_KEYS: dict[str, tuple[int, int, bool]] = {
     "insert": (0x2D, 0x52, True),
 }
 
+Win32Sender = Callable[[list[tuple[int, int, int]]], None]
+
 
 class _KeyController(Protocol):
     def press(self, key: Any) -> None: ...
@@ -63,7 +70,7 @@ class KeyInjector:
     """Keep the pressed set equal to the key names from the mapping engine."""
 
     def __init__(self, controller: _KeyController | None = None) -> None:
-        self._controller = controller if controller is not None else _PynputController()
+        self._controller = controller if controller is not None else _default_controller()
         self._held: dict[str, Any] = {}
         self._once_latched: set[str] = set()
 
@@ -117,14 +124,13 @@ class KeyInjector:
         self._release(name)
 
     def _press(self, name: str) -> None:
-        key = _to_pynput_key(name)
-        self._controller.press(key)
-        self._held[name] = key
+        self._controller.press(name)
+        self._held[name] = name
 
     def _release(self, name: str) -> None:
-        key = self._held.pop(name)
+        self._held.pop(name, None)
         try:
-            self._controller.release(key)
+            self._controller.release(name)
         except Exception:
             pass
 
@@ -136,10 +142,23 @@ class _PynputController:
         self._controller = Controller()
 
     def press(self, key: Any) -> None:
-        self._controller.press(key)
+        self._controller.press(_to_pynput_key(str(key)))
 
     def release(self, key: Any) -> None:
-        self._controller.release(key)
+        self._controller.release(_to_pynput_key(str(key)))
+
+
+class Win32HoldController:
+    """Scan-code key down/up that games treat as a held hardware key."""
+
+    def __init__(self, sender: Win32Sender | None = None) -> None:
+        self._sender = sender or send_win32_inputs
+
+    def press(self, key: Any) -> None:
+        self._sender(win32_hold_events(str(key), is_press=True))
+
+    def release(self, key: Any) -> None:
+        self._sender(win32_hold_events(str(key), is_press=False))
 
 
 def win32_key_spec(name: str) -> tuple[int, int, int]:
@@ -154,12 +173,52 @@ def win32_key_spec(name: str) -> tuple[int, int, int]:
     return vk, scan, flags
 
 
+def win32_hold_events(name: str, *, is_press: bool) -> list[tuple[int, int, int]]:
+    """``(wVk, wScan, dwFlags)`` packets for one hold or release.
+
+    Scan-code only (``wVk=0``) is what DirectInput and many Unity builds
+    honor. A second virtual-key packet covers browser ``keydown`` / ``code``.
+    """
+    vk, scan, flags = win32_key_spec(name)
+    extended = flags & KEYEVENTF_EXTENDEDKEY
+    up = 0 if is_press else KEYEVENTF_KEYUP
+    scan_event = (0, scan, KEYEVENTF_SCANCODE | extended | up)
+    vk_event = (vk, scan, extended | up)
+    if is_press:
+        return [scan_event, vk_event]
+    return [vk_event, scan_event]
+
+
+def send_win32_inputs(events: list[tuple[int, int, int]]) -> None:
+    """Send one or more keyboard ``INPUT`` records. Windows only."""
+    if sys.platform != "win32" or not events:
+        return
+    extra = ctypes.c_ulong(0)
+    extra_ptr = ctypes.pointer(extra)
+    records = (_INPUT * len(events))()
+    for index, (vk, scan, flags) in enumerate(events):
+        records[index].type = INPUT_KEYBOARD
+        records[index].ii.ki.wVk = vk
+        records[index].ii.ki.wScan = scan
+        records[index].ii.ki.dwFlags = flags
+        records[index].ii.ki.time = 0
+        records[index].ii.ki.dwExtraInfo = extra_ptr
+    sent = ctypes.windll.user32.SendInput(
+        len(events), ctypes.byref(records), ctypes.sizeof(_INPUT)
+    )
+    if sent != len(events):
+        for vk, scan, flags in events:
+            ctypes.windll.user32.keybd_event(vk & 0xFF, scan & 0xFF, flags, 0)
+
+
+def _default_controller() -> _KeyController:
+    if sys.platform == "win32":
+        return Win32HoldController()
+    return _PynputController()
+
+
 def _to_pynput_key(name: str) -> Any:
     from pynput.keyboard import Key, KeyCode
-
-    if sys.platform == "win32":
-        vk, scan, flags = win32_key_spec(name)
-        return KeyCode.from_vk(vk, _scan=scan, _flags=flags)
 
     special = {
         "space": Key.space,
@@ -194,3 +253,40 @@ def _to_pynput_key(name: str) -> Any:
         if key is not None and getattr(key, "vk", None):
             return key
     return KeyCode.from_char(name)
+
+
+class _KEYBDINPUT(ctypes.Structure):
+    _fields_ = [
+        ("wVk", ctypes.c_ushort),
+        ("wScan", ctypes.c_ushort),
+        ("dwFlags", ctypes.c_ulong),
+        ("time", ctypes.c_ulong),
+        ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong)),
+    ]
+
+
+class _MOUSEINPUT(ctypes.Structure):
+    _fields_ = [
+        ("dx", ctypes.c_long),
+        ("dy", ctypes.c_long),
+        ("mouseData", ctypes.c_ulong),
+        ("dwFlags", ctypes.c_ulong),
+        ("time", ctypes.c_ulong),
+        ("dwExtraInfo", ctypes.POINTER(ctypes.c_ulong)),
+    ]
+
+
+class _HARDWAREINPUT(ctypes.Structure):
+    _fields_ = [
+        ("uMsg", ctypes.c_ulong),
+        ("wParamL", ctypes.c_short),
+        ("wParamH", ctypes.c_ushort),
+    ]
+
+
+class _INPUT_I(ctypes.Union):
+    _fields_ = [("ki", _KEYBDINPUT), ("mi", _MOUSEINPUT), ("hi", _HARDWAREINPUT)]
+
+
+class _INPUT(ctypes.Structure):
+    _fields_ = [("type", ctypes.c_ulong), ("ii", _INPUT_I)]

@@ -126,15 +126,22 @@ function Repair-AdapterPackageLayout {
         Remove-Item -LiteralPath $nested -Recurse -Force
     }
 
+    Get-ChildItem -LiteralPath $InstallDir -Filter '__pycache__' -Recurse -Directory -ErrorAction SilentlyContinue |
+        Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
     $adbDevices = Join-Path $pkg 'adb_devices.py'
     $sensors = Join-Path $pkg 'sensors.py'
+    $keys = Join-Path $pkg 'keys.py'
     if (-not (Test-FileContains -Path $adbDevices -Needle 'CREATE_NO_WINDOW')) {
         throw 'Installed access_adapter\adb_devices.py is missing CREATE_NO_WINDOW (ADB consoles would flood the desktop).'
     }
     if (-not (Test-FileContains -Path $sensors -Needle 'hidden_subprocess_kwargs')) {
         throw 'Installed access_adapter\sensors.py is missing hidden_subprocess_kwargs.'
     }
-    Write-Log 'Package layout OK (ADB helper consoles stay hidden).'
+    if (-not (Test-FileContains -Path $keys -Needle 'Win32HoldController')) {
+        throw 'Installed access_adapter\keys.py is missing Win32HoldController (hold would not reach games).'
+    }
+    Write-Log 'Package layout OK (ADB helper consoles stay hidden; Windows hold uses scan codes).'
 }
 
 . (Join-Path $PSScriptRoot 'python-bootstrap.ps1')

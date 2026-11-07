@@ -172,6 +172,12 @@ else
   pass 'sensors.py hides dumpsys consoles'
 fi
 
+if ! grep -q 'Win32HoldController' "$ROOT/access_adapter/keys.py"; then
+  fail 'keys.py must send Windows hold via Win32HoldController scan codes'
+else
+  pass 'keys.py holds Windows keys with scan codes'
+fi
+
 if ! grep -q 'Repair-AdapterPackageLayout' "$WIN/post-install.ps1"; then
   fail 'post-install.ps1 must repair flattened MSI package layouts'
 else
