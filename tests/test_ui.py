@@ -18,6 +18,7 @@ def test_main_window_lists_default_mappings(qapp, tmp_path):
     assert window.table.rowCount() == 4
     assert window.table.item(0, 0).text() == "Steer left"
     assert window.table.item(0, 2).text() == "a"
+    assert window.table.item(0, 3).text() == "Hold continuously"
     window.close()
 
 
@@ -34,9 +35,11 @@ def test_options_and_new_mapping_save(qapp, tmp_path):
     dialog.keys.setText("ctrl+space")
     dialog.sensor.setCurrentText("gyroscope")
     dialog.axis.setCurrentText("z")
+    dialog.press_mode.setCurrentText("Type once")
     window.add_mapping_from_payload(dialog.payload())
     assert window.table.rowCount() == 5
     assert state.config.rules[-1].keys == ["ctrl", "space"]
+    assert state.config.rules[-1].press_mode == "once"
 
     window.table.selectRow(4)
     window.remove_selected()

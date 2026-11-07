@@ -81,7 +81,14 @@ The file is created when you save from the app or the API. Until then the built-
 | Accelerate | accelerometer Y | below −2.8 m/s² | `w` |
 | Brake | accelerometer Y | above 2.8 m/s² | `s` |
 
-A mapping's `keys` list is a **combination**: every listed key is held at the same time while the condition is true. `["ctrl", "left"]` holds Ctrl and Left together.
+A mapping's `keys` list is a **combination**: every listed key is used together. `["ctrl", "left"]` is Ctrl and Left.
+
+Each mapping also has `press_mode`:
+
+| Value | In the window | Behavior |
+|-------|---------------|----------|
+| `hold` | Hold continuously | Keys stay down while the phone stays in that pose (default; games treat this as steering) |
+| `once` | Type once | Keys tap once when you enter that pose, then wait until you leave it before they can tap again |
 
 ### Behavior settings
 

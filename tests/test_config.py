@@ -19,11 +19,13 @@ def test_save_and_load_round_trip(tmp_path: Path):
     path = tmp_path / "config.json"
     config = AppConfig(selected_serial="192.168.1.20:5555", invert_x=True)
     config.rules[0].keys = ["left"]
+    config.rules[0].press_mode = "once"
     save_config(config, path)
     loaded = load_config(path)
     assert loaded.selected_serial == "192.168.1.20:5555"
     assert loaded.invert_x is True
     assert loaded.rules[0].keys == ["left"]
+    assert loaded.rules[0].press_mode == "once"
     assert loaded.rules[1].id == "tilt-right"
 
 

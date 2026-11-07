@@ -74,6 +74,8 @@ def test_apply_sample_presses_and_releases_with_injection_flag(tmp_path):
     keys = bridge.apply_sample(SensorSample(ax=-5, source="test"))
     assert keys == ["a"]
     assert bridge.injector.held_names == ["a"]
+    bridge.apply_sample(SensorSample(ax=-5, source="test"))
+    assert bridge.injector.held_names == ["a"]
 
     state.update_settings({"injection_enabled": False})
     bridge.apply_sample(SensorSample(ax=-5, source="test"))

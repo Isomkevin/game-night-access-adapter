@@ -37,3 +37,56 @@ def test_sync_is_idempotent():
     injector.sync(["w"])
     assert len(board.pressed) == 1
     assert board.released == []
+
+
+def test_hold_mode_keeps_key_down_while_matched():
+    from access_adapter.keys import KeyInjector
+    from access_adapter.mapping import MappingRule
+
+    board = FakeKeyboard()
+    injector = KeyInjector(controller=board)
+    rule = MappingRule(
+        id="left",
+        label="Left",
+        sensor="accelerometer",
+        axis="x",
+        comparator="lt",
+        threshold=-2.8,
+        keys=["a"],
+        press_mode="hold",
+    )
+    injector.apply_rules([rule])
+    injector.apply_rules([rule])
+    assert injector.held_names == ["a"]
+    assert len(board.pressed) == 1
+    injector.apply_rules([])
+    assert injector.held_names == []
+    assert len(board.released) == 1
+
+
+def test_once_mode_types_once_until_position_left():
+    from access_adapter.keys import KeyInjector
+    from access_adapter.mapping import MappingRule
+
+    board = FakeKeyboard()
+    injector = KeyInjector(controller=board)
+    rule = MappingRule(
+        id="left",
+        label="Left",
+        sensor="accelerometer",
+        axis="x",
+        comparator="lt",
+        threshold=-2.8,
+        keys=["a"],
+        press_mode="once",
+    )
+    injector.apply_rules([rule])
+    injector.apply_rules([rule])
+    injector.apply_rules([rule])
+    assert injector.held_names == []
+    assert len(board.pressed) == 1
+    assert len(board.released) == 1
+    injector.apply_rules([])
+    injector.apply_rules([rule])
+    assert len(board.pressed) == 2
+    assert len(board.released) == 2

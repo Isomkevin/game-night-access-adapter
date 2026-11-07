@@ -203,6 +203,12 @@ COMPARATOR_LABELS = {
 }
 LABEL_TO_COMPARATOR = {label: key for key, label in COMPARATOR_LABELS.items()}
 
+PRESS_MODE_LABELS = {
+    "hold": "Hold continuously",
+    "once": "Type once",
+}
+LABEL_TO_PRESS_MODE = {label: key for key, label in PRESS_MODE_LABELS.items()}
+
 
 def apply_app_fonts(app: QApplication) -> None:
     """Prefer Stitch typefaces when the OS has them."""
