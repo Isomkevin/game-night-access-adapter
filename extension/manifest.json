@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Game Night Access Adapter",
-  "version": "0.2.0",
-  "description": "Remap camera, voice, and phone inputs onto keyboard controls for browser games.",
+  "version": "0.2.1",
+  "description": "Remap camera, voice, and phone inputs onto keyboard controls. With the desktop adapter, play any game.",
   "permissions": ["storage", "tabs", "activeTab"],
   "host_permissions": [
     "http://*/*",

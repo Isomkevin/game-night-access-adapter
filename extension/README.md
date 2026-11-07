@@ -105,11 +105,11 @@ bottom-left of the game shows what was heard and has a Stop button. Say “stop 
 Phrases live in `content/voice-phrases.js`; “go” and “brake” hold until another driving command,
 “left” / “right” steer for 0.3 s. The page that listens must be `https` or `localhost`.
 
-When the desktop phone adapter (0.2.7+) is running, voice commands go to its local API
-(`POST /api/v1/press` on `127.0.0.1:8765`) instead of the tab: each command presses the keys
-of the matching adapter mapping as real system keystrokes, so it works with any game, browser
-or not. Without the adapter, voice falls back to the browser game tab. See
-[local API](../docs/local-api.md#pressing-keys-from-other-programs).
+When the desktop phone adapter (0.2.7+) is running, the extension’s pad, voice, phone, and
+camera inputs go to its local API (`POST /api/v1/press` on `127.0.0.1:8765`) instead of a
+browser tab: each command presses the keys of the matching adapter mapping as real system
+keystrokes, so it works with any focused game. Without the adapter, inputs fall back to the
+pinned browser game tab. See [local API](../docs/local-api.md#pressing-keys-from-other-programs).
 
 With no pin, the extension falls back to LibreCorsa demo URL matches in `lib/status.js` (`GAME_TAB_URLS`). Closing a pinned tab clears the pin for that session.
 

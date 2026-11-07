@@ -53,12 +53,21 @@ const ADAPTER_DOWN_RETRY_MS = 2000;
 const ADAPTER_PRESS_TIMEOUT_MS = 400;
 const ADAPTER_WARM_MS = 8000;
 
-/** Built-in voice → mapping ids (pressed immediately; no mappings GET on the hot path). */
+/** Built-in control → adapter mapping ids (pressed immediately; no mappings GET on the hot path). */
 const VOICE_ADAPTER_DEFAULTS = {
   go: { id: 'tilt-forward', label: 'Accelerate', keys: ['w'] },
   stop: { id: 'tilt-back', label: 'Brake', keys: ['s'] },
   turnLeft: { id: 'tilt-left', label: 'Steer left', keys: ['a'] },
   turnRight: { id: 'tilt-right', label: 'Steer right', keys: ['d'] },
+};
+/** Popup / remap game actions → the same adapter actions voice uses. */
+const GAME_TO_ADAPTER_ACTION = {
+  throttle: 'go',
+  brake: 'stop',
+  steerLeft: 'turnLeft',
+  steerRight: 'turnRight',
+  shiftUp: 'gearUp',
+  shiftDown: 'gearDown',
 };
 const VOICE_ADAPTER_LABEL_WORDS = {
   go: ['accelerate', 'throttle', 'forward', 'gas'],
@@ -72,6 +81,10 @@ const VOICE_ADAPTER_LABEL_WORDS = {
   aero: ['aero', 'drs', 'wing'],
   restart: ['restart', 'reset'],
 };
+
+function toAdapterAction(action) {
+  return GAME_TO_ADAPTER_ACTION[action] || action;
+}
 
 let adapterRules = null;
 let adapterRulesAt = 0;
@@ -155,12 +168,14 @@ function stopAdapterWarm() {
 }
 
 /**
- * Voice goes to the desktop adapter (system-wide keys for any game) when it is
- * running; otherwise to the browser game tab.
+ * Press a desktop-adapter mapping (system-wide keys for any focused game).
  * Hot path: one POST /press using the cached mapping id (no mappings GET).
+ * @returns {Promise<{ok: boolean, target?: string, label?: string, keys?: string[], error?: string}|null>}
+ *   `null` means the adapter is offline — caller may fall back to the browser tab.
  */
-async function handleVoiceInput(action, state) {
-  const cached = voicePressMap[action];
+async function pressAdapterMapping(action, state) {
+  const key = toAdapterAction(action);
+  const cached = voicePressMap[key];
   if (cached && (adapterSeen || adapterRules)) {
     try {
       const body = await adapterFetch(
@@ -178,12 +193,12 @@ async function handleVoiceInput(action, state) {
         };
       }
       if (body?.error?.message === 'Endpoint not found') {
-        return { ok: false, target: 'adapter', error: 'Update the desktop adapter to 0.2.7 or newer for voice control.' };
+        return { ok: false, target: 'adapter', error: 'Update the desktop adapter to 0.2.7 or newer.' };
       }
       if (body?.error?.code === 'NOT_FOUND') {
         adapterRulesAt = 0;
         await loadAdapterRules();
-        const again = voicePressMap[action];
+        const again = voicePressMap[key];
         if (again && again.id !== cached.id) {
           const retry = await adapterFetch(
             '/api/v1/press',
@@ -199,11 +214,8 @@ async function handleVoiceInput(action, state) {
             };
           }
         }
-      }
-      if (body?.error?.code === 'INJECTION_OFF') {
         return { ok: false, target: 'adapter', error: body.error.message };
       }
-      // Adapter answered but refused — don't silently fall back mid-press.
       if (body?.error) {
         return { ok: false, target: 'adapter', error: body.error.message };
       }
@@ -211,14 +223,15 @@ async function handleVoiceInput(action, state) {
       adapterRules = null;
       adapterDownAt = Date.now();
       adapterSeen = false;
+      return null;
     }
   } else if (!adapterSeen) {
-    // First command before warm finished: try defaults once, else tab.
-    if (VOICE_ADAPTER_DEFAULTS[action]) {
+    const def = VOICE_ADAPTER_DEFAULTS[key];
+    if (def) {
       try {
         const body = await adapterFetch(
           '/api/v1/press',
-          { mapping: VOICE_ADAPTER_DEFAULTS[action].id, state },
+          { mapping: def.id, state },
           ADAPTER_PRESS_TIMEOUT_MS
         );
         if (body?.ok) {
@@ -231,20 +244,35 @@ async function handleVoiceInput(action, state) {
             keys: body.data.keys,
           };
         }
+        if (body?.error) {
+          return { ok: false, target: 'adapter', error: body.error.message };
+        }
       } catch {
         adapterDownAt = Date.now();
       }
     }
+    return null;
   } else if (!cached) {
     await loadAdapterRules();
-    if (!voicePressMap[action]) {
-      const spoken = action.replace(/([A-Z])/g, ' $1').toLowerCase();
-      return { ok: false, target: 'adapter', error: `No adapter mapping for “${spoken}”. Add one in the desktop adapter.` };
+    if (!voicePressMap[key]) {
+      const spoken = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+      return {
+        ok: false,
+        target: 'adapter',
+        error: `No adapter mapping for “${spoken}”. Add one in the desktop adapter.`,
+      };
     }
-    return handleVoiceInput(action, state);
+    return pressAdapterMapping(key, state);
   }
+  return null;
+}
 
-  await handleInputEvent({ source: 'voice', action, state });
+/** Voice: adapter first, browser tab only if the adapter is offline. */
+async function handleVoiceInput(action, state) {
+  const res = await pressAdapterMapping(action, state);
+  if (res?.target === 'adapter') return res;
+  if (res && !res.ok) return res;
+  await handleInputEvent({ source: 'voice', action, state, skipAdapter: true });
   return { ok: true, target: 'tab' };
 }
 
@@ -518,21 +546,39 @@ async function handleSetRemap(msg) {
 }
 
 /**
- * Apply a logical input event through remap → key code → game tab.
- * @param {{ source: string, action: string, state: string }} evt
+ * Apply a logical input: prefer the desktop adapter (any focused game), else the browser tab.
+ * @param {{ source: string, action: string, state: string, skipAdapter?: boolean }} evt
  */
 async function handleInputEvent(evt) {
   const generation = bridgeGeneration;
-  if (evt.source === 'camera' && evt.state === 'up') return cameraKeys.release(evt.action);
   const settings = await loadSettings();
   if (evt.source === 'camera' && (generation !== bridgeGeneration || bridgeStatus !== 'connected')) return;
   const logicalId = `${evt.source}:${evt.action}`;
   let gameAction = resolveRemap(settings.remap, logicalId);
 
-  if (!gameAction && settings.keyCodes[evt.action]) {
+  if (!gameAction && (settings.keyCodes[evt.action] || DEFAULT_KEY_CODES[evt.action])) {
     gameAction = evt.action;
   }
   if (!gameAction) return;
+
+  const pressState = evt.state === 'pulse' ? 'pulse' : evt.state;
+
+  if (!evt.skipAdapter) {
+    const adapterAction = toAdapterAction(gameAction);
+    if (adapterSeen || adapterRules || VOICE_ADAPTER_DEFAULTS[adapterAction]) {
+      if (evt.source === 'camera' && evt.state === 'up') {
+        const up = await pressAdapterMapping(adapterAction, 'up');
+        if (up?.target === 'adapter') return;
+      } else {
+        const pressed = await pressAdapterMapping(adapterAction, pressState);
+        if (pressed?.target === 'adapter') return;
+        // Adapter refused (e.g. Send keys off) — do not also inject into a browser tab.
+        if (pressed && !pressed.ok) return;
+      }
+    }
+  }
+
+  if (evt.source === 'camera' && evt.state === 'up') return cameraKeys.release(evt.action);
 
   const code = settings.keyCodes[gameAction] || DEFAULT_KEY_CODES[gameAction];
   if (!code) return;
@@ -542,18 +588,16 @@ async function handleInputEvent(evt) {
     return cameraKeys.apply(evt.action, code, evt.state);
   }
 
-  let state = evt.state;
-  if (state === 'pulse' && HOLD_ACTIONS.has(gameAction)) {
-    // content script handles pulse
-  }
-  await sendToGameTabs({ type: 'gnaa-apply', code, state });
+  await sendToGameTabs({ type: 'gnaa-apply', code, state: evt.state });
 }
 
 async function releaseAllInputs() {
   await cameraInputQueue;
   await cameraKeys.releaseAll();
   await sendToGameTabs({ type: 'gnaa-release-all' });
-  if (adapterRules) await adapterFetch('/api/v1/press/release-all', {}).catch(() => {});
+  if (adapterSeen || adapterRules) {
+    await adapterFetch('/api/v1/press/release-all', {}).catch(() => {});
+  }
 }
 
 function scheduleReconnect() {
@@ -631,6 +675,7 @@ chrome.runtime.onInstalled.addListener(() => {
   ensureDefaults().then(() => {
     updateBadge();
     connectBridge();
+    startAdapterWarm();
   });
 });
 
@@ -638,6 +683,7 @@ chrome.runtime.onStartup.addListener(() => {
   ensureDefaults().then(() => {
     updateBadge();
     connectBridge();
+    startAdapterWarm();
   });
 });
 
@@ -826,4 +872,5 @@ ensureDefaults().then(async () => {
   bridgeUrl = s.bridgeUrl;
   updateBadge();
   connectBridge();
+  startAdapterWarm();
 });

@@ -136,17 +136,23 @@ function updatePinHint(s) {
   voiceBtn.textContent = s?.voiceOn ? 'Stop voice control' : 'Voice control';
   voiceBtn.setAttribute('aria-pressed', s?.voiceOn ? 'true' : 'false');
   if (Date.now() < hintHeldUntil) return;
+  if (s?.adapterConnected) {
+    hint.textContent = s?.voiceOn
+      ? 'Adapter keys → focused game. Voice is listening.'
+      : 'Adapter keys → focused game. Click into your game, then use the pad or Voice control.';
+    return;
+  }
   if (s?.targetTabId && pin) {
     hint.textContent = s?.cameraDockOpen
-      ? `Inputs go to ${pin}. Camera preview is on that tab.`
-      : `Inputs go to ${pin}.`;
+      ? `Browser keys go to ${pin}. Camera preview is on that tab.`
+      : `Browser keys go to ${pin}. Start the desktop adapter for any game.`;
     return;
   }
   if (s?.gameTabOpen) {
-    hint.textContent = 'Using LibreCorsa demo tab. Pin any game with Use this tab.';
+    hint.textContent = 'Browser fallback: LibreCorsa tab. Start the desktop adapter to play any game.';
     return;
   }
-  hint.textContent = 'No game tab pinned — Open game (LibreCorsa) or Use this tab.';
+  hint.textContent = 'Start the desktop adapter (0.2.7+) for any game, or pin a browser tab.';
 }
 
 async function refreshStatus() {
@@ -163,8 +169,8 @@ async function refreshStatus() {
       el.textContent = 'Desktop adapter connected';
       el.className = 'status ok';
       detail.textContent = s.voiceOn
-        ? 'Voice is listening. Commands press the adapter’s keys in whatever game is focused.'
-        : 'Voice control presses the adapter’s keys in any game — click Voice control on any https page.';
+        ? 'Voice and on-screen buttons press the adapter’s keys in whatever game is focused.'
+        : 'Pad, voice, and other inputs press the adapter’s keys in any focused game — not only LibreCorsa.';
     } else {
       el.textContent = primary.title;
       el.className = `status ${primary.tone}`;
