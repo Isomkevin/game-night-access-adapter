@@ -6,40 +6,35 @@
     <title>Game Night Access Adapter — Presentation</title>
     <meta
       name="description"
-      content="Hackathon pitch: remappable camera, voice, and phone inputs for LibreCorsa — software-only accessibility adapter co-designed with Justin Machogu."
+      content="Play together without assuming fast fingers — remappable camera, voice, and phone inputs for browser games. Co-designed with Justin Machogu."
     />
-    <meta name="theme-color" content="#0b3d3a" />
+    <meta name="theme-color" content="#102018" />
     <link rel="icon" type="image/svg+xml" href="/landing/mark.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Outfit:wght@600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        color-scheme: light;
-        --teal: #0b3d3a;
-        --teal-deep: #072e2c;
-        --sand: #f3ede3;
-        --sand-warm: #ebe3d6;
-        --ink: #14201f;
-        --muted: #3d524f;
-        --amber: #e08a1e;
-        --amber-ink: #1a1408;
-        --card: #fffcf7;
-        --border: #d4ccc0;
-        --focus: #0b6e68;
-        --success: #1f7a4c;
-        --success-bg: #e4f3ea;
-        --warn: #9a6700;
-        --warn-bg: #fff4d6;
-        --info-bg: #e3efee;
-        --shadow: 0 12px 36px rgba(11, 61, 58, 0.12);
-        --display: "Outfit", "Atkinson Hyperlegible", system-ui, sans-serif;
-        --font: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
-        --radius: 12px;
+        color-scheme: dark;
+        --bg: #102018;
+        --bg-lift: #163026;
+        --panel: #183226;
+        --panel-2: #1e3b2e;
+        --ink: #f3efe6;
+        --muted: #b7c4ba;
+        --accent: #3ecf8e;
+        --accent-dim: rgba(62, 207, 142, 0.16);
+        --warm: #e2b14a;
+        --warm-dim: rgba(226, 177, 74, 0.16);
+        --line: rgba(243, 239, 230, 0.14);
+        --danger: #e57373;
+        --font: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
         --target: 48px;
+        --radius: 14px;
+        --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
       }
 
       * {
@@ -53,18 +48,96 @@
         font-family: var(--font);
         color: var(--ink);
         background:
-          radial-gradient(ellipse 70% 45% at 0% 0%, rgba(11, 61, 58, 0.1), transparent 55%),
-          radial-gradient(ellipse 55% 40% at 100% 0%, rgba(224, 138, 30, 0.1), transparent 50%),
-          var(--sand);
+          radial-gradient(circle at 12% 8%, #214833 0%, transparent 42%),
+          radial-gradient(circle at 88% 0%, rgba(226, 177, 74, 0.12), transparent 36%),
+          var(--bg);
       }
 
       body {
         overflow: hidden;
       }
 
+      .top-bar,
+      .chrome {
+        position: fixed;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        backdrop-filter: blur(12px);
+      }
+
+      .top-bar {
+        inset: 0 0 auto 0;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        padding: 8px clamp(12px, 3vw, 28px);
+        background: rgba(16, 32, 24, 0.82);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand-lockup {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .brand-mark {
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background: linear-gradient(145deg, #2a5a40, #183226);
+        border: 1px solid var(--line);
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        font-size: 0.85rem;
+        font-weight: 700;
+      }
+
+      .top-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .top-link,
+      .ghost-btn {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-weight: 600;
+        font-size: 0.92rem;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .top-link:hover,
+      .ghost-btn:hover {
+        color: var(--ink);
+        border-color: var(--line);
+        background: rgba(243, 239, 230, 0.04);
+      }
+
+      .ghost-btn {
+        border-color: var(--line);
+      }
+
       .deck {
-        height: 100%;
         position: relative;
+        height: 100%;
         overflow: hidden;
       }
 
@@ -74,22 +147,22 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: clamp(12px, 2vw, 20px);
-        padding: clamp(56px, 8vh, 88px) clamp(20px, 5vw, 64px) clamp(72px, 10vh, 100px);
-        max-width: 1120px;
+        gap: clamp(14px, 2.2vh, 22px);
+        padding: clamp(64px, 9vh, 96px) clamp(20px, 5vw, 72px) clamp(78px, 11vh, 110px);
+        max-width: 1180px;
         width: 100%;
         margin: 0 auto;
         left: 50%;
-        transform: translate(-50%, 10px);
+        transform: translate(-50%, 14px);
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
         z-index: 0;
         background:
-          radial-gradient(ellipse 70% 45% at 0% 0%, rgba(11, 61, 58, 0.1), transparent 55%),
-          radial-gradient(ellipse 55% 40% at 100% 0%, rgba(224, 138, 30, 0.1), transparent 50%),
-          var(--sand);
-        transition: opacity 220ms ease, transform 220ms ease;
+          radial-gradient(circle at 12% 8%, rgba(33, 72, 51, 0.55) 0%, transparent 42%),
+          radial-gradient(circle at 88% 0%, rgba(226, 177, 74, 0.08), transparent 36%),
+          var(--bg);
+        transition: opacity 240ms ease, transform 240ms ease;
       }
 
       .slide.active {
@@ -100,52 +173,56 @@
         z-index: 1;
       }
 
-      .slide-top {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        flex-wrap: wrap;
+      @media (prefers-reduced-motion: no-preference) {
+        .slide.active .reveal {
+          animation: rise 380ms ease-out;
+        }
+
+        .slide.active .reveal-2 {
+          animation-delay: 60ms;
+        }
+        .slide.active .reveal-3 {
+          animation-delay: 120ms;
+        }
+        .slide.active .reveal-4 {
+          animation-delay: 180ms;
+        }
       }
 
-      .brand-lockup {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
+      @keyframes rise {
+        from {
+          transform: translateY(12px);
+        }
+        to {
+          transform: translateY(0);
+        }
       }
 
-      .brand-lockup img,
-      .brand-lockup svg {
-        width: 36px;
-        height: 36px;
-        flex-shrink: 0;
-      }
-
-      .eyebrow {
+      .brand {
         margin: 0;
-        font-size: 0.85rem;
-        font-weight: 700;
-        color: var(--teal);
+        font-size: clamp(0.92rem, 1.6vw, 1.08rem);
+        letter-spacing: 0.1em;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        color: var(--accent);
+        font-weight: 700;
       }
 
       h1,
       h2 {
         margin: 0;
-        font-family: var(--display);
-        letter-spacing: -0.02em;
-        line-height: 1.12;
-        color: var(--teal-deep);
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+        font-weight: 700;
+        color: var(--ink);
       }
 
       h1 {
-        font-size: clamp(2.2rem, 5.6vw, 3.75rem);
-        max-width: 16ch;
+        font-size: clamp(2.35rem, 6vw, 4.35rem);
+        max-width: 15ch;
       }
 
       h2 {
-        font-size: clamp(1.7rem, 4vw, 2.75rem);
+        font-size: clamp(1.75rem, 4.2vw, 3rem);
         max-width: 22ch;
       }
 
@@ -153,16 +230,17 @@
       p,
       li {
         margin: 0;
-        font-size: clamp(1.02rem, 2vw, 1.28rem);
+        font-size: clamp(1.05rem, 2vw, 1.35rem);
         line-height: 1.45;
         color: var(--muted);
-        max-width: 42rem;
+        max-width: 44rem;
       }
 
       .lede {
-        font-size: clamp(1.12rem, 2.2vw, 1.4rem);
         color: var(--ink);
+        font-size: clamp(1.15rem, 2.3vw, 1.55rem);
         max-width: 36rem;
+        font-weight: 600;
       }
 
       ul {
@@ -171,12 +249,34 @@
       }
 
       li {
-        margin: 0.4em 0;
+        margin: 0.38em 0;
       }
 
       li strong,
       .ink {
         color: var(--ink);
+      }
+
+      code {
+        font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+        color: var(--accent);
+        font-size: 0.92em;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        color: var(--warm);
+        font-size: 0.92rem;
+        font-weight: 700;
+        background: var(--warm-dim);
       }
 
       .chip-row {
@@ -189,142 +289,187 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        min-height: 28px;
-        padding: 2px 12px;
+        min-height: 30px;
+        padding: 4px 12px;
         border-radius: 999px;
-        font-size: 0.85rem;
+        border: 1px solid var(--line);
+        font-size: 0.88rem;
         font-weight: 700;
-        border: 1px solid transparent;
+        color: var(--muted);
+        background: rgba(243, 239, 230, 0.03);
       }
 
-      .chip--ok {
-        color: var(--success);
-        background: var(--success-bg);
-        border-color: #b7dfc6;
+      .chip--live {
+        color: var(--accent);
+        background: var(--accent-dim);
+        border-color: rgba(62, 207, 142, 0.35);
       }
 
-      .chip--warn {
-        color: var(--warn);
-        background: var(--warn-bg);
-        border-color: #f0d78c;
-      }
-
-      .chip--info {
-        color: var(--teal);
-        background: var(--info-bg);
-        border-color: #b7d4d1;
-      }
-
-      .chip--amber {
-        color: var(--amber-ink);
-        background: #f8e7cf;
-        border-color: #e8c894;
+      .chip--warm {
+        color: var(--warm);
+        background: var(--warm-dim);
+        border-color: rgba(226, 177, 74, 0.35);
       }
 
       .grid-2 {
         display: grid;
-        gap: 16px;
-        margin-top: 4px;
+        gap: 18px;
       }
 
-      @media (min-width: 820px) {
+      @media (min-width: 860px) {
         .grid-2 {
-          grid-template-columns: 1.1fr 0.9fr;
+          grid-template-columns: 1.05fr 0.95fr;
           gap: 28px;
           align-items: stretch;
         }
       }
 
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
+      .panel {
+        background: color-mix(in srgb, var(--panel) 92%, black);
+        border: 1px solid var(--line);
         border-radius: var(--radius);
-        padding: clamp(16px, 2.4vw, 22px);
+        padding: clamp(14px, 2vw, 20px);
         box-shadow: var(--shadow);
       }
 
-      .card h3 {
+      .panel h3 {
         margin: 0 0 8px;
-        font-family: var(--display);
-        font-size: 1.15rem;
-        color: var(--teal-deep);
+        font-size: 1.05rem;
+        color: var(--ink);
       }
 
-      .card p,
-      .card li {
+      .panel p,
+      .panel li {
         font-size: 1rem;
         max-width: none;
       }
 
-      .feature-grid {
+      .quote {
+        margin: 0;
+        padding: 16px 18px;
+        border-left: 4px solid var(--warm);
+        background: rgba(226, 177, 74, 0.08);
+        border-radius: 0 12px 12px 0;
+        color: var(--ink);
+        font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+        font-weight: 600;
+        max-width: 40rem;
+      }
+
+      /* Architecture pipeline */
+      .pipeline {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      @media (min-width: 900px) {
+        .pipeline {
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 12px;
+        }
+      }
+
+      .pipe-step {
+        position: relative;
+        background: color-mix(in srgb, var(--panel) 90%, black);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px 14px 16px;
+        min-height: 118px;
+      }
+
+      .pipe-step::after {
+        content: "→";
+        position: absolute;
+        right: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--accent);
+        font-weight: 700;
+        display: none;
+      }
+
+      @media (min-width: 900px) {
+        .pipe-step:not(:last-child)::after {
+          display: block;
+        }
+      }
+
+      .pipe-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        background: var(--accent-dim);
+        color: var(--accent);
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .pipe-step h3 {
+        margin: 0 0 6px;
+        font-size: 1rem;
+        color: var(--ink);
+      }
+
+      .pipe-step p {
+        font-size: 0.92rem;
+        max-width: none;
+      }
+
+      /* Input methods */
+      .method-grid {
         display: grid;
         gap: 12px;
         grid-template-columns: 1fr;
       }
 
-      @media (min-width: 700px) {
-        .feature-grid {
+      @media (min-width: 760px) {
+        .method-grid {
           grid-template-columns: 1fr 1fr;
         }
       }
 
-      .flow {
-        display: grid;
-        gap: 10px;
-        margin: 4px 0 0;
-        padding: 0;
-        list-style: none;
-      }
-
-      @media (min-width: 860px) {
-        .flow {
-          grid-template-columns: repeat(4, 1fr);
-          gap: 12px;
-        }
-      }
-
-      .flow-step {
-        background: var(--card);
-        border: 1px solid var(--border);
+      .method {
+        background: color-mix(in srgb, var(--panel) 90%, black);
+        border: 1px solid var(--line);
         border-radius: var(--radius);
-        padding: 16px;
-        box-shadow: var(--shadow);
-        position: relative;
+        padding: 16px 18px;
+        display: grid;
+        gap: 6px;
       }
 
-      .flow-num {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 999px;
-        background: var(--teal);
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.85rem;
-        margin-bottom: 8px;
+      .method h3 {
+        margin: 0;
+        font-size: 1.15rem;
+        color: var(--ink);
       }
 
-      .flow-step h3 {
-        margin: 0 0 6px;
-        font-family: var(--display);
-        font-size: 1.05rem;
-        color: var(--teal-deep);
-      }
-
-      .flow-step p {
-        font-size: 0.95rem;
+      .method p {
+        font-size: 0.98rem;
         max-width: none;
       }
 
+      .method .meta-line {
+        font-size: 0.85rem;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      /* Product frames */
       .product-frame {
         margin: 0;
-        background: var(--teal-deep);
         border-radius: 16px;
         overflow: hidden;
+        border: 1px solid var(--line);
+        background: #0c1a14;
         box-shadow: var(--shadow);
-        color: var(--sand);
       }
 
       .frame-chrome {
@@ -332,44 +477,43 @@
         align-items: center;
         gap: 6px;
         padding: 10px 14px;
-        background: rgba(0, 0, 0, 0.22);
-        font-size: 0.78rem;
+        background: rgba(255, 255, 255, 0.04);
+        font-size: 0.75rem;
         font-weight: 700;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: rgba(243, 237, 227, 0.75);
+        color: rgba(243, 239, 230, 0.55);
       }
 
       .dot {
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background: rgba(243, 237, 227, 0.35);
+        background: rgba(243, 239, 230, 0.28);
       }
-
       .dot:nth-child(1) {
-        background: #e08a1e;
+        background: #e2b14a;
       }
       .dot:nth-child(2) {
-        background: #f3ede3;
+        background: #3ecf8e;
       }
       .dot:nth-child(3) {
-        background: #1f7a4c;
+        background: #7aa8ff;
       }
 
       .frame-title {
         margin-left: 8px;
       }
 
-      .product-body {
+      .remap-body {
         display: grid;
         gap: 12px;
         padding: 14px;
       }
 
       @media (min-width: 700px) {
-        .product-body {
-          grid-template-columns: 0.9fr 1.1fr;
+        .remap-body {
+          grid-template-columns: 0.85fr 1.15fr;
         }
       }
 
@@ -382,33 +526,33 @@
       .signal {
         padding: 10px 12px;
         border-radius: 10px;
-        background: rgba(243, 237, 227, 0.08);
-        border: 1px solid rgba(243, 237, 227, 0.14);
+        border: 1px solid var(--line);
+        background: rgba(243, 239, 230, 0.03);
         font-size: 0.92rem;
         font-weight: 700;
-        color: rgba(243, 237, 227, 0.78);
+        color: var(--muted);
       }
 
       .signal.is-live {
-        background: rgba(224, 138, 30, 0.22);
-        border-color: rgba(224, 138, 30, 0.55);
-        color: #ffd9a0;
+        color: #102018;
+        background: var(--accent);
+        border-color: transparent;
       }
 
       .remap-core {
-        background: rgba(243, 237, 227, 0.06);
-        border: 1px solid rgba(243, 237, 227, 0.12);
+        border: 1px solid var(--line);
         border-radius: 12px;
         padding: 12px;
+        background: rgba(243, 239, 230, 0.03);
       }
 
       .remap-label {
         margin: 0 0 8px;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 700;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: rgba(243, 237, 227, 0.55);
+        color: rgba(243, 239, 230, 0.5);
       }
 
       .remap-list {
@@ -425,235 +569,270 @@
         align-items: center;
         gap: 8px;
         margin: 0;
-        font-size: 0.92rem;
-        color: var(--sand);
+        font-size: 0.95rem;
+        color: var(--ink);
         max-width: none;
       }
 
       .remap-list code {
-        font-family: ui-monospace, Consolas, monospace;
         font-size: 0.82rem;
-        color: #9fd4cf;
       }
 
       .remap-list span {
-        opacity: 0.5;
+        opacity: 0.45;
       }
 
-      .remap-list strong {
-        color: #fff;
-      }
-
-      .game-keys {
+      .keys {
         grid-column: 1 / -1;
         display: flex;
-        gap: 8px;
         justify-content: center;
-        padding-top: 4px;
+        gap: 8px;
+        padding-top: 2px;
       }
 
       .key {
-        min-width: 42px;
-        min-height: 42px;
+        min-width: 44px;
+        min-height: 44px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         border-radius: 8px;
-        border: 1px solid rgba(243, 237, 227, 0.2);
+        border: 1px solid var(--line);
         background: rgba(0, 0, 0, 0.25);
         font-weight: 700;
-        color: rgba(243, 237, 227, 0.7);
+        color: var(--muted);
       }
 
-      .key--active {
-        background: var(--amber);
+      .key--on {
+        background: var(--warm);
         border-color: transparent;
-        color: var(--amber-ink);
+        color: #1a1408;
       }
 
-      .method-grid {
-        display: grid;
-        gap: 10px;
-        grid-template-columns: 1fr;
+      /* Phone mock */
+      .phone-mock {
+        width: min(220px, 100%);
+        margin: 0 auto;
+        border-radius: 28px;
+        border: 2px solid var(--line);
+        background: #0a1611;
+        padding: 14px 12px 18px;
+        box-shadow: var(--shadow);
       }
 
-      @media (min-width: 720px) {
-        .method-grid {
-          grid-template-columns: 1fr 1fr;
-        }
+      .phone-notch {
+        width: 72px;
+        height: 8px;
+        border-radius: 999px;
+        background: rgba(243, 239, 230, 0.12);
+        margin: 0 auto 12px;
       }
 
-      .method {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 14px 16px;
-      }
-
-      .method h3 {
-        margin: 6px 0 4px;
-        font-family: var(--display);
-        font-size: 1.05rem;
-        color: var(--teal-deep);
-      }
-
-      .method p {
-        font-size: 0.95rem;
-        max-width: none;
-      }
-
-      .compare {
-        display: grid;
-        gap: 12px;
-      }
-
-      @media (min-width: 780px) {
-        .compare {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-
-      .compare .card h3 {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .stack-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: grid;
-        gap: 8px;
-      }
-
-      .stack-list li {
-        display: flex;
-        gap: 10px;
-        align-items: flex-start;
-        margin: 0;
-        max-width: none;
-        font-size: 1rem;
-      }
-
-      .stack-list .tag {
-        flex-shrink: 0;
-        min-width: 7.5rem;
-        padding: 4px 8px;
-        border-radius: 8px;
-        background: var(--info-bg);
-        color: var(--teal);
-        font-size: 0.8rem;
+      .phone-status {
+        font-size: 0.75rem;
+        color: var(--accent);
         font-weight: 700;
         text-align: center;
+        margin-bottom: 10px;
       }
 
-      .quote {
+      .steer-gauge {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(243, 239, 230, 0.08);
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+
+      .steer-gauge i {
+        display: block;
+        height: 100%;
+        width: 58%;
+        background: linear-gradient(90deg, transparent, var(--accent));
+      }
+
+      .phone-btns {
+        display: grid;
+        gap: 8px;
+      }
+
+      .phone-btns span {
+        display: block;
+        text-align: center;
+        padding: 12px 8px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        font-weight: 700;
+        font-size: 0.9rem;
+      }
+
+      .phone-btns span.primary {
+        background: var(--accent-dim);
+        color: var(--accent);
+        border-color: rgba(62, 207, 142, 0.35);
+      }
+
+      /* Demo steps */
+      .demo-steps {
+        display: grid;
+        gap: 10px;
         margin: 0;
-        padding: 16px 18px;
-        border-left: 4px solid var(--amber);
-        background: color-mix(in srgb, var(--card) 80%, var(--sand-warm));
-        border-radius: 0 var(--radius) var(--radius) 0;
-        font-size: clamp(1.1rem, 2.2vw, 1.35rem);
-        color: var(--ink);
-        max-width: 38rem;
+        padding: 0;
+        list-style: none;
+        counter-reset: demo;
       }
 
-      .cta-row {
+      .demo-steps li {
+        counter-increment: demo;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 12px;
+        align-items: start;
+        margin: 0;
+        max-width: none;
+        padding: 12px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: color-mix(in srgb, var(--panel) 88%, black);
+      }
+
+      .demo-steps li::before {
+        content: counter(demo);
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        background: var(--accent);
+        color: #102018;
+        font-weight: 700;
+        font-size: 0.85rem;
+      }
+
+      .badge-row {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
         margin-top: 4px;
       }
 
+      .badge {
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      .badge code {
+        color: inherit;
+      }
+
+      .badge--off {
+        color: var(--muted);
+      }
+
+      .badge--on {
+        color: var(--accent);
+        background: var(--accent-dim);
+        border-color: rgba(62, 207, 142, 0.35);
+      }
+
+      /* Team */
+      .team-grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      @media (min-width: 820px) {
+        .team-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .person {
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: color-mix(in srgb, var(--panel) 90%, black);
+      }
+
+      .person strong {
+        display: block;
+        color: var(--ink);
+        font-size: 1.05rem;
+        margin-bottom: 4px;
+      }
+
+      .person span {
+        color: var(--muted);
+        font-size: 0.92rem;
+        line-height: 1.35;
+      }
+
+      .person--wide {
+        grid-column: 1 / -1;
+      }
+
+      @media (min-width: 820px) {
+        .person--wide {
+          grid-column: auto;
+        }
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
       .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
         min-height: var(--target);
         padding: 0 18px;
-        border-radius: 8px;
-        border: 2px solid transparent;
-        font-family: inherit;
-        font-size: 1rem;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        font: inherit;
         font-weight: 700;
         text-decoration: none;
         cursor: pointer;
-        transition: background 180ms ease, transform 180ms ease;
       }
 
-      .btn:active {
-        transform: translateY(1px);
+      .btn--accent {
+        background: var(--accent);
+        color: #102018;
       }
 
-      .btn--amber {
-        background: var(--amber);
-        color: var(--amber-ink);
-      }
-
-      .btn--amber:hover {
-        background: #c97712;
-      }
-
-      .btn--secondary {
-        background: transparent;
-        color: var(--teal);
-        border-color: var(--teal);
-      }
-
-      .btn--secondary:hover {
-        background: rgba(11, 61, 58, 0.08);
+      .btn--accent:hover {
+        filter: brightness(1.05);
       }
 
       .btn--ghost {
-        background: transparent;
+        border-color: var(--line);
         color: var(--ink);
-        border-color: var(--border);
+        background: transparent;
       }
 
       .btn--ghost:hover {
-        background: rgba(11, 61, 58, 0.06);
+        background: rgba(243, 239, 230, 0.05);
       }
 
       .chrome {
-        position: fixed;
         inset: auto 0 0 0;
-        display: flex;
-        align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        padding: 10px clamp(12px, 3vw, 24px) 14px;
-        background: color-mix(in srgb, var(--sand) 90%, transparent);
-        border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
-        backdrop-filter: blur(10px);
-        z-index: 20;
+        padding: 10px clamp(12px, 3vw, 28px) 14px;
+        background: rgba(16, 32, 24, 0.82);
+        border-top: 1px solid var(--line);
       }
 
       .chrome-left,
       .chrome-right {
         display: flex;
         align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .progress-wrap {
-        flex: 1;
-        min-width: 120px;
-        max-width: 280px;
-        height: 6px;
-        border-radius: 999px;
-        background: color-mix(in srgb, var(--border) 70%, transparent);
-        overflow: hidden;
-      }
-
-      .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, var(--teal), var(--amber));
-        border-radius: inherit;
-        transition: width 220ms ease;
+        gap: 10px;
       }
 
       .counter {
@@ -663,12 +842,28 @@
         white-space: nowrap;
       }
 
+      .progress-wrap {
+        width: min(240px, 28vw);
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(243, 239, 230, 0.1);
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent), var(--warm));
+        border-radius: inherit;
+        transition: width 220ms ease;
+      }
+
       .nav-btn {
         min-width: var(--target);
         min-height: var(--target);
-        border: 1px solid var(--border);
         border-radius: 10px;
-        background: var(--card);
+        border: 1px solid var(--line);
+        background: var(--panel);
         color: var(--ink);
         font-size: 1.15rem;
         font-weight: 700;
@@ -676,49 +871,8 @@
       }
 
       .nav-btn:hover {
-        border-color: var(--teal);
-        color: var(--teal);
-      }
-
-      .nav-btn:disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-      }
-
-      .top-bar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 20;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        padding: 10px clamp(12px, 3vw, 24px);
-        background: color-mix(in srgb, var(--sand) 88%, transparent);
-        border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-        backdrop-filter: blur(10px);
-      }
-
-      .top-bar a,
-      .top-bar button {
-        font: inherit;
-      }
-
-      .top-link {
-        color: var(--muted);
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 0.92rem;
-        min-height: 40px;
-        display: inline-flex;
-        align-items: center;
-        padding: 0 8px;
-      }
-
-      .top-link:hover {
-        color: var(--teal);
+        border-color: var(--accent);
+        color: var(--accent);
       }
 
       .sr-only {
@@ -733,27 +887,28 @@
         border: 0;
       }
 
-      code {
-        font-family: ui-monospace, Consolas, monospace;
-        color: var(--teal);
-        font-size: 0.92em;
-      }
-
       a:focus-visible,
       button:focus-visible {
-        outline: 3px solid var(--focus);
+        outline: 3px solid var(--accent);
         outline-offset: 2px;
       }
 
-      @media (max-width: 640px) {
-        .slide {
-          padding-top: 72px;
-          justify-content: flex-start;
-          overflow-y: auto;
+      @media (max-width: 700px) {
+        .top-actions .top-link:first-child {
+          display: none;
         }
 
-        .slide.active {
-          transform: translate(-50%, 0);
+        .ghost-btn {
+          min-height: 36px;
+          padding: 0 10px;
+          font-size: 0.85rem;
+        }
+
+        .slide {
+          justify-content: flex-start;
+          overflow-y: auto;
+          padding: 100px 18px 96px;
+          gap: 12px;
         }
 
         .progress-wrap {
@@ -761,53 +916,69 @@
         }
 
         h1 {
+          font-size: clamp(1.9rem, 9vw, 2.6rem);
           max-width: none;
+        }
+
+        h2 {
+          font-size: clamp(1.45rem, 7vw, 2rem);
+          max-width: none;
+        }
+
+        .lede,
+        p,
+        li {
+          font-size: 1.02rem;
+        }
+
+        .phone-mock {
+          display: none;
+        }
+
+        .pipeline {
+          grid-template-columns: 1fr;
+        }
+
+        .pipe-step {
+          min-height: 0;
         }
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .slide {
-          transition: none;
-        }
-
-        .slide:not(.active) {
-          transform: translate(-50%, 0);
-        }
-
+        .slide,
         .progress-bar {
           transition: none;
+        }
+
+        .slide.active .reveal {
+          animation: none;
         }
       }
 
       @media print {
         body {
           overflow: visible;
-          background: #fff;
+          background: #102018;
         }
-
         .top-bar,
         .chrome {
           display: none !important;
         }
-
         .deck {
           overflow: visible;
           height: auto;
         }
-
         .slide {
           position: relative;
           left: auto;
           inset: auto;
           opacity: 1 !important;
           visibility: visible !important;
-          pointer-events: auto;
           transform: none !important;
           height: auto;
           min-height: 100vh;
           page-break-after: always;
           padding: 40px;
-          z-index: auto;
         }
       }
     </style>
@@ -816,55 +987,57 @@
     <a class="sr-only" href="#deck">Skip to slides</a>
 
     <header class="top-bar" aria-label="Presentation chrome">
-      <a class="brand-lockup top-link" href="/" title="Back to landing page">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="32" height="32" aria-hidden="true">
-          <rect width="64" height="64" rx="16" fill="#0b3d3a" />
-          <path d="M14 40h36l-4 8H18l-4-8z" fill="#e08a1e" />
-          <path d="M18 38c6-14 14-22 22-24 2 8-2 18-10 26H18z" fill="#f3ede3" />
-          <circle cx="46" cy="20" r="4" fill="#e08a1e" />
-        </svg>
+      <a class="brand-lockup" href="/" title="Back to landing page">
+        <span class="brand-mark" aria-hidden="true">GN</span>
         <span>Game Night</span>
       </a>
-      <div class="chrome-right">
+      <div class="top-actions">
         <a class="top-link" href="/">← Landing</a>
         <a class="top-link" href="/presentation/download" download="game-night-presentation.html"
           >Download</a
         >
-        <button type="button" class="btn btn--ghost" id="fullscreenBtn" aria-pressed="false">
+        <button type="button" class="ghost-btn" id="fullscreenBtn" aria-pressed="false">
           Fullscreen
         </button>
       </div>
     </header>
 
-    <div class="deck" id="deck" role="region" aria-roledescription="carousel" aria-label="Pitch slides">
-      <!-- 1. Title -->
-      <section class="slide active" data-title="Title" aria-label="Slide 1: Title">
-        <p class="eyebrow">Game Night Access Adapter</p>
-        <h1>Play together without assuming fast fingers.</h1>
-        <p class="lede">
-          Remappable camera, voice, phone, and on-screen inputs for Any In-Browser Gaming — software only,
-          laptop + phone, no game rewrite.
+    <div
+      class="deck"
+      id="deck"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Pitch slides"
+    >
+      <!-- 1. Opening -->
+      <section class="slide active" data-title="Title" aria-label="Slide 1: Opening">
+        <p class="brand reveal">Game Night Access Adapter</p>
+        <h1 class="reveal reveal-2">Play together without assuming fast fingers.</h1>
+        <p class="lede reveal reveal-3">
+          Software-only remappable inputs — camera, voice, phone, and on-screen pad — mapped onto
+          the keys a browser game already understands.
         </p>
-        <div class="chip-row">
-          <span class="chip chip--amber">Co-designed with Justin Machogu</span>
-          <span class="chip chip--info">AI for Accessibility challenge</span>
-          <span class="chip chip--ok">Public PoC</span>
+        <div class="chip-row reveal reveal-4">
+          <span class="chip chip--warm">Co-designed with Justin Machogu</span>
+          <span class="chip chip--live">No extra hardware</span>
+          <span class="chip">LibreCorsa PoC · pin any game tab</span>
         </div>
       </section>
 
       <!-- 2. Problem -->
       <section class="slide" data-title="Problem" aria-label="Slide 2: Problem">
-        <p class="eyebrow">The problem</p>
-        <h2>Browser games assume a mouse, chords, and continuous pace.</h2>
-        <div class="grid-2">
+        <p class="brand reveal">The problem</p>
+        <h2 class="reveal reveal-2">Gaming should not depend on one way of moving.</h2>
+        <div class="grid-2 reveal reveal-3">
           <div>
             <ul>
               <li>
-                That locks players with motor access needs out of racing with friends and family.
+                Browser games assume a mouse, multi-key chords, and continuous pace — locking out
+                players with motor access needs from shared game nights.
               </li>
               <li>
-                Justin: wheelchair user, limited finger mobility; loves racing and FIFA — stock
-                bindings don’t match how he moves.
+                Justin Machogu: wheelchair user with limited finger mobility; loves racing and FIFA.
+                Stock bindings don’t match how he moves.
               </li>
               <li>
                 Core ask: <strong>fully remappable controls</strong> — change mappings without
@@ -872,66 +1045,134 @@
               </li>
             </ul>
           </div>
-          <aside class="card">
-            <h3>Hard constraint</h3>
+          <aside class="panel">
+            <h3>Design constraint</h3>
             <p>
-              No extra hardware. The phone is a <strong class="ink">LAN web page</strong>, not a
-              USB gamepad or ADB dongle — so it works on Justin’s.
+              Specialized adaptive hardware is expensive and hard to bring to a friend’s house.
+            </p>
+            <p style="margin-top: 10px">
+              Hard rule for this PoC:
+              <span class="tag">no external hardware</span>
+            </p>
+            <p style="margin-top: 10px">
+              Phone = a LAN web page. Works on Justin’s MacBook without USB or ADB.
             </p>
           </aside>
         </div>
       </section>
 
-      <!-- 3. Opportunity -->
-      <section class="slide" data-title="Opportunity" aria-label="Slide 3: Opportunity">
-        <p class="eyebrow">Why this matters</p>
-        <h2>Game night should not require the same hands as a keyboard warrior.</h2>
-        <blockquote class="quote">
-          Mirror what Justin already does at work — remap keys and use voice — into the games he
-          wants to play with people he cares about.
-        </blockquote>
-        <ul>
-          <li><strong>Who:</strong> players with motor access needs; friends &amp; family hosts.</li>
-          <li><strong>Where it starts:</strong> one open-source browser racer judges can try today.</li>
-          <li><strong>Why now:</strong> browser sensors + MV3 extensions + shared accessibility toolkit.</li>
-        </ul>
-      </section>
-
-      <!-- 4. Solution -->
-      <section class="slide" data-title="Solution" aria-label="Slide 4: Solution">
-        <p class="eyebrow">Our solution</p>
-        <h2>Accessible inputs become the keys LibreCorsa already hears.</h2>
-        <p class="lede">
-          We do not rewrite the game. A local bridge and Chrome extension translate logical actions
-          into <code>KeyboardEvent.code</code> during the driving phase.
+      <!-- 3. Solution -->
+      <section class="slide" data-title="Solution" aria-label="Slide 3: Solution">
+        <p class="brand reveal">The solution</p>
+        <h2 class="reveal reveal-2">One adapter. Multiple ways to play.</h2>
+        <p class="lede reveal reveal-3">
+          We don’t rewrite the game. Accessible inputs become logical actions, get remapped by the
+          player, and inject as keyboard codes during driving.
         </p>
-        <div class="chip-row">
-          <span class="chip chip--info">phone:tiltLeft → Steer left</span>
-          <span class="chip chip--info">camera:yawRight → Steer right</span>
-          <span class="chip chip--info">voice:boost → Space</span>
-          <span class="chip chip--info">demo:throttle → KeyW</span>
+        <div class="chip-row reveal reveal-4">
+          <span class="chip chip--live">phone:tiltLeft → Steer left</span>
+          <span class="chip chip--live">camera:yawRight → Steer right</span>
+          <span class="chip chip--live">voice:boost → Space</span>
+          <span class="chip chip--live">demo:throttle → KeyW</span>
         </div>
       </section>
 
-      <!-- 5. Product experience -->
-      <section class="slide" data-title="Product" aria-label="Slide 5: Product experience">
-        <p class="eyebrow">Product experience</p>
-        <h2>Remap once. Drive with the body movement that works.</h2>
-        <div class="grid-2">
-          <figure class="product-frame" aria-label="Live remap preview">
+      <!-- 4. Architecture -->
+      <section class="slide" data-title="Architecture" aria-label="Slide 4: Architecture">
+        <p class="brand reveal">How it works</p>
+        <h2 class="reveal reveal-2">Sense → bridge → remap → drive.</h2>
+        <ol class="pipeline reveal reveal-3" aria-label="System architecture">
+          <li class="pipe-step">
+            <span class="pipe-num">1</span>
+            <h3>Inputs</h3>
+            <p>Camera · voice · phone · extension pad emit JSON actions.</p>
+          </li>
+          <li class="pipe-step">
+            <span class="pipe-num">2</span>
+            <h3>Bridge</h3>
+            <p>Local WebSocket hub on <code>:18765</code> fans events to the extension.</p>
+          </li>
+          <li class="pipe-step">
+            <span class="pipe-num">3</span>
+            <h3>Extension</h3>
+            <p>Chrome MV3 client holds the player’s remap table.</p>
+          </li>
+          <li class="pipe-step">
+            <span class="pipe-num">4</span>
+            <h3>Remap</h3>
+            <p><code>source:action</code> → game action → <code>KeyboardEvent.code</code>.</p>
+          </li>
+          <li class="pipe-step">
+            <span class="pipe-num">5</span>
+            <h3>Game</h3>
+            <p>LibreCorsa (or pinned tab) receives keys in the driving phase.</p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- 5. Inputs -->
+      <section class="slide" data-title="Inputs" aria-label="Slide 5: Input experience">
+        <p class="brand reveal">Input experience</p>
+        <h2 class="reveal reveal-2">Four ways in. Redundancy by design.</h2>
+        <div class="method-grid reveal reveal-3">
+          <article class="method">
+            <span class="chip chip--warm">Experimental</span>
+            <h3>Camera / vision</h3>
+            <p class="meta-line">MediaPipe · on-device</p>
+            <p>
+              Head, face, hand, or finger → remappable <code>camera:*</code> actions. Head-only
+              steering page and optional in-game camera dock.
+            </p>
+          </article>
+          <article class="method">
+            <span class="chip chip--warm">Experimental</span>
+            <h3>Voice</h3>
+            <p class="meta-line">Toolkit Controller path</p>
+            <p>
+              Short spoken taps — “go”, “boost”, “pause” — into shared <code>voice:*</code>
+              protocol. Not continuous holds.
+            </p>
+          </article>
+          <article class="method">
+            <span class="chip chip--live">Available</span>
+            <h3>Phone controller</h3>
+            <p class="meta-line">Same Wi‑Fi · web page</p>
+            <p>
+              DeviceOrientation tilt to steer; large throttle, brake, and boost buttons. Software
+              controller only.
+            </p>
+          </article>
+          <article class="method">
+            <span class="chip chip--live">Works offline</span>
+            <h3>On-screen pad</h3>
+            <p class="meta-line">Extension popup</p>
+            <p>
+              Hold or latch buttons; Stop all inputs; Use this tab to pin any <code>http(s)</code>
+              game. No bridge required to smoke-test.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- 6. Remap -->
+      <section class="slide" data-title="Remap" aria-label="Slide 6: Remapping">
+        <p class="brand reveal">The remapping experience</p>
+        <h2 class="reveal reveal-2">Change how you move — without touching game code.</h2>
+        <div class="grid-2 reveal reveal-3">
+          <figure class="product-frame" aria-label="Remap preview">
             <figcaption class="frame-chrome">
               <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-              <span class="frame-title">Remap · live</span>
+              <span class="frame-title">Extension · remap live</span>
             </figcaption>
-            <div class="product-body">
+            <div class="remap-body">
               <div class="signal-rail">
-                <span class="signal signal--phone is-live">Phone tilt</span>
+                <span class="signal is-live">Phone tilt</span>
                 <span class="signal">Head yaw</span>
                 <span class="signal">Voice “boost”</span>
                 <span class="signal">On-screen pad</span>
               </div>
               <div class="remap-core">
-                <p class="remap-label">Your mapping</p>
+                <p class="remap-label">Player mapping</p>
                 <ul class="remap-list">
                   <li><code>phone:tiltLeft</code><span>→</span><strong>Steer left</strong></li>
                   <li><code>camera:yawRight</code><span>→</span><strong>Steer right</strong></li>
@@ -939,9 +1180,9 @@
                   <li><code>demo:throttle</code><span>→</span><strong>KeyW</strong></li>
                 </ul>
               </div>
-              <div class="game-keys" aria-hidden="true">
+              <div class="keys" aria-hidden="true">
                 <span class="key">A</span>
-                <span class="key key--active">W</span>
+                <span class="key key--on">W</span>
                 <span class="key">D</span>
                 <span class="key">␣</span>
               </div>
@@ -949,199 +1190,150 @@
           </figure>
           <div>
             <ul>
-              <li>Extension Setup: Welcome → Choose → Customize → Ready.</li>
-              <li>Profiles in Chrome storage; export / import as JSON.</li>
-              <li>Popup pad works offline for smoke tests (badge <code>OFF</code>).</li>
-              <li>Pin any <code>http(s)</code> game tab with <strong>Use this tab</strong>.</li>
+              <li>Setup walkthrough: Welcome → Choose → Customize → Ready.</li>
+              <li>Profiles in <code>chrome.storage</code>; export / import as JSON.</li>
+              <li>Defaults match LibreCorsa: A/D steer, W/S pedals, Space boost.</li>
+              <li>Injection only matters in the <strong>driving</strong> phase.</li>
             </ul>
-          </div>
-        </div>
-      </section>
-
-      <!-- 6. Core features -->
-      <section class="slide" data-title="Features" aria-label="Slide 6: Core features">
-        <p class="eyebrow">Core features</p>
-        <h2>Four ways in. One remap table. Redundancy by design.</h2>
-        <div class="method-grid">
-          <article class="method">
-            <span class="chip chip--ok">Available</span>
-            <h3>Phone controller</h3>
-            <p>Tilt to steer; large throttle, brake, and boost on the same Wi‑Fi.</p>
-          </article>
-          <article class="method">
-            <span class="chip chip--warn">Experimental</span>
-            <h3>Head &amp; vision</h3>
-            <p>MediaPipe head / face / hand gestures — calibrate first; nothing uploaded.</p>
-          </article>
-          <article class="method">
-            <span class="chip chip--warn">Experimental</span>
-            <h3>Voice commands</h3>
-            <p>Short spoken taps (“go”, “boost”, “pause”) via toolkit Controller path.</p>
-          </article>
-          <article class="method">
-            <span class="chip chip--info">Works offline</span>
-            <h3>On-screen pad</h3>
-            <p>Hold or latch in the extension popup; Stop all inputs when something sticks.</p>
-          </article>
-        </div>
-      </section>
-
-      <!-- 7. How it works -->
-      <section class="slide" data-title="How it works" aria-label="Slide 7: How it works">
-        <p class="eyebrow">How it works</p>
-        <h2>Sense → bridge → remap → drive.</h2>
-        <ol class="flow" aria-label="Input pipeline">
-          <li class="flow-step">
-            <span class="flow-num">1</span>
-            <h3>Sense</h3>
-            <p>Phone, camera, voice, or the extension pad emit logical actions.</p>
-          </li>
-          <li class="flow-step">
-            <span class="flow-num">2</span>
-            <h3>Bridge</h3>
-            <p>WebSocket hub on <code>:18765</code> fans events to the extension.</p>
-          </li>
-          <li class="flow-step">
-            <span class="flow-num">3</span>
-            <h3>Remap</h3>
-            <p><code>source:action</code> → game action → key code in the player’s profile.</p>
-          </li>
-          <li class="flow-step">
-            <span class="flow-num">4</span>
-            <h3>Drive</h3>
-            <p>Synthetic keydown/keyup reach LibreCorsa while on track.</p>
-          </li>
-        </ol>
-      </section>
-
-      <!-- 8. Technology -->
-      <section class="slide" data-title="Technology" aria-label="Slide 8: Technology">
-        <p class="eyebrow">Technology &amp; innovation</p>
-        <h2>What makes the PoC technically interesting.</h2>
-        <ul class="stack-list">
-          <li>
-            <span class="tag">Extension</span>
-            <span>Chrome MV3 remap UI, session pin, content-script injection (+ MAIN-world hook fallback).</span>
-          </li>
-          <li>
-            <span class="tag">Bridge</span>
-            <span>Node HTTP + WebSocket fan-in; serves phone, camera, voice, and this landing.</span>
-          </li>
-          <li>
-            <span class="tag">Vision</span>
-            <span>On-device MediaPipe; optional in-game camera dock so focus loss doesn’t drop inputs.</span>
-          </li>
-          <li>
-            <span class="tag">Toolkit</span>
-            <span>Voice through AI for Accessibility Toolkit Controller; upstream example PR #55.</span>
-          </li>
-          <li>
-            <span class="tag">Insight</span>
-            <span>LibreCorsa listens on <code>window</code> and does not check <code>isTrusted</code> — synthetic keys work in driving phase.</span>
-          </li>
-        </ul>
-      </section>
-
-      <!-- 9. Differentiation -->
-      <section class="slide" data-title="Advantage" aria-label="Slide 9: Competitive advantage">
-        <p class="eyebrow">Differentiation</p>
-        <h2>Software adapter, not another controller to buy.</h2>
-        <div class="compare">
-          <div class="card">
-            <h3>Typical alternatives</h3>
-            <ul>
-              <li>Specialized hardware or USB adaptive gear</li>
-              <li>Per-game mods or inaccessible stock bindings</li>
-              <li>Page DOM adapters that don’t fit continuous racing input</li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3>Game Night Access Adapter</h3>
-            <ul>
-              <li><strong>No extra hardware</strong> — phone is a web page</li>
-              <li><strong>Remap without code</strong> — JSON profiles</li>
-              <li><strong>Game stays upstream</strong> — LibreCorsa untouched</li>
-              <li><strong>Redundant inputs</strong> — camera ↔ phone ↔ voice ↔ pad</li>
-              <li><strong>Toolkit contribution</strong> — example pack + PR #55</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <!-- 10. Impact -->
-      <section class="slide" data-title="Impact" aria-label="Slide 10: Impact">
-        <p class="eyebrow">Impact &amp; what’s real today</p>
-        <h2>Shipped for judges to run — honest about what’s proven.</h2>
-        <div class="feature-grid">
-          <div class="card">
-            <h3>Delivered</h3>
-            <ul>
-              <li>Public monorepo with game + toolkit submodules</li>
-              <li>Working extension demo / remap path</li>
-              <li>Bridge-hosted phone, camera, voice UIs</li>
-              <li>Toolkit PR
-                <a href="https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/pull/55" rel="noopener noreferrer">#55</a>
-              </li>
-              <li>README, onboarding, write-up, architecture docs</li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3>Qualified status</h3>
-            <p>
-              Phase A scaffold + extension demo path landed. Treat camera, voice, and phone as
-              <strong class="ink">supported only after co-designer sessions</strong> are logged in
-              the testing log — especially Justin on macOS.
+            <p style="margin-top: 14px; font-size: 1rem">
+              LibreCorsa listens on <code>window</code> and does not check
+              <code>isTrusted</code> — synthetic keys work.
             </p>
           </div>
         </div>
       </section>
 
-      <!-- 11. Roadmap -->
-      <section class="slide" data-title="Roadmap" aria-label="Slide 11: Roadmap">
-        <p class="eyebrow">What’s next</p>
-        <h2>Honest PoC now. Universal adapter vision next.</h2>
-        <div class="grid-2">
-          <div class="card">
-            <h3>Near term</h3>
+      <!-- 7. Live demo -->
+      <section class="slide" data-title="Demo" aria-label="Slide 7: Live demonstration">
+        <p class="brand reveal">Live demonstration</p>
+        <h2 class="reveal reveal-2">Show remap, then drive.</h2>
+        <div class="grid-2 reveal reveal-3">
+          <ol class="demo-steps">
+            <li>Load unpacked extension from <code>extension/</code>.</li>
+            <li>Open Setup / Options — change one binding live.</li>
+            <li>Enter LibreCorsa driving phase; focus the game canvas.</li>
+            <li>Drive with demo pad, phone tilt, or head tracking.</li>
+          </ol>
+          <div>
+            <div class="badge-row">
+              <span class="badge badge--off">Badge <code>OFF</code> · bridge offline (pad still works)</span>
+              <span class="badge badge--on">Badge <code>ON</code> · bridge connected</span>
+            </div>
+            <div class="panel" style="margin-top: 14px">
+              <h3>Demo tip</h3>
+              <p>
+                Prefer local/LAN for latency. Hosted bridge on Render may cold-start after idle.
+              </p>
+            </div>
+            <aside class="phone-mock" aria-hidden="true" style="margin-top: 16px">
+              <div class="phone-notch"></div>
+              <div class="phone-status">Connected · tilt to steer</div>
+              <div class="steer-gauge"><i></i></div>
+              <div class="phone-btns">
+                <span class="primary">Throttle</span>
+                <span>Brake</span>
+                <span>Boost</span>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. Engineering + toolkit + roadmap -->
+      <section class="slide" data-title="Build" aria-label="Slide 8: Engineering and roadmap">
+        <p class="brand reveal">Engineering · toolkit · next</p>
+        <h2 class="reveal reveal-2">Honest PoC. Expandable architecture.</h2>
+        <div class="grid-2 reveal reveal-3">
+          <div class="panel">
+            <h3>What makes it interesting</h3>
             <ul>
-              <li>Complete Justin co-design sessions + testing log</li>
-              <li>Ship short demo video from the shot list</li>
-              <li>File toolkit issues from real latency / grammar / macOS findings</li>
+              <li>Software-only accessibility path — laptop + phone.</li>
+              <li>Input abstraction: any source → shared protocol → remap.</li>
+              <li>Game stays upstream; adapter wraps around LibreCorsa.</li>
+              <li>
+                Toolkit voice + upstream example PR
+                <a
+                  href="https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/pull/55"
+                  rel="noopener noreferrer"
+                  >#55</a
+                >.
+              </li>
             </ul>
           </div>
-          <div class="card">
-            <h3>Beyond the hackathon</h3>
+          <div class="panel">
+            <h3>Status &amp; next</h3>
             <ul>
-              <li>More games via remap profiles (pin any browser tab)</li>
-              <li>Tighter toolkit Controller integration</li>
-              <li>Keep redundancy: camera ↔ phone ↔ voice ↔ keyboard</li>
+              <li>
+                <strong>Now:</strong> Phase A scaffold + extension demo path landed. Treat camera /
+                voice / phone as supported only after Justin sessions are logged.
+              </li>
+              <li>More games via remap profiles (pin any browser tab).</li>
+              <li>Tighter toolkit Controller; keep camera ↔ phone ↔ voice redundancy.</li>
             </ul>
           </div>
         </div>
       </section>
 
-      <!-- 12. Closing -->
-      <section class="slide" data-title="Close" aria-label="Slide 12: Call to action">
-        <p class="eyebrow">Thank you</p>
-        <h1>Same race. Controls that match how you move.</h1>
-        <p class="lede">
-          Game Night Access Adapter — co-designed with Justin Machogu. Try the remap, then drive.
+      <!-- 9. Team -->
+      <section class="slide" data-title="Team" aria-label="Slide 9: Team">
+        <p class="brand reveal">The team</p>
+        <h2 class="reveal reveal-2">Built with a co-designer, not just for one.</h2>
+        <div class="team-grid reveal reveal-3">
+          <div class="person">
+            <strong>Justin Machogu</strong>
+            <span>Co-designer &amp; tester — remappable controls, real access needs</span>
+          </div>
+          <div class="person">
+            <strong>Kevin</strong>
+            <span>Chrome extension, monorepo, remap &amp; injection</span>
+          </div>
+          <div class="person">
+            <strong>Omar</strong>
+            <span>Bridge, phone controller, desktop phone-tilt path</span>
+          </div>
+          <div class="person">
+            <strong>Tim</strong>
+            <span>Camera / MediaPipe vision controller</span>
+          </div>
+          <div class="person">
+            <strong>Bunny</strong>
+            <span>Toolkit voice path, merges, upstream contribution</span>
+          </div>
+          <div class="person person--wide">
+            <strong>Stack</strong>
+            <span>Chrome MV3 · Node WebSocket · MediaPipe · AI for Accessibility Toolkit · LibreCorsa</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10. Close -->
+      <section class="slide" data-title="Close" aria-label="Slide 10: Closing">
+        <p class="brand reveal">Closing</p>
+        <h1 class="reveal reveal-2">Gaming should adapt to people, not the other way around.</h1>
+        <p class="lede reveal reveal-3">
+          Same race. Controls that match how you move.
         </p>
-        <div class="cta-row">
-          <a class="btn btn--amber" href="/hub/">Open control hub</a>
+        <blockquote class="quote reveal reveal-4">
+          Play together without assuming fast fingers.
+        </blockquote>
+        <div class="cta-row reveal reveal-4">
+          <a class="btn btn--accent" href="/hub/">Open control hub</a>
           <a
-            class="btn btn--secondary"
+            class="btn btn--ghost"
             href="https://github.com/Isomkevin/game-night-access-adapter"
             rel="noopener noreferrer"
             >View repository</a
           >
-          <a class="btn btn--ghost" href="/presentation/download" download="game-night-presentation.html"
+          <a
+            class="btn btn--ghost"
+            href="/presentation/download"
+            download="game-night-presentation.html"
             >Download slides</a
           >
         </div>
-        <p style="margin-top: 8px; font-size: 0.95rem">
-          github.com/Isomkevin/game-night-access-adapter · LibreCorsa MIT · Toolkit Apache-2.0 ·
-          Adapter MIT
+        <p style="margin-top: 8px; font-size: 0.95rem" class="reveal reveal-4">
+          github.com/Isomkevin/game-night-access-adapter · Adapter MIT · LibreCorsa MIT · Toolkit
+          Apache-2.0
         </p>
       </section>
     </div>
@@ -1149,7 +1341,7 @@
     <footer class="chrome" aria-label="Slide controls">
       <div class="chrome-left">
         <span class="counter" aria-live="polite"
-          ><span id="pos">1</span> / <span id="total">12</span></span
+          ><span id="pos">1</span> / <span id="total">10</span></span
         >
         <div class="progress-wrap" aria-hidden="true">
           <div class="progress-bar" id="progress"></div>
@@ -1177,7 +1369,6 @@
           slides.findIndex((s) => s.classList.contains("active"))
         );
         if (index < 0) index = 0;
-
         totalEl.textContent = String(slides.length);
 
         function show(n) {
@@ -1190,8 +1381,6 @@
           posEl.textContent = String(index + 1);
           progressEl.style.width = ((index + 1) / slides.length) * 100 + "%";
           document.title = slides[index].dataset.title + " — Game Night";
-          prevBtn.disabled = false;
-          nextBtn.disabled = false;
           history.replaceState(null, "", "#slide-" + (index + 1));
         }
 
@@ -1207,7 +1396,12 @@
 
         document.addEventListener("keydown", (e) => {
           const tag = (e.target && e.target.tagName) || "";
-          if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || e.target.isContentEditable) {
+          if (
+            tag === "INPUT" ||
+            tag === "TEXTAREA" ||
+            tag === "SELECT" ||
+            e.target.isContentEditable
+          ) {
             return;
           }
           if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
