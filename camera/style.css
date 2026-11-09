@@ -382,9 +382,11 @@ html.embed .layout {
 
 html.embed .stage {
   max-width: none;
+  width: 100%;
   border-radius: 8px;
   aspect-ratio: 4 / 3;
-  max-height: 180px;
+  /* Grow/shrink with the dock; keep room for controls when expanded */
+  max-height: min(52vh, calc(100vw * 0.75));
 }
 
 html.embed .hint {

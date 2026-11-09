@@ -18,10 +18,11 @@ For the calibrated, proportional head-only controller from issue #11, open
 steering** on this page. It retains Start, Stop, Recenter, direction reversal,
 and live dead-zone/full-steering controls. Setup, permissions, tuning, and
 the manual test checklist are in [head-steering.md](head-steering.md).
-**Preferred play setup:** use the extension popup **Camera overlay** so a small
-preview docks inside the game tab. Tracking keeps running while you play (no
-separate camera tab to keep visible). Expand the dock for gesture mapping; the
-full `/camera/` page remains available for deep setup.
+**Preferred play setup:** use the extension popup **Camera overlay** so a compact
+preview docks inside the game tab. Drag the title bar to move; resize from the
+edges or corner grip (preview keeps a 4:3 feed). Size and position persist.
+Expand the dock for gesture mapping; the full `/camera/` page remains available
+for deep setup.
 
 Use one camera controller at a time.
 
