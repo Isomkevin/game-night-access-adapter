@@ -10,15 +10,18 @@ Uses the AI-for-Accessibility Toolkit `VoiceCommands` adapter from `toolkit/`, t
 | | |
 | --- | --- |
 | URL | `http://127.0.0.1:18765/voice/` |
+| Hosted | https://game-night-bridge.onrender.com/voice/ |
 | Browser | Chrome (Web Speech API; mic permission) |
 | Settings | **Voice settings** on the page (phrases + language in `localStorage` key `gnaa.voice.bridge.v1`) |
 
 ### Run
 
+Full local deploy: [docs/DEPLOY.md](../docs/DEPLOY.md).
+
 1. Start LibreCorsa (`cd game && npm run dev`) — no patches
 2. Load the Chrome extension from `extension/`
-3. `cd bridge && npm start`
-4. Open `http://127.0.0.1:18765/voice/`, allow the mic, **Start listening**
+3. `cd bridge && npm start` (or point Setup at `wss://game-night-bridge.onrender.com`)
+4. Open `http://127.0.0.1:18765/voice/` (or the hosted `/voice/` URL), allow the mic, **Start listening**
 5. Pin or focus a driving session; extension badge should be `ON`
 
 ### Default phrases

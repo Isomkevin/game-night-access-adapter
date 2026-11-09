@@ -8,10 +8,11 @@
 | 2 | [GLOSSARY.md](GLOSSARY.md) | Shared vocabulary |
 | 3 | [ONBOARDING.md](ONBOARDING.md) | Clone → game → extension demo → optional bridge |
 | 4 | [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) | Terminals, ports, env, shells |
-| 5 | [architecture.md](architecture.md) | Data flow and injection |
-| 6 | [protocol.md](protocol.md) | Wire contract before changing inputs |
-| 7 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, docs-before-push, first PR |
-| 8 | [FAQ.md](FAQ.md) · [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | When something fails |
+| 5 | [DEPLOY.md](DEPLOY.md) | Local full-stack deploy + hosted Render bridge |
+| 6 | [architecture.md](architecture.md) | Data flow and injection |
+| 7 | [protocol.md](protocol.md) | Wire contract before changing inputs |
+| 8 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, docs-before-push, first PR |
+| 9 | [FAQ.md](FAQ.md) · [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | When something fails |
 
 Root overview / quick start: [`../README.md`](../README.md).
 
@@ -62,6 +63,7 @@ Add a short doc for each new input adapter before merging: how to run it, what w
 | [GLOSSARY.md](GLOSSARY.md) | Terms |
 | [FAQ.md](FAQ.md) | Common questions |
 | [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) | Ports / terminals / shells |
+| [DEPLOY.md](DEPLOY.md) | Local deploy + Render hosted bridge |
 | [architecture.md](architecture.md) | System design |
 | [protocol.md](protocol.md) | WebSocket + remap contract |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Workflow |

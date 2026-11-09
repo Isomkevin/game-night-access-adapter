@@ -13,7 +13,33 @@ Kevin owns the stub; Omar owns hardening, reconnect UX, and any optional OS-leve
 | --- | --- |
 | No extra hardware rule | Phone is a web page |
 | Justin on macOS | No ADB / Windows-only helpers required |
-| Latency | Localhost / LAN only — not cloud |
+| Latency | Prefer localhost / LAN for live tests; optional Render host for demos |
+
+## Local deploy (full Game Night)
+
+You need **three** pieces on the laptop: LibreCorsa, the Chrome extension, and this bridge. Condensed steps:
+
+```bash
+# Terminal 1 — game
+cd game && npm install && npm run dev          # http://localhost:3000
+
+# Terminal 2 — bridge (this package)
+cd bridge && npm install && npm start          # http://127.0.0.1:18765
+```
+
+Then Load unpacked → `extension/`, focus a driving session, badge → `ON`.  
+Canonical guide: [docs/DEPLOY.md](../docs/DEPLOY.md) · first-day walkthrough: [docs/ONBOARDING.md](../docs/ONBOARDING.md).
+
+## Hosted bridge (Render)
+
+| | |
+| --- | --- |
+| Public URL | https://game-night-bridge.onrender.com |
+| Extension WS | `wss://game-night-bridge.onrender.com` |
+| Blueprint | [`../render.yaml`](../render.yaml) |
+| Region / plan | Frankfurt · free |
+
+Set the extension Setup connection address to the `wss://` URL above, then open `/hub/`, `/phone/`, `/camera/`, or `/voice/` on the hosted site. Game stays local or on [GitHub Pages LibreCorsa](https://khazp.github.io/librecorsa/). Free instances cold-start after idle — use local `npm start` for Justin.
 
 ## Prerequisites
 
@@ -107,6 +133,8 @@ If you change the port locally, the extension must use the matching `ws://127.0.
 
 ## Related
 
+- [docs/DEPLOY.md](../docs/DEPLOY.md)
 - [docs/ONBOARDING.md](../docs/ONBOARDING.md)
+- [docs/DEV_ENVIRONMENT.md](../docs/DEV_ENVIRONMENT.md)
 - [docs/TROUBLESHOOTING.md](../docs/TROUBLESHOOTING.md)
 - [phone-controller/README.md](../phone-controller/README.md)

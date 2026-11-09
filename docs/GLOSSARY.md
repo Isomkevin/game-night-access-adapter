@@ -9,7 +9,9 @@ Short definitions used across this repo. If a PR introduces a new term, add it h
 | **Remap key** | String `` `${source}:${logicalAction}` `` such as `phone:tiltLeft` or `voice:go`. Stored in the extension profile. |
 | **Source** | Channel that produced the event: `demo`, `phone`, `camera`, `voice`. |
 | **State** | `down` / `up` for held controls; `pulse` for a short tap (~120 ms). |
-| **Bridge** | Local Node HTTP + WebSocket server (`bridge/`, default port **18765**) that fans inputs to the extension. |
+| **Bridge** | Node HTTP + WebSocket server (`bridge/`, default port **18765**) that fans inputs to the extension. Run locally or use the hosted Render URL. |
+| **Hosted bridge** | Public Render deploy at https://game-night-bridge.onrender.com (`wss://…` for the extension). See [DEPLOY.md](DEPLOY.md). |
+| **Local deploy** | Full stack on one machine: LibreCorsa (`game/`), Load unpacked extension, bridge `npm start`. |
 | **Extension** | Chrome MV3 app in `extension/` — remap UI, WebSocket client, keystroke injection. |
 | **Pin / Use this tab** | Session flag that tells the extension which browser tab receives injected keys. |
 | **Demo pad** | On-screen controls in the extension popup. Works with the bridge **offline**. |

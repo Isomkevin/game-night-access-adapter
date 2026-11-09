@@ -14,6 +14,8 @@ Chrome is not a terminal: Load unpacked from `extension/`, keep DevTools handy o
 
 **Minimum day-one:** Terminal 1 + Chrome extension only (no bridge).
 
+**Full local deploy** (game + extension + bridge) and **hosted Render bridge**: [DEPLOY.md](DEPLOY.md).
+
 ## Ports
 
 | Port | Service | Notes |
@@ -31,6 +33,13 @@ If 3000 is taken, Next will often pick another port — update what you open in 
 | `PORT` | Bridge (Render / PaaS) | Public listen port; takes precedence over `GNAA_PORT` |
 
 The extension stores its WebSocket URL in `chrome.storage.local` (`bridgeUrl`). Change it in **Setup → Advanced** (or Options connection field), not only in env.
+
+| Mode | Typical `bridgeUrl` |
+| --- | --- |
+| Local bridge | `ws://127.0.0.1:18765` (default) |
+| Hosted Render | `wss://game-night-bridge.onrender.com` |
+
+Hosted URLs: https://game-night-bridge.onrender.com/ (landing), `/hub/`, `/phone/`, `/camera/`, `/voice/`, `/health`.
 
 ## One-time installs
 

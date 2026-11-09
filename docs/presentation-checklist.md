@@ -25,7 +25,7 @@ With the bridge running, open **http://127.0.0.1:18765/presentation/** from the 
 ## Repo hygiene before judging
 
 - [x] Public repo updated
-- [x] README run steps work on a clean clone (`--recurse-submodules`) — see ONBOARDING
+- [x] README run steps work on a clean clone (`--recurse-submodules`) — see [ONBOARDING.md](ONBOARDING.md) and [DEPLOY.md](DEPLOY.md)
 - [x] Toolkit PR link in README — [#55](https://github.com/AI-for-Accessibility-Collective/AI-for-Accessibility-Toolkit/pull/55)
 - [ ] `docs/testing-log.md` has Justin session notes
 - [x] `docs/writeup.md` filled

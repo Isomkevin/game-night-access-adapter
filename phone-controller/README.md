@@ -12,6 +12,8 @@ Turns a phone into a **software** virtual controller: tilt to steer, large on-sc
 
 ## Run
 
+Full Game Night local deploy (game + extension + bridge): [docs/DEPLOY.md](../docs/DEPLOY.md).
+
 1. Start the bridge on the laptop:
 
    ```bash
@@ -20,13 +22,15 @@ Turns a phone into a **software** virtual controller: tilt to steer, large on-sc
    npm start
    ```
 
-2. Open the hub at `http://127.0.0.1:18765/` or the **LAN** phone URL printed in the terminal, e.g. `http://192.168.1.12:18765/phone/`
+2. Open the hub at `http://127.0.0.1:18765/hub/` or the **LAN** phone URL printed in the terminal, e.g. `http://192.168.1.12:18765/phone/`
 3. On the phone (same Wi‑Fi), open that URL in mobile Chrome / Safari
 4. Tap **Enable motion sensors** (iOS requires a gesture)
 5. Use **Hold** or **Latch** for buttons; **Stop all inputs** releases stuck controls
 6. Extension badge should be `ON`; LibreCorsa tab focused and driving
 
 Desktop testing: open `http://127.0.0.1:18765/phone/` and use the buttons (tilt may be limited without a device orientation API).
+
+**Hosted:** https://game-night-bridge.onrender.com/phone/ — set the extension connection to `wss://game-night-bridge.onrender.com` first.
 
 ## Protocol
 

@@ -10,4 +10,5 @@ npm install playwright-core --no-save
 node scripts/extension-smoke.mjs
 ```
 
-Requires LibreCorsa on `http://localhost:3000`. Prefer manual Load unpacked for judging demos.
+Requires LibreCorsa on `http://localhost:3000`. Prefer manual Load unpacked for judging demos.  
+How to run the full stack: [docs/DEPLOY.md](../docs/DEPLOY.md).

@@ -138,6 +138,8 @@ New developers should learn the **web** path first ([ONBOARDING.md](ONBOARDING.m
 
 ## Deployment
 
-Default: everything local (game `npm run dev`, bridge, Load unpacked). Details: [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md).
+Canonical how-to: **[DEPLOY.md](DEPLOY.md)** · day-to-day ports: [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md).
 
-**Cloud (Render):** the bridge can be hosted as a Node web service so judges / teammates can open phone, camera, and voice UIs over HTTPS without running Node locally. Point the extension Setup → connection address at `wss://<service>.onrender.com` (example: `wss://game-night-bridge.onrender.com`). Latency-sensitive co-designer racing still prefers LAN/localhost; cloud is for demos and remote access to the controller pages. The game itself can stay on `localhost:3000` or [khazp.github.io/librecorsa](https://khazp.github.io/librecorsa/).
+**Local (default):** game `npm run dev`, Load unpacked extension, bridge `npm start` on `:18765`.
+
+**Cloud (Render):** https://game-night-bridge.onrender.com hosts landing / hub / phone / camera / voice over HTTPS. Point the extension Setup → connection address at `wss://game-night-bridge.onrender.com`. Latency-sensitive co-designer racing still prefers LAN/localhost; cloud is for demos and remote controller pages. The game itself can stay on `localhost:3000` or [khazp.github.io/librecorsa](https://khazp.github.io/librecorsa/). Blueprint: [`../render.yaml`](../render.yaml).

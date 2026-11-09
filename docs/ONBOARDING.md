@@ -10,9 +10,10 @@ Goal of this guide: on a clean machine, go from zero to **steering LibreCorsa wi
 | 2. Words we use | 5 min | [GLOSSARY.md](GLOSSARY.md) |
 | 3. Run the stack (this file) | 20–40 min | Sections 1–3 below |
 | 4. Terminals / ports | 5 min | [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) |
-| 5. How data flows | 10 min | [architecture.md](architecture.md) + [protocol.md](protocol.md) |
-| 6. Ship a change | 10 min | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| 7. When stuck | as needed | [TROUBLESHOOTING.md](TROUBLESHOOTING.md), [FAQ.md](FAQ.md) |
+| 5. Local vs hosted deploy | 5 min | [DEPLOY.md](DEPLOY.md) |
+| 6. How data flows | 10 min | [architecture.md](architecture.md) + [protocol.md](protocol.md) |
+| 7. Ship a change | 10 min | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| 8. When stuck | as needed | [TROUBLESHOOTING.md](TROUBLESHOOTING.md), [FAQ.md](FAQ.md) |
 
 You do **not** need to understand the toolkit submodule or the Python desktop adapter on day one.
 
@@ -178,6 +179,17 @@ Reload the extension (or click **Reconnect** in the popup). Badge should become 
 
 Keep **LibreCorsa focused** while testing holds (throttle/steer). Voice uses `pulse` (short key taps) — not continuous drive.
 
+### 3b. Hosted bridge (optional — no local Node for controllers)
+
+If you do not want to run `bridge/` locally, use the Render service:
+
+1. Keep LibreCorsa on `localhost:3000` (or open https://khazp.github.io/librecorsa/)
+2. Extension **Setup → Advanced** → connection address  
+   `wss://game-night-bridge.onrender.com`
+3. Open https://game-night-bridge.onrender.com/hub/ (phone / camera / voice links)
+
+Free tier **cold-starts** after idle — prefer §3 local bridge for Justin. Full steps: [DEPLOY.md](DEPLOY.md).
+
 ## 4. How data moves (mental model)
 
 ```text
@@ -240,6 +252,7 @@ Copy this into a PR or WhatsApp note when you claim “works on my machine”:
 
 ## 8. Next reading by task
 
+- Local or cloud deploy → [DEPLOY.md](DEPLOY.md)
 - Shipping a code change → [CONTRIBUTING.md](CONTRIBUTING.md) (includes first-PR walkthrough)
 - Something broken → [TROUBLESHOOTING.md](TROUBLESHOOTING.md) · [FAQ.md](FAQ.md)
 - Saturday deliverables → root [README.md](../README.md) + [presentation-checklist.md](presentation-checklist.md)

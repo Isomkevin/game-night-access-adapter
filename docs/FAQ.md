@@ -36,13 +36,23 @@ Always clone with `--recurse-submodules` when possible.
 
 **No.** Load the extension and use the popup demo pad against LibreCorsa first. Start the bridge when you test phone / camera / voice.
 
+### How do I deploy / run Game Night locally?
+
+Full stack on one machine:
+
+1. `git clone --recurse-submodules …` then `cd game && npm install && npm run dev` → http://localhost:3000 (driving session)
+2. Chrome → Load unpacked → `extension/`
+3. `cd bridge && npm install && npm start` → http://127.0.0.1:18765/
+
+Step-by-step: [DEPLOY.md](DEPLOY.md) §A · [ONBOARDING.md](ONBOARDING.md).
+
 ### Windows vs macOS vs Linux?
 
 All three work for the web stack (game + extension + bridge). Justin tests on **macOS** — prefer WebSocket + camera/mic permissions in System Settings. PowerShell and bash both work; commands in the docs are POSIX-friendly (`cd`, `npm`, `curl`). On Windows PowerShell, `curl` is an alias for `Invoke-WebRequest`; use `curl.exe` or open Git Bash.
 
 ### Where is the hosted bridge?
 
-https://game-night-bridge.onrender.com — free tier sleeps when idle. For live co-design, prefer `localhost` / LAN.
+https://game-night-bridge.onrender.com — product landing, hub, phone, camera, voice, presentation. Point the extension at `wss://game-night-bridge.onrender.com`. Free tier sleeps when idle (cold start). For live co-design, prefer `localhost` / LAN. Details: [DEPLOY.md](DEPLOY.md) §B.
 
 ## Extension
 

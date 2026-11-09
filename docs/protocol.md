@@ -17,8 +17,11 @@ If you change the wire format, update this doc **and** both copies in the same P
 | Item | Value |
 | --- | --- |
 | WebSocket | `ws://127.0.0.1:18765` (default; override with `GNAA_PORT`) |
-| HTTP (same port) | Serves `/phone/`, `/camera/`, `/voice/`, `/health` |
+| Hosted WebSocket | `wss://game-night-bridge.onrender.com` (extension Setup → connection address) |
+| HTTP (same port) | Serves `/`, `/hub/`, `/phone/`, `/camera/`, `/voice/`, `/presentation/`, `/health` |
 | Frame format | One JSON object per text frame |
+
+Deploy / run guide: [DEPLOY.md](DEPLOY.md).
 
 ### Roles (`hello`)
 

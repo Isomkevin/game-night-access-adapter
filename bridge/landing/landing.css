@@ -560,6 +560,46 @@
   max-width: 42rem;
 }
 
+.deploy {
+  background: var(--gnaa-sand);
+  border-top: 1px solid var(--gnaa-border);
+}
+
+.deploy-grid {
+  display: grid;
+  gap: 28px;
+  margin: 0 0 28px;
+}
+
+@media (min-width: 840px) {
+  .deploy-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 36px;
+  }
+}
+
+.deploy-col h3 {
+  margin: 0 0 8px;
+  font-family: var(--gnaa-display);
+  font-size: 1.25rem;
+  color: var(--gnaa-teal-deep);
+}
+
+.deploy-blurb {
+  margin: 0 0 14px;
+  color: var(--gnaa-muted);
+  line-height: 1.45;
+  max-width: 36rem;
+}
+
+.deploy-col .start-steps {
+  margin-bottom: 12px;
+}
+
+.deploy-col code {
+  word-break: break-word;
+}
+
 .site-footer {
   padding: 40px clamp(16px, 4vw, 40px) 56px;
   border-top: 1px solid var(--gnaa-border);

@@ -2,7 +2,7 @@
 
 Judging rewards **working code + documentation**. Treat docs as part of the feature, not a follow-up.
 
-New here? Finish [ONBOARDING.md](ONBOARDING.md) (demo pad working) before your first code PR.
+New here? Finish [ONBOARDING.md](ONBOARDING.md) (demo pad working) before your first code PR. Local + cloud run steps: [DEPLOY.md](DEPLOY.md).
 
 ## Before you write code
 

@@ -9,7 +9,8 @@ Manifest V3 extension that:
 
 LibreCorsa remains the default demo (Open game → `localhost:3000`). For any other keyboard-driven browser game: open the game, click **Use this tab**, and retune key codes in Setup if needed.
 
-New developers: finish [docs/ONBOARDING.md](../docs/ONBOARDING.md) first.
+New developers: finish [docs/ONBOARDING.md](../docs/ONBOARDING.md) first.  
+Full local stack + hosted bridge: [docs/DEPLOY.md](../docs/DEPLOY.md).
 
 ## Install (Load unpacked)
 
@@ -29,6 +30,8 @@ After every `git pull` that touches `extension/`, click **Reload** on the extens
 | Options page | Guided Welcome → Choose → Setup → Customize → Ready; presets; Advanced connection |
 | Badge `OFF` | Access bridge down — on-screen controls still work |
 | Badge `ON` | Access bridge connected |
+
+**Bridge URL (Setup → Advanced):** default `ws://127.0.0.1:18765`. For the hosted Render bridge use `wss://game-night-bridge.onrender.com`.
 
 **Focus:** click the game canvas before using popup buttons. Inputs go only to the pinned tab (or LibreCorsa demo hosts when nothing is pinned).
 

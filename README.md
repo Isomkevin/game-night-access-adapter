@@ -55,7 +55,8 @@ git submodule update --init --recursive
 
 ## Quick start
 
-For the full walkthrough (driving phase, badge meanings, verify checklist), use [docs/ONBOARDING.md](docs/ONBOARDING.md).
+For the full walkthrough (driving phase, badge meanings, verify checklist), use [docs/ONBOARDING.md](docs/ONBOARDING.md).  
+**Local full-stack deploy + hosted Render bridge:** [docs/DEPLOY.md](docs/DEPLOY.md).
 
 ### 1. Game (LibreCorsa)
 
@@ -95,6 +96,9 @@ npm start
 | Health | `http://127.0.0.1:18765/health` | https://game-night-bridge.onrender.com/health |
 
 For the hosted bridge, set the extension Setup connection address to `wss://game-night-bridge.onrender.com`. Free Render instances sleep after idle — expect a short cold start. Prefer local/LAN for Justin’s live tests.
+
+**Redeploy:** pushes to `main` auto-deploy the bridge ([`render.yaml`](render.yaml)). Blueprint deeplink:  
+https://dashboard.render.com/blueprint/new?repo=https://github.com/Isomkevin/game-night-access-adapter
 
 ## Phone-tilt desktop adapter
 
@@ -152,6 +156,7 @@ Full index with reading order: **[docs/README.md](docs/README.md)**.
 | [docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md) | What the project is supposed to be and do |
 | [docs/GLOSSARY.md](docs/GLOSSARY.md) | Shared terms (logical action, pin, pulse, …) |
 | [docs/ONBOARDING.md](docs/ONBOARDING.md) | First day — get a working demo |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Local full stack + hosted Render bridge |
 | [docs/DEV_ENVIRONMENT.md](docs/DEV_ENVIRONMENT.md) | Terminals, ports, env vars, shells |
 | [docs/architecture.md](docs/architecture.md) | Understand data flow / injection |
 | [docs/protocol.md](docs/protocol.md) | Before changing inputs or remap |

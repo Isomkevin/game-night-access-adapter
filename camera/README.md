@@ -28,7 +28,9 @@ Use one camera controller at a time.
 
 ## Run
 
-1. Start LibreCorsa + load the extension (see [docs/ONBOARDING.md](../docs/ONBOARDING.md))
+Full local stack: [docs/DEPLOY.md](../docs/DEPLOY.md) · day-one: [docs/ONBOARDING.md](../docs/ONBOARDING.md).
+
+1. Start LibreCorsa + load the extension
 2. Start the bridge:
 
    ```bash
@@ -38,9 +40,10 @@ Use one camera controller at a time.
 3. Focus the game tab → extension popup → **Camera overlay** (embeds `/camera/?embed=1`)
 4. Allow camera access; wait for MediaPipe WASM/model download (needs network once)
 5. **Calibrate** a neutral pose; expand the dock to enable gestures, map them, **Apply mappings to extension**
-6. Optionally open **http://127.0.0.1:18765/camera/** for the full-page setup UI
+6. Optionally open **http://127.0.0.1:18765/camera/** for the full-page setup UI  
+   Hosted: https://game-night-bridge.onrender.com/camera/ (extension WS → `wss://game-night-bridge.onrender.com`)
 
-Camera-only must work **without** the phone (redundancy).
+Camera-only must work **without** the phone (redundancy). Prefer local bridge for low-latency steering.
 
 ## Files
 

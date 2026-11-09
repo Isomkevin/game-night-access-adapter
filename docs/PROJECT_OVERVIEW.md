@@ -4,7 +4,7 @@
 
 The game itself is **not** rewritten. Alternate inputs are translated into the keyboard codes LibreCorsa already understands.
 
-New developers: [ONBOARDING.md](ONBOARDING.md) (run the stack) → [GLOSSARY.md](GLOSSARY.md) (terms) → [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) (ports/terminals). Technical data flow: [architecture.md](architecture.md). Wire contract: [protocol.md](protocol.md). Short judging write-up: [writeup.md](writeup.md). Full index: [README.md](README.md).
+New developers: [ONBOARDING.md](ONBOARDING.md) (run the stack) → [DEPLOY.md](DEPLOY.md) (local + Render) → [GLOSSARY.md](GLOSSARY.md) (terms) → [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) (ports/terminals). Technical data flow: [architecture.md](architecture.md). Wire contract: [protocol.md](protocol.md). Short judging write-up: [writeup.md](writeup.md). Full index: [README.md](README.md).
 
 ## Problem
 
@@ -99,9 +99,11 @@ The toolkit’s `extension/` runs accessibility **page adapters** (DOM/CSS). Con
 
 ### Deployment
 
-Default: everything local (`game` via `npm run dev`, bridge, Load unpacked extension).
+Default: everything local (`game` via `npm run dev`, bridge, Load unpacked extension). Step-by-step: [DEPLOY.md](DEPLOY.md).
 
-Cloud (e.g. Render) can host the bridge so teammates/judges open phone/camera/voice over HTTPS; point the extension connection address at `wss://…`. Latency-sensitive co-designer racing still prefers LAN/localhost.
+**Local:** `cd game && npm run dev` → Load unpacked `extension/` → `cd bridge && npm start` (http://127.0.0.1:18765/).
+
+**Cloud (Render):** https://game-night-bridge.onrender.com hosts landing / hub / phone / camera / voice. Point the extension at `wss://game-night-bridge.onrender.com`. Latency-sensitive co-designer racing still prefers LAN/localhost.
 
 ## Who it is for
 

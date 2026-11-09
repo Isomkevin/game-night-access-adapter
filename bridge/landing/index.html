@@ -36,6 +36,7 @@
         <a href="#how">How it works</a>
         <a href="#controls">Controls</a>
         <a href="#start">Get started</a>
+        <a href="#deploy">Deploy</a>
         <a href="/presentation/">Presentation</a>
         <a
           class="nav-external"
@@ -211,7 +212,7 @@
             <ul class="check-list">
               <li>48px touch targets and high-legibility type (Atkinson Hyperlegible)</li>
               <li>Hold vs latch modes; Stop all inputs when something sticks</li>
-              <li>Works on Justin’s — no USB gamepad or ADB</li>
+              <li>Works on Justin’s MacBook — no USB gamepad or ADB</li>
             </ul>
           </div>
           <aside class="key-map gnaa-card" aria-label="Default LibreCorsa bindings">
@@ -250,13 +251,15 @@
               >.
             </li>
             <li>
-              <strong>Use this bridge</strong> for phone, camera, or voice — open the
-              <a href="/hub/">control hub</a>, then focus the game canvas.
+              <strong>Connect the bridge</strong> — open the
+              <a href="/hub/">control hub</a> on this host (or run the bridge locally), then focus
+              the game canvas.
             </li>
           </ol>
           <div class="start-cta">
             <a class="gnaa-btn gnaa-btn--amber" href="/hub/">Open control hub</a>
-            <a class="gnaa-btn gnaa-btn--secondary" href="/presentation/">View presentation</a>
+            <a class="gnaa-btn gnaa-btn--secondary" href="#deploy">Local &amp; cloud deploy</a>
+            <a class="gnaa-btn gnaa-btn--ghost" href="/presentation/">View presentation</a>
             <a
               class="gnaa-btn gnaa-btn--ghost"
               href="/presentation/download"
@@ -276,6 +279,90 @@
           </p>
         </div>
       </section>
+
+      <section class="section deploy" id="deploy" aria-labelledby="deploy-title">
+        <div class="section-inner">
+          <p class="eyebrow">Deploy</p>
+          <h2 id="deploy-title">Run everything locally, or point the extension at this hosted bridge.</h2>
+          <p class="section-lede">
+            Co-designer racing prefers LAN/localhost. This Render host is for demos and remote
+            controller pages (free tier may cold-start after idle).
+          </p>
+
+          <div class="deploy-grid">
+            <div class="deploy-col">
+              <h3>Local full stack</h3>
+              <p class="deploy-blurb">Best latency. Use for Justin’s live sessions.</p>
+              <ol class="start-steps">
+                <li>
+                  Clone with submodules:<br />
+                  <code>git clone --recurse-submodules https://github.com/Isomkevin/game-night-access-adapter.git</code>
+                </li>
+                <li>
+                  Game:<br />
+                  <code>cd game &amp;&amp; npm install &amp;&amp; npm run dev</code><br />
+                  → <a href="http://localhost:3000" rel="noopener noreferrer">http://localhost:3000</a>
+                  (driving session)
+                </li>
+                <li>
+                  Extension: <code>chrome://extensions</code> → Load unpacked →
+                  <code>extension/</code>
+                </li>
+                <li>
+                  Bridge:<br />
+                  <code>cd bridge &amp;&amp; npm install &amp;&amp; npm start</code><br />
+                  → <a href="http://127.0.0.1:18765/" rel="noopener noreferrer">http://127.0.0.1:18765/</a>
+                  · WS <code>ws://127.0.0.1:18765</code>
+                </li>
+              </ol>
+            </div>
+            <div class="deploy-col">
+              <h3>Hosted bridge (this site)</h3>
+              <p class="deploy-blurb">
+                You are already on the public bridge. Keep the game + extension on your machine.
+              </p>
+              <ol class="start-steps">
+                <li>
+                  Run LibreCorsa locally or open
+                  <a href="https://khazp.github.io/librecorsa/" rel="noopener noreferrer"
+                    >khazp.github.io/librecorsa</a
+                  >
+                </li>
+                <li>Load the Chrome extension from <code>extension/</code></li>
+                <li>
+                  Setup → connection address →
+                  <code>wss://game-night-bridge.onrender.com</code>
+                </li>
+                <li>
+                  Open <a href="/hub/">/hub/</a>, <a href="/phone/">/phone/</a>,
+                  <a href="/camera/">/camera/</a>, or <a href="/voice/">/voice/</a> here
+                </li>
+              </ol>
+              <p class="gnaa-hint">
+                Health:
+                <a href="/health"><code>/health</code></a>
+                · Prefer local bridge if this page was slow to wake.
+              </p>
+            </div>
+          </div>
+
+          <div class="start-cta">
+            <a
+              class="gnaa-btn gnaa-btn--amber"
+              href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/DEPLOY.md"
+              rel="noopener noreferrer"
+              >Full deploy guide</a
+            >
+            <a
+              class="gnaa-btn gnaa-btn--secondary"
+              href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/ONBOARDING.md"
+              rel="noopener noreferrer"
+              >Onboarding walkthrough</a
+            >
+            <a class="gnaa-btn gnaa-btn--ghost" href="/hub/">Open control hub</a>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
@@ -288,8 +375,14 @@
       </div>
       <nav class="footer-nav" aria-label="Footer">
         <a href="/hub/">Control hub</a>
+        <a href="#deploy">Deploy</a>
         <a href="/presentation/">Presentation</a>
         <a href="/health">Health</a>
+        <a
+          href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/DEPLOY.md"
+          rel="noopener noreferrer"
+          >Deploy docs</a
+        >
         <a href="https://github.com/Isomkevin/game-night-access-adapter" rel="noopener noreferrer"
           >GitHub</a
         >
