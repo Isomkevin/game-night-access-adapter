@@ -78,6 +78,8 @@ def main(argv: list[str] | None = None) -> int:
 def _shutdown(state: AppState, service: ApiService) -> None:
     if state.bridge is not None:
         state.bridge.stop()
+    if state.remote is not None:
+        state.remote.release_all()
     service.stop()
 
 

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Game Night Access Adapter",
-  "version": "0.1.0",
-  "description": "Remap camera, voice, and phone inputs onto keyboard controls for browser games.",
+  "version": "0.2.1",
+  "description": "Remap camera, voice, and phone inputs onto keyboard controls. With the desktop adapter, play any game.",
   "permissions": ["storage", "tabs", "activeTab"],
   "host_permissions": [
     "http://*/*",
@@ -20,6 +20,12 @@
       "48": "icons/icon48.png"
     }
   },
+  "commands": {
+    "toggle-voice": {
+      "suggested_key": { "default": "Alt+Shift+V" },
+      "description": "Start or stop voice control in the game tab"
+    }
+  },
   "options_ui": {
     "page": "options/options.html",
     "open_in_tab": true
@@ -35,7 +41,7 @@
         "http://*/*",
         "https://*/*"
       ],
-      "js": ["content/inject.js", "content/camera-dock.js"],
+      "js": ["content/inject.js", "content/camera-dock.js", "content/voice-phrases.js", "content/voice.js"],
       "run_at": "document_idle"
     }
   ],

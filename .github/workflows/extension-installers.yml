@@ -1,0 +1,79 @@
+# Install the released Chrome extension packages on real runners.
+# Linux: the .deb must make Chrome add the extension on its next start.
+# Windows: setup.exe must unpack, copy the extension, and register an uninstaller.
+name: Extension installers
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/extension-installers.yml"
+      - "packaging/extension/**"
+      - "releases/extension/**"
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the .deb
+        run: |
+          deb=$(ls releases/extension/game-night-extension_*_all.deb | sort -V | tail -1)
+          sudo apt-get install -y "./$deb"
+          cat /usr/share/google-chrome/extensions/*.json
+
+      - name: Chrome adds the extension on start
+        run: |
+          id=$(cat releases/extension/extension-id.txt)
+          profile=$(mktemp -d)
+          google-chrome --version
+          timeout 25 google-chrome --headless=new --no-first-run --user-data-dir="$profile" about:blank >/dev/null 2>&1 || true
+          python3 - "$profile" "$id" <<'PY'
+          import json, os, sys
+          profile, ext_id = sys.argv[1], sys.argv[2]
+          found = None
+          for name in ("Secure Preferences", "Preferences"):
+              path = os.path.join(profile, "Default", name)
+              if os.path.exists(path):
+                  found = found or json.load(open(path)).get("extensions", {}).get("settings", {}).get(ext_id)
+          installed = os.path.isdir(os.path.join(profile, "Default", "Extensions", ext_id))
+          print("registered in profile:", bool(found), "files unpacked:", installed)
+          if found:
+              print({k: found.get(k) for k in ("location", "state", "disable_reasons", "manifest") if k != "manifest"})
+          sys.exit(0 if (found or installed) else 1)
+          PY
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unpack setup.exe and install
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem releases/extension/game-night-extension-*-windows-setup.exe | Sort-Object Name | Select-Object -Last 1
+          $stage = Join-Path $env:RUNNER_TEMP 'ext-setup'
+          & 7z x $exe.FullName "-o$stage" -y | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw "setup.exe did not unpack ($LASTEXITCODE)" }
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $stage 'install-extension.ps1') -Quiet
+          if ($LASTEXITCODE -ne 0) { throw "install failed ($LASTEXITCODE)" }
+
+      - name: Check installed files and uninstall entry
+        shell: pwsh
+        run: |
+          $target = Join-Path $env:LOCALAPPDATA 'Game Night Access Adapter\extension'
+          $manifest = Get-Content (Join-Path $target 'manifest.json') -Raw | ConvertFrom-Json
+          Write-Host "installed $($manifest.name) v$($manifest.version) at $target"
+          if (-not (Test-Path (Join-Path $target 'background.js'))) { throw 'background.js missing' }
+          $entry = Get-ItemProperty 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\GameNightExtension'
+          Write-Host "Add/Remove Programs: $($entry.DisplayName) $($entry.DisplayVersion)"
+
+      - name: Uninstall removes it
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:LOCALAPPDATA 'Game Night Access Adapter'
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $root 'uninstall-extension.ps1') -Quiet
+          if (Test-Path (Join-Path $root 'extension')) { throw 'extension folder still present' }
+          if (Test-Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\GameNightExtension') { throw 'uninstall entry still present' }
+          Write-Host 'uninstalled cleanly'

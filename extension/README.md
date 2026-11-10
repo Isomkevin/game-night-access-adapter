@@ -99,6 +99,21 @@ Change `packages/shared/*` first, then **copy** into `extension/lib/`. See [pack
 3. Retune Setup → key codes if the game’s bindings differ from LibreCorsa defaults
 4. Focus the game and use the pad / phone / camera / voice
 
+## Voice control (no bridge)
+
+Click **Voice control** in the popup, or press **Alt+Shift+V**, while the game tab is pinned or open.
+`content/voice.js` runs Chrome's speech recognition inside the game tab, so the microphone prompt
+comes from the game's site and no separate voice page or bridge is needed. A small indicator in the
+bottom-left of the game shows what was heard and has a Stop button. Say “stop listening” to end.
+Phrases live in `content/voice-phrases.js`; “go” and “brake” hold until another driving command,
+“left” / “right” steer for 0.3 s. The page that listens must be `https` or `localhost`.
+
+When the desktop phone adapter (0.2.7+) is running, the extension’s pad, voice, phone, and
+camera inputs go to its local API (`POST /api/v1/press` on `127.0.0.1:8765`) instead of a
+browser tab: each command presses the keys of the matching adapter mapping as real system
+keystrokes, so it works with any focused game. Without the adapter, inputs fall back to the
+pinned browser game tab. See [local API](../docs/local-api.md#pressing-keys-from-other-programs).
+
 With no pin, the extension falls back to LibreCorsa demo URL matches in `lib/status.js` (`GAME_TAB_URLS`). Closing a pinned tab clears the pin for that session.
 
 ## Test matrix

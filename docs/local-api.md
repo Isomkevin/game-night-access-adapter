@@ -48,6 +48,27 @@ Errors:
 | POST | `/api/v1/injection` | `{"enabled": false}` pauses key presses |
 | POST | `/api/v1/calibrate` | Save rest-pose offsets. Body may be empty (uses the latest sample) or `{"ax": 1.2, "ay": 0.1, "az": 9.6}` |
 | POST | `/api/v1/calibrate/reset` | Clear rest-pose offsets |
+| POST | `/api/v1/press` | Press a mapping's keys system-wide: `{"mapping": "tilt-forward", "state": "down"}`. `state` is `down`, `up`, or `pulse` (tap). A `down` lasts 2.5 s; repeat it to keep holding |
+| POST | `/api/v1/press/release-all` | Release everything held through `/press` |
+| GET | `/api/v1/press` | Mappings held through `/press` and the last 20 presses (refreshes of a held mapping are not listed) |
+
+### Pressing keys from other programs
+
+The Chrome extension's voice control uses `/press`: “go” holds the `tilt-forward`
+mapping's keys, “left” taps `tilt-left`, and other commands find a mapping by its label
+(for example a mapping labelled “Boost”). The keys come from the mapping, so changing a
+mapping in the adapter changes what voice presses too. They are real operating-system key
+presses, so they reach any focused game, not just the browser.
+
+- `/press` answers `409 INJECTION_OFF` while **Send keys** is off, and turning it off releases held keys.
+- Requests carrying a web page `Origin` get `403 ORIGIN_NOT_ALLOWED`, so websites can't press keys;
+  browser extensions and local tools (no `Origin`) can.
+- A held mapping is released 2.5 s after its last `down`, so a closed browser can't leave a key stuck.
+
+```bash
+curl -s -X POST http://127.0.0.1:8765/api/v1/press -H 'Content-Type: application/json' \
+  -d '{"mapping": "tilt-left", "state": "pulse"}'
+```
 
 Settings that PUT accepts: `selected_serial`, `injection_enabled`, `single_axis_only`, `axis_dominance`, `invert_x`, `invert_y`, `offset_ax`, `offset_ay`, `offset_az`, `poll_interval`.
 

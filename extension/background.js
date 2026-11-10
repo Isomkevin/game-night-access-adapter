@@ -28,6 +28,7 @@ const SESSION_KEYS = {
   targetTabUrl: 'targetTabUrl',
   targetTabHost: 'targetTabHost',
   cameraDockOpen: 'cameraDockOpen',
+  voiceTabId: 'voiceTabId',
 };
 
 /**
@@ -44,6 +45,235 @@ function httpFromBridge(wsUrl) {
 
 function cameraEmbedUrl(wsUrl) {
   return `${httpFromBridge(wsUrl)}/camera/?embed=1`;
+}
+
+const ADAPTER_URL = 'http://127.0.0.1:8765';
+const ADAPTER_RULES_TTL_MS = 60_000;
+const ADAPTER_DOWN_RETRY_MS = 2000;
+const ADAPTER_PRESS_TIMEOUT_MS = 400;
+const ADAPTER_WARM_MS = 8000;
+
+/** Built-in control → adapter mapping ids (pressed immediately; no mappings GET on the hot path). */
+const VOICE_ADAPTER_DEFAULTS = {
+  go: { id: 'tilt-forward', label: 'Accelerate', keys: ['w'] },
+  stop: { id: 'tilt-back', label: 'Brake', keys: ['s'] },
+  turnLeft: { id: 'tilt-left', label: 'Steer left', keys: ['a'] },
+  turnRight: { id: 'tilt-right', label: 'Steer right', keys: ['d'] },
+};
+/** Popup / remap game actions → the same adapter actions voice uses. */
+const GAME_TO_ADAPTER_ACTION = {
+  throttle: 'go',
+  brake: 'stop',
+  steerLeft: 'turnLeft',
+  steerRight: 'turnRight',
+  shiftUp: 'gearUp',
+  shiftDown: 'gearDown',
+};
+const VOICE_ADAPTER_LABEL_WORDS = {
+  go: ['accelerate', 'throttle', 'forward', 'gas'],
+  stop: ['brake', 'reverse'],
+  turnLeft: ['left'],
+  turnRight: ['right'],
+  boost: ['boost', 'nitro'],
+  pause: ['pause', 'menu'],
+  gearUp: ['gear up', 'shift up', 'upshift'],
+  gearDown: ['gear down', 'shift down', 'downshift'],
+  aero: ['aero', 'drs', 'wing'],
+  restart: ['restart', 'reset'],
+};
+
+function toAdapterAction(action) {
+  return GAME_TO_ADAPTER_ACTION[action] || action;
+}
+
+let adapterRules = null;
+let adapterRulesAt = 0;
+let adapterDownAt = 0;
+/** @type {Record<string, {id: string, label: string, keys: string[]}>} */
+let voicePressMap = { ...VOICE_ADAPTER_DEFAULTS };
+let adapterWarmTimer = null;
+let adapterSeen = false;
+
+async function adapterFetch(path, body, timeoutMs = 800) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${ADAPTER_URL}${path}`, {
+      method: body ? 'POST' : 'GET',
+      headers: body ? { 'Content-Type': 'application/json' } : {},
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+      cache: 'no-store',
+    });
+    return await res.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function rebuildVoicePressMap(rules) {
+  const next = { ...VOICE_ADAPTER_DEFAULTS };
+  const enabled = (rules || []).filter((r) => r.enabled !== false);
+  for (const [action, def] of Object.entries(VOICE_ADAPTER_DEFAULTS)) {
+    const byId = enabled.find((r) => r.id === def.id);
+    if (byId) next[action] = { id: byId.id, label: byId.label, keys: [...byId.keys] };
+  }
+  for (const [action, words] of Object.entries(VOICE_ADAPTER_LABEL_WORDS)) {
+    if (VOICE_ADAPTER_DEFAULTS[action]) continue;
+    const hit = enabled.find((r) =>
+      words.some((w) => String(r.label || '').toLowerCase().includes(w))
+    );
+    if (hit) next[action] = { id: hit.id, label: hit.label, keys: [...hit.keys] };
+  }
+  voicePressMap = next;
+}
+
+/** Mapping rules from the desktop adapter, or null when it isn't running. */
+async function loadAdapterRules() {
+  const now = Date.now();
+  if (adapterRules && now - adapterRulesAt < ADAPTER_RULES_TTL_MS) return adapterRules;
+  if (!adapterRules && now - adapterDownAt < ADAPTER_DOWN_RETRY_MS) return null;
+  try {
+    const body = await adapterFetch('/api/v1/mappings', undefined, 600);
+    adapterRules = body?.data?.rules || [];
+    adapterRulesAt = now;
+    adapterSeen = true;
+    rebuildVoicePressMap(adapterRules);
+  } catch {
+    adapterRules = null;
+    adapterDownAt = now;
+  }
+  return adapterRules;
+}
+
+function warmAdapter() {
+  loadAdapterRules().catch(() => {});
+  adapterFetch('/api/v1/health', undefined, 400)
+    .then((body) => {
+      if (body?.ok) adapterSeen = true;
+    })
+    .catch(() => {});
+}
+
+function startAdapterWarm() {
+  warmAdapter();
+  if (adapterWarmTimer) return;
+  adapterWarmTimer = setInterval(warmAdapter, ADAPTER_WARM_MS);
+}
+
+function stopAdapterWarm() {
+  if (!adapterWarmTimer) return;
+  clearInterval(adapterWarmTimer);
+  adapterWarmTimer = null;
+}
+
+/**
+ * Press a desktop-adapter mapping (system-wide keys for any focused game).
+ * Hot path: one POST /press using the cached mapping id (no mappings GET).
+ * @returns {Promise<{ok: boolean, target?: string, label?: string, keys?: string[], error?: string}|null>}
+ *   `null` means the adapter is offline — caller may fall back to the browser tab.
+ */
+async function pressAdapterMapping(action, state) {
+  const key = toAdapterAction(action);
+  const cached = voicePressMap[key];
+  if (cached && (adapterSeen || adapterRules)) {
+    try {
+      const body = await adapterFetch(
+        '/api/v1/press',
+        { mapping: cached.id, state },
+        ADAPTER_PRESS_TIMEOUT_MS
+      );
+      if (body?.ok) {
+        adapterSeen = true;
+        return {
+          ok: true,
+          target: 'adapter',
+          label: body.data.label || cached.label,
+          keys: body.data.keys || cached.keys,
+        };
+      }
+      if (body?.error?.message === 'Endpoint not found') {
+        return { ok: false, target: 'adapter', error: 'Update the desktop adapter to 0.2.7 or newer.' };
+      }
+      if (body?.error?.code === 'NOT_FOUND') {
+        adapterRulesAt = 0;
+        await loadAdapterRules();
+        const again = voicePressMap[key];
+        if (again && again.id !== cached.id) {
+          const retry = await adapterFetch(
+            '/api/v1/press',
+            { mapping: again.id, state },
+            ADAPTER_PRESS_TIMEOUT_MS
+          );
+          if (retry?.ok) {
+            return {
+              ok: true,
+              target: 'adapter',
+              label: retry.data.label,
+              keys: retry.data.keys,
+            };
+          }
+        }
+        return { ok: false, target: 'adapter', error: body.error.message };
+      }
+      if (body?.error) {
+        return { ok: false, target: 'adapter', error: body.error.message };
+      }
+    } catch {
+      adapterRules = null;
+      adapterDownAt = Date.now();
+      adapterSeen = false;
+      return null;
+    }
+  } else if (!adapterSeen) {
+    const def = VOICE_ADAPTER_DEFAULTS[key];
+    if (def) {
+      try {
+        const body = await adapterFetch(
+          '/api/v1/press',
+          { mapping: def.id, state },
+          ADAPTER_PRESS_TIMEOUT_MS
+        );
+        if (body?.ok) {
+          adapterSeen = true;
+          warmAdapter();
+          return {
+            ok: true,
+            target: 'adapter',
+            label: body.data.label,
+            keys: body.data.keys,
+          };
+        }
+        if (body?.error) {
+          return { ok: false, target: 'adapter', error: body.error.message };
+        }
+      } catch {
+        adapterDownAt = Date.now();
+      }
+    }
+    return null;
+  } else if (!cached) {
+    await loadAdapterRules();
+    if (!voicePressMap[key]) {
+      const spoken = key.replace(/([A-Z])/g, ' $1').toLowerCase();
+      return {
+        ok: false,
+        target: 'adapter',
+        error: `No adapter mapping for “${spoken}”. Add one in the desktop adapter.`,
+      };
+    }
+    return pressAdapterMapping(key, state);
+  }
+  return null;
+}
+
+/** Voice: adapter first, browser tab only if the adapter is offline. */
+async function handleVoiceInput(action, state) {
+  const res = await pressAdapterMapping(action, state);
+  if (res?.target === 'adapter') return res;
+  if (res && !res.ok) return res;
+  await handleInputEvent({ source: 'voice', action, state, skipAdapter: true });
+  return { ok: true, target: 'tab' };
 }
 
 /** @type {WebSocket|null} */
@@ -211,7 +441,7 @@ async function buildStatusPayload() {
   const pinned = await getPinnedTarget();
   const fallback = pinned.tab ? [] : await queryFallbackGameTabs();
   const gameTabOpen = Boolean(pinned.tab) || fallback.length > 0;
-  const session = await chrome.storage.session.get(SESSION_KEYS.cameraDockOpen);
+  const session = await chrome.storage.session.get([SESSION_KEYS.cameraDockOpen, SESSION_KEYS.voiceTabId]);
   return {
     bridgeStatus,
     bridgeUrl,
@@ -222,8 +452,45 @@ async function buildStatusPayload() {
     targetTabUrl: pinned.targetTabUrl,
     targetTabHost: pinned.targetTabHost,
     cameraDockOpen: !!session[SESSION_KEYS.cameraDockOpen],
+    voiceOn: typeof session[SESSION_KEYS.voiceTabId] === 'number',
+    adapterConnected: adapterSeen || Boolean(await loadAdapterRules()),
     workerOk: true,
   };
+}
+
+/**
+ * Start/stop/toggle voice listening inside the game tab.
+ * @param {'start'|'stop'|'toggle'} action
+ */
+async function setVoice(action) {
+  // Listening can happen in any page: keys go to the desktop adapter or the game tab either way.
+  const session = await chrome.storage.session.get(SESSION_KEYS.voiceTabId);
+  const candidates = [];
+  const listening = session[SESSION_KEYS.voiceTabId];
+  if (typeof listening === 'number') {
+    candidates.push(await chrome.tabs.get(listening).catch(() => null));
+  }
+  const [active] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  candidates.push(active, ...(await resolveGameTabs()));
+  const tabs = candidates.filter(
+    (t, i) => t && /^https?:/i.test(t.url || '') && candidates.findIndex((c) => c?.id === t.id) === i
+  );
+  if (!tabs.length) {
+    return { ok: false, error: 'Open any https web page (or your browser game) and try again.' };
+  }
+  // Warm the adapter before the first spoken command so /press is one round-trip.
+  if (action !== 'stop') startAdapterWarm();
+  for (const tab of tabs) {
+    try {
+      const res = await chrome.tabs.sendMessage(tab.id, { type: 'gnaa-voice', action });
+      if (res?.listening) startAdapterWarm();
+      else if (res?.ok && action !== 'start') stopAdapterWarm();
+      return res;
+    } catch {
+      /* page loaded before the extension, or an error page; try the next one */
+    }
+  }
+  return { ok: false, error: 'Reload this page so the extension can listen here, then try again.' };
 }
 
 /**
@@ -279,21 +546,39 @@ async function handleSetRemap(msg) {
 }
 
 /**
- * Apply a logical input event through remap → key code → game tab.
- * @param {{ source: string, action: string, state: string }} evt
+ * Apply a logical input: prefer the desktop adapter (any focused game), else the browser tab.
+ * @param {{ source: string, action: string, state: string, skipAdapter?: boolean }} evt
  */
 async function handleInputEvent(evt) {
   const generation = bridgeGeneration;
-  if (evt.source === 'camera' && evt.state === 'up') return cameraKeys.release(evt.action);
   const settings = await loadSettings();
   if (evt.source === 'camera' && (generation !== bridgeGeneration || bridgeStatus !== 'connected')) return;
   const logicalId = `${evt.source}:${evt.action}`;
   let gameAction = resolveRemap(settings.remap, logicalId);
 
-  if (!gameAction && settings.keyCodes[evt.action]) {
+  if (!gameAction && (settings.keyCodes[evt.action] || DEFAULT_KEY_CODES[evt.action])) {
     gameAction = evt.action;
   }
   if (!gameAction) return;
+
+  const pressState = evt.state === 'pulse' ? 'pulse' : evt.state;
+
+  if (!evt.skipAdapter) {
+    const adapterAction = toAdapterAction(gameAction);
+    if (adapterSeen || adapterRules || VOICE_ADAPTER_DEFAULTS[adapterAction]) {
+      if (evt.source === 'camera' && evt.state === 'up') {
+        const up = await pressAdapterMapping(adapterAction, 'up');
+        if (up?.target === 'adapter') return;
+      } else {
+        const pressed = await pressAdapterMapping(adapterAction, pressState);
+        if (pressed?.target === 'adapter') return;
+        // Adapter refused (e.g. Send keys off) — do not also inject into a browser tab.
+        if (pressed && !pressed.ok) return;
+      }
+    }
+  }
+
+  if (evt.source === 'camera' && evt.state === 'up') return cameraKeys.release(evt.action);
 
   const code = settings.keyCodes[gameAction] || DEFAULT_KEY_CODES[gameAction];
   if (!code) return;
@@ -303,17 +588,16 @@ async function handleInputEvent(evt) {
     return cameraKeys.apply(evt.action, code, evt.state);
   }
 
-  let state = evt.state;
-  if (state === 'pulse' && HOLD_ACTIONS.has(gameAction)) {
-    // content script handles pulse
-  }
-  await sendToGameTabs({ type: 'gnaa-apply', code, state });
+  await sendToGameTabs({ type: 'gnaa-apply', code, state: evt.state });
 }
 
 async function releaseAllInputs() {
   await cameraInputQueue;
   await cameraKeys.releaseAll();
   await sendToGameTabs({ type: 'gnaa-release-all' });
+  if (adapterSeen || adapterRules) {
+    await adapterFetch('/api/v1/press/release-all', {}).catch(() => {});
+  }
 }
 
 function scheduleReconnect() {
@@ -391,6 +675,7 @@ chrome.runtime.onInstalled.addListener(() => {
   ensureDefaults().then(() => {
     updateBadge();
     connectBridge();
+    startAdapterWarm();
   });
 });
 
@@ -398,6 +683,7 @@ chrome.runtime.onStartup.addListener(() => {
   ensureDefaults().then(() => {
     updateBadge();
     connectBridge();
+    startAdapterWarm();
   });
 });
 
@@ -405,6 +691,10 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
   const data = await chrome.storage.session.get(SESSION_KEYS.targetTabId);
   if (data[SESSION_KEYS.targetTabId] === tabId) {
     await clearPinnedTarget();
+  }
+  const voice = await chrome.storage.session.get(SESSION_KEYS.voiceTabId);
+  if (voice[SESSION_KEYS.voiceTabId] === tabId) {
+    await chrome.storage.session.remove(SESSION_KEYS.voiceTabId);
   }
 });
 
@@ -423,7 +713,11 @@ chrome.storage.onChanged.addListener((changes, area) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+chrome.commands.onCommand.addListener((command) => {
+  if (command === 'toggle-voice') setVoice('toggle');
+});
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg || !msg.type) return;
 
   if (msg.type === 'gnaa-demo-input') {
@@ -432,6 +726,31 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       action: msg.action,
       state: msg.state || 'pulse',
     }).then(() => sendResponse({ ok: true }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-voice-input') {
+    handleVoiceInput(msg.action, msg.state || 'pulse')
+      .then((res) => sendResponse(res))
+      .catch((err) => sendResponse({ ok: false, error: String(err?.message || err) }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-voice-state') {
+    const tabId = sender.tab?.id;
+    if (msg.listening) startAdapterWarm();
+    else stopAdapterWarm();
+    (msg.listening && tabId != null
+      ? chrome.storage.session.set({ [SESSION_KEYS.voiceTabId]: tabId })
+      : chrome.storage.session.remove(SESSION_KEYS.voiceTabId)
+    ).then(() => sendResponse({ ok: true }));
+    return true;
+  }
+
+  if (msg.type === 'gnaa-voice') {
+    setVoice(msg.action || 'toggle')
+      .then((res) => sendResponse(res))
+      .catch((err) => sendResponse({ ok: false, error: String(err) }));
     return true;
   }
 
@@ -553,4 +872,5 @@ ensureDefaults().then(async () => {
   bridgeUrl = s.bridgeUrl;
   updateBadge();
   connectBridge();
+  startAdapterWarm();
 });

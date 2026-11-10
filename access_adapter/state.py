@@ -43,6 +43,7 @@ class AppState:
         self.bridge_running = False
         self.bridge_error = ""
         self.bridge = None
+        self.remote = None
         self.api_base_url = ""
         self._lock = threading.Lock()
 
@@ -53,6 +54,14 @@ class AppState:
 
             self.bridge = SensorBridge(self)
         return self.bridge
+
+    def ensure_remote(self):
+        """Key presses requested over the API (voice control), separate from tilt holds."""
+        if self.remote is None:
+            from access_adapter.remote import RemotePresses
+
+            self.remote = RemotePresses(self)
+        return self.remote
 
     def save(self) -> None:
         if self.config_path is None:
@@ -89,6 +98,8 @@ class AppState:
             self.config.rules = rules
             self._refresh_active_keys_locked()
         self.save()
+        if not self.config.injection_enabled and self.remote is not None:
+            self.remote.release_all()
         return self.settings_dict()
 
     def mappings_dict(self) -> dict[str, Any]:

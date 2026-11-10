@@ -153,6 +153,20 @@ class AdapterApiHandler(BaseHTTPRequestHandler):
             if "enabled" not in body:
                 raise ValueError("enabled is required")
             return 200, state.update_settings({"injection_enabled": bool(body["enabled"])})
+        if method == "GET" and path == "/api/v1/press":
+            remote = state.ensure_remote()
+            return 200, {"held": remote.held_mappings(), "recent": list(remote.recent)}
+        if method == "POST" and path in {"/api/v1/press", "/api/v1/press/release-all"}:
+            self._require_trusted_origin()
+            remote = state.ensure_remote()
+            if path.endswith("/release-all"):
+                remote.release_all()
+                return 200, {"held": []}
+            press_state = str(body.get("state", "pulse"))
+            if press_state != "up" and not state.config.injection_enabled:
+                raise ApiError(409, "INJECTION_OFF", "Key injection is off. Turn on Send keys in the adapter.")
+            result = remote.press(str(body.get("mapping", "")), press_state)
+            return 200, {**result, "held": remote.held_mappings()}
         if method == "POST" and path == "/api/v1/calibrate":
             sample = None
             if any(key in body for key in ("ax", "ay", "az")):
@@ -169,6 +183,13 @@ class AdapterApiHandler(BaseHTTPRequestHandler):
             return 200, state.clear_calibration()
 
         raise ApiError(404, "NOT_FOUND", "Endpoint not found")
+
+    def _require_trusted_origin(self) -> None:
+        """Any website can reach loopback; only browser extensions and local tools may press keys."""
+        origin = self.headers.get("Origin")
+        if origin is None or origin.startswith(("chrome-extension://", "moz-extension://")):
+            return
+        raise ApiError(403, "ORIGIN_NOT_ALLOWED", "Web pages cannot press keys through the adapter.")
 
     def _read_json(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0") or "0")

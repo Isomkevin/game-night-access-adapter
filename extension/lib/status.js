@@ -40,10 +40,10 @@ export const METHOD_META = Object.freeze({
   voice: {
     id: 'voice',
     title: 'Voice commands',
-    blurb: 'Speak short commands. Each phrase sends a quick tap — not a continuous hold.',
-    needs: 'Microphone permission and the access bridge running.',
+    blurb: 'Speak commands right in the game tab — “go”, “brake”, “left”, “boost”.',
+    needs: 'Google Chrome and microphone permission. No bridge needed.',
     readiness: 'experimental',
-    readinessLabel: 'Experimental — short taps',
+    readinessLabel: 'Experimental',
   },
   custom: {
     id: 'custom',
@@ -149,6 +149,13 @@ export function describeGame(s) {
  * @param {{ bridgeStatus?: string }} s
  */
 export function describeMethodReady(method, s) {
+  if (method === 'voice') {
+    return {
+      tone: 'ok',
+      title: 'Voice commands ready',
+      detail: 'Click Voice control in the popup (or press Alt+Shift+V) on the game tab.',
+    };
+  }
   if (!method || method === 'demo' || method === 'custom') {
     return {
       tone: 'ok',

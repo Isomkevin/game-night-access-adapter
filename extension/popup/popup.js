@@ -117,6 +117,14 @@ function bindPulse(btn) {
   });
 }
 
+/** Keep the result of a button press readable instead of letting the status poll replace it. */
+let hintHeldUntil = 0;
+
+function showHint(text) {
+  document.getElementById('pin-hint').textContent = text;
+  hintHeldUntil = Date.now() + 8000;
+}
+
 function updatePinHint(s) {
   const hint = document.getElementById('pin-hint');
   const btn = document.getElementById('camera-overlay');
@@ -124,17 +132,27 @@ function updatePinHint(s) {
   if (btn) {
     btn.textContent = s?.cameraDockOpen ? 'Hide camera overlay' : 'Camera overlay';
   }
+  const voiceBtn = document.getElementById('voice-toggle');
+  voiceBtn.textContent = s?.voiceOn ? 'Stop voice control' : 'Voice control';
+  voiceBtn.setAttribute('aria-pressed', s?.voiceOn ? 'true' : 'false');
+  if (Date.now() < hintHeldUntil) return;
+  if (s?.adapterConnected) {
+    hint.textContent = s?.voiceOn
+      ? 'Adapter keys → focused game. Voice is listening.'
+      : 'Adapter keys → focused game. Click into your game, then use the pad or Voice control.';
+    return;
+  }
   if (s?.targetTabId && pin) {
     hint.textContent = s?.cameraDockOpen
-      ? `Inputs go to ${pin}. Camera preview is on that tab.`
-      : `Inputs go to ${pin}.`;
+      ? `Browser keys go to ${pin}. Camera preview is on that tab.`
+      : `Browser keys go to ${pin}. Start the desktop adapter for any game.`;
     return;
   }
   if (s?.gameTabOpen) {
-    hint.textContent = 'Using LibreCorsa demo tab. Pin any game with Use this tab.';
+    hint.textContent = 'Browser fallback: LibreCorsa tab. Start the desktop adapter to play any game.';
     return;
   }
-  hint.textContent = 'No game tab pinned — Open game (LibreCorsa) or Use this tab.';
+  hint.textContent = 'Start the desktop adapter (0.2.7+) for any game, or pin a browser tab.';
 }
 
 async function refreshStatus() {
@@ -147,9 +165,17 @@ async function refreshStatus() {
     // Prefer the more urgent signal in the title
     const primary =
       s.workerOk === false ? conn : !s.gameTabOpen ? game : conn;
-    el.textContent = primary.title;
-    el.className = `status ${primary.tone}`;
-    detail.textContent = `${game.title}. ${conn.detail}`;
+    if (s.adapterConnected && s.workerOk !== false) {
+      el.textContent = 'Desktop adapter connected';
+      el.className = 'status ok';
+      detail.textContent = s.voiceOn
+        ? 'Voice and on-screen buttons press the adapter’s keys in whatever game is focused.'
+        : 'Pad, voice, and other inputs press the adapter’s keys in any focused game — not only LibreCorsa.';
+    } else {
+      el.textContent = primary.title;
+      el.className = `status ${primary.tone}`;
+      detail.textContent = `${game.title}. ${conn.detail}`;
+    }
     updatePinHint(s);
   } catch {
     el.textContent = 'Extension stopped';
@@ -173,7 +199,6 @@ document.getElementById('release-all').addEventListener('click', async () => {
 });
 
 document.getElementById('use-this-tab').addEventListener('click', async () => {
-  const hint = document.getElementById('pin-hint');
   try {
     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
     const res = await chrome.runtime.sendMessage({
@@ -181,32 +206,47 @@ document.getElementById('use-this-tab').addEventListener('click', async () => {
       tabId: tab?.id,
     });
     if (!res?.ok) {
-      hint.textContent = res?.error || 'Could not pin this tab.';
+      showHint(res?.error || 'Could not pin this tab.');
       return;
     }
-    hint.textContent = `Pinned ${res.targetTabHost || res.targetTabTitle || 'tab'}.`;
+    showHint(`Pinned ${res.targetTabHost || res.targetTabTitle || 'tab'}.`);
   } catch (err) {
-    hint.textContent = String(err?.message || err || 'Could not pin this tab.');
+    showHint(String(err?.message || err || 'Could not pin this tab.'));
   }
   setTimeout(refreshStatus, 200);
 });
 
 document.getElementById('camera-overlay').addEventListener('click', async () => {
-  const hint = document.getElementById('pin-hint');
   try {
     const res = await chrome.runtime.sendMessage({
       type: 'gnaa-toggle-camera-dock',
       action: 'toggle',
     });
     if (!res?.ok) {
-      hint.textContent = res?.error || 'Could not toggle camera overlay.';
+      showHint(res?.error || 'Could not toggle camera overlay.');
       return;
     }
-    hint.textContent = res.open
+    showHint(res.open
       ? 'Camera overlay on the game tab. Allow camera if asked, then expand for gestures.'
-      : 'Camera overlay hidden.';
+      : 'Camera overlay hidden.');
   } catch (err) {
-    hint.textContent = String(err?.message || err || 'Could not toggle camera overlay.');
+    showHint(String(err?.message || err || 'Could not toggle camera overlay.'));
+  }
+  setTimeout(refreshStatus, 250);
+});
+
+document.getElementById('voice-toggle').addEventListener('click', async () => {
+  try {
+    const res = await chrome.runtime.sendMessage({ type: 'gnaa-voice', action: 'toggle' });
+    if (!res?.ok) {
+      showHint(res?.error || 'Could not start voice control.');
+      return;
+    }
+    showHint(res.listening
+      ? 'Listening on the game tab. Allow the microphone if Chrome asks. Say “stop listening” to end.'
+      : 'Voice control off.');
+  } catch (err) {
+    showHint(String(err?.message || err || 'Could not start voice control.'));
   }
   setTimeout(refreshStatus, 250);
 });

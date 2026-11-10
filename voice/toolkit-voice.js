@@ -143,6 +143,12 @@ const ACTIONS = {
   },
 };
 
+// The toolkit ships page commands ("go back", "go forward", "refresh",
+// "scroll down", …). On this page "go forward" would press the browser's
+// Forward button instead of accelerating, and "go back" navigates away and
+// stops voice mid-race, so only the driving phrases stay registered.
+for (const phrase of Object.keys(VoiceCommands.commands)) delete VoiceCommands.commands[phrase];
+
 let settings = loadSettings(SETTINGS_ID, ACTIONS, DEFAULT_LANGUAGE);
 
 function renderPhrases() {
