@@ -96,7 +96,7 @@ Change `packages/shared/*` first, then **copy** into `extension/lib/`. See [pack
 
 1. Open the game in Chrome (`http` or `https`)
 2. Click the extension → **Use this tab**
-3. Retune Setup → key codes if the game’s bindings differ from LibreCorsa defaults
+3. Retune Setup → key codes if the game’s bindings differ from the WASD defaults
 4. Focus the game and use the pad / phone / camera / voice
 
 ## Voice control (no bridge)

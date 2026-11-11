@@ -17,17 +17,17 @@ Kevin owns the stub; Omar owns hardening, reconnect UX, and any optional OS-leve
 
 ## Local deploy (full Game Night)
 
-You need **three** pieces on the laptop: LibreCorsa, the Chrome extension, and this bridge. Condensed steps:
+You need **three** pieces on the laptop: a keyboard-driven browser game (LibreCorsa demo optional), the Chrome extension, and this bridge. Condensed steps:
 
 ```bash
-# Terminal 1 — game
+# Terminal 1 — demo game (or open / pin any browser game instead)
 cd game && npm install && npm run dev          # http://localhost:3000
 
 # Terminal 2 — bridge (this package)
 cd bridge && npm install && npm start          # http://127.0.0.1:18765
 ```
 
-Then Load unpacked → `extension/`, focus a driving session, badge → `ON`.  
+Then Load unpacked → `extension/`, pin the game with **Use this tab**, focus it, badge → `ON`.  
 Canonical guide: [docs/DEPLOY.md](../docs/DEPLOY.md) · first-day walkthrough: [docs/ONBOARDING.md](../docs/ONBOARDING.md).
 
 ## Hosted bridge (Render)
@@ -39,7 +39,7 @@ Canonical guide: [docs/DEPLOY.md](../docs/DEPLOY.md) · first-day walkthrough: [
 | Blueprint | [`../render.yaml`](../render.yaml) |
 | Region / plan | Frankfurt · free |
 
-Set the extension Setup connection address to the `wss://` URL above, then open `/hub/`, `/phone/`, `/camera/`, or `/voice/` on the hosted site. Game stays local or on [GitHub Pages LibreCorsa](https://khazp.github.io/librecorsa/). Free instances cold-start after idle — use local `npm start` for Justin.
+Set the extension Setup connection address to the `wss://` URL above, then open `/hub/`, `/phone/`, `/camera/`, or `/voice/` on the hosted site. Keep your game local (or use the [LibreCorsa demo](https://khazp.github.io/librecorsa/)) and pin the tab. Free instances cold-start after idle — use local `npm start` for Justin.
 
 ## Prerequisites
 

@@ -58,7 +58,7 @@ git submodule update --init --recursive
 For the full walkthrough (driving phase, badge meanings, verify checklist), use [docs/ONBOARDING.md](docs/ONBOARDING.md).  
 **Local full-stack deploy + hosted Render bridge:** [docs/DEPLOY.md](docs/DEPLOY.md).
 
-### 1. Game (LibreCorsa)
+### 1. Game (any keyboard browser game — LibreCorsa demo)
 
 ```bash
 cd game
