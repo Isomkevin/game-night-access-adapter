@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tutorial — Game Night</title>
+    <meta
+      name="description"
+      content="Non-technical guide: install Game Night, connect any browser game, and play day to day."
+    />
+    <meta name="theme-color" content="#0b3d3a" />
+    <link rel="icon" type="image/svg+xml" href="/landing/mark.svg" />
+    <link rel="stylesheet" href="/ui/tokens.css" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <link rel="stylesheet" href="/landing/guide.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="logo" href="/" aria-label="Game Night home">
+        <img src="/landing/mark.svg" width="36" height="36" alt="" />
+        <span class="logo-text">
+          <span class="logo-name">Game Night</span>
+          <span class="logo-sub">Tutorial</span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="#install">Install</a>
+        <a href="#first">First time</a>
+        <a href="#daily">Every day</a>
+        <a href="#controls">Controls</a>
+        <a href="#help">Help</a>
+        <a href="/hub/">Control hub</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="guide-hero">
+        <div class="section-inner narrow">
+          <p class="eyebrow">For everyone — no coding</p>
+          <h1>From download to playing your game</h1>
+          <p class="section-lede">
+            Game Night helps you control <strong>any keyboard-driven browser game</strong> with
+            phone tilt, camera, voice, or large on-screen buttons. This page walks through install,
+            first setup, and everyday use.
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="install" aria-labelledby="install-title">
+        <div class="section-inner narrow">
+          <p class="eyebrow">Step 1</p>
+          <h2 id="install-title">Install two pieces</h2>
+          <ol class="guide-steps">
+            <li>
+              <strong>Chrome extension</strong> — install
+              <em>Game Night Access Adapter</em> from the
+              <a
+                href="https://chromewebstore.google.com/"
+                rel="noopener noreferrer"
+                id="store-link"
+                >Chrome Web Store</a
+              >
+              (search “Game Night Access Adapter”). If the Store listing is not live yet, use the
+              desktop app’s <strong>Extension setup</strong> coach (Load unpacked) once.
+            </li>
+            <li>
+              <strong>Game Night desktop app</strong> — download the installer for your computer
+              (Windows, Mac, or Linux) from the project Releases page, then run it. You should see a
+              small Game Night icon in the system tray / menu bar.
+            </li>
+          </ol>
+          <p class="gnaa-hint">
+            You do <strong>not</strong> need Git, Node, or a terminal. The desktop app starts the
+            access bridge for you.
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="first" aria-labelledby="first-title">
+        <div class="section-inner narrow">
+          <p class="eyebrow">Step 2</p>
+          <h2 id="first-title">First-time setup (about 5 minutes)</h2>
+          <ol class="guide-steps">
+            <li>Open <strong>Game Night</strong> from the Start Menu / Applications (or wait for login autostart).</li>
+            <li>
+              Pin the extension to Chrome’s toolbar (puzzle piece → pin
+              <strong>Game Night Access Adapter</strong>).
+            </li>
+            <li>
+              Click the extension → <strong>Setup</strong>. Follow Welcome → Choose controls →
+              Customize → Ready. Change any mapping you like; nothing requires editing code.
+            </li>
+            <li>
+              Open <strong>your</strong> browser game in Chrome (any site that uses the keyboard).
+            </li>
+            <li>
+              Click inside the game, open the extension popup, click
+              <strong>Use this tab</strong>.
+            </li>
+            <li>
+              Open the
+              <a href="/hub/">control hub</a>
+              and pick phone, camera, voice, or use the on-screen pad in the popup.
+            </li>
+          </ol>
+          <p class="gnaa-hint">
+            Toolbar badge <strong>ON</strong> means the bridge is connected. Badge
+            <strong>OFF</strong> still allows the on-screen pad.
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="daily" aria-labelledby="daily-title">
+        <div class="section-inner narrow">
+          <p class="eyebrow">Step 3</p>
+          <h2 id="daily-title">Day-to-day use</h2>
+          <ol class="guide-steps">
+            <li>Make sure Game Night is running (tray icon). Use <strong>Start at login</strong> so it comes back after reboot.</li>
+            <li>Open Chrome and your game.</li>
+            <li>If controls don’t reach the game, click the game page → extension → <strong>Use this tab</strong> again.</li>
+            <li>Open the <a href="/hub/">hub</a> for phone / camera / voice, or use the popup pad.</li>
+            <li>When something sticks, use <strong>Stop all inputs</strong> in the popup.</li>
+          </ol>
+          <h3 class="guide-sub">Tray menu cheat sheet</h3>
+          <ul class="guide-list">
+            <li><strong>Open Game Night</strong> — this home / status site</li>
+            <li><strong>Control hub</strong> — choose how you play</li>
+            <li><strong>Extension setup</strong> — only if Chrome disabled the extension</li>
+            <li><strong>How to connect a game</strong> — short reminder for Use this tab</li>
+            <li><strong>Restart bridge</strong> — if phone/camera/voice pages won’t load</li>
+            <li><strong>Quit</strong> — stops the bridge until you open Game Night again</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="controls" aria-labelledby="controls-title">
+        <div class="section-inner narrow">
+          <p class="eyebrow">Controls</p>
+          <h2 id="controls-title">Pick what fits your body</h2>
+          <ul class="guide-list">
+            <li><strong>On-screen pad</strong> — large buttons in the extension popup. Works even if the bridge is off.</li>
+            <li><strong>Phone</strong> — same Wi‑Fi as the computer; open the phone page from the hub; allow motion sensors.</li>
+            <li><strong>Camera / head</strong> — allow the webcam; calibrate; prefer the in-game camera overlay so tracking keeps running.</li>
+            <li><strong>Voice</strong> — short spoken commands; allow the mic while listening.</li>
+          </ul>
+          <p>
+            Remap anything later in <strong>Setup → Customize</strong>. Export a backup JSON if you
+            like.
+          </p>
+        </div>
+      </section>
+
+      <section class="section" id="help" aria-labelledby="help-title">
+        <div class="section-inner narrow">
+          <p class="eyebrow">Help</p>
+          <h2 id="help-title">If something goes wrong</h2>
+          <ul class="guide-list">
+            <li><strong>Nothing moves in the game</strong> — click the game canvas, confirm Use this tab, try the popup pad.</li>
+            <li><strong>Badge stays OFF</strong> — tray → Restart bridge; wait a few seconds; Reconnect in the popup.</li>
+            <li><strong>Phone can’t open the page</strong> — same Wi‑Fi (not guest Wi‑Fi); use the LAN link shown in the hub.</li>
+            <li><strong>After a Chrome update</strong> — re-enable the extension; tray → Extension setup if needed.</li>
+            <li><strong>Port busy message</strong> — follow the on-screen note, or Restart bridge.</li>
+          </ul>
+          <p>
+            Longer recovery notes:
+            <a
+              href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/launcher.md"
+              rel="noopener noreferrer"
+              >launcher guide</a
+            >
+            ·
+            <a href="/privacy/">Privacy</a>
+            ·
+            <a
+              href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/USER_GUIDE.md"
+              rel="noopener noreferrer"
+              >full written tutorial</a
+            >.
+          </p>
+          <div class="start-cta">
+            <a class="gnaa-btn gnaa-btn--amber" href="/hub/">Open control hub</a>
+            <a class="gnaa-btn gnaa-btn--secondary" href="/">Home</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="/">Home</a>
+        <a href="/hub/">Control hub</a>
+        <a href="/privacy/">Privacy</a>
+        <a href="/health">Health</a>
+        <a href="https://github.com/Isomkevin/game-night-access-adapter" rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </nav>
+    </footer>
+  </body>
+</html>

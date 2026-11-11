@@ -3,7 +3,7 @@
 Accessibility adapter for gaming controls: players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — remap camera, voice, phone, and on-screen inputs onto the keyboard actions browser games already understand. Pin any `http(s)` game tab with **Use this tab** and retune key codes in Setup. **[LibreCorsa](https://github.com/KhazP/librecorsa)** ships as a ready demo.
 
 > **What is this supposed to be and do?** Full narrative: **[docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)**.  
-> **Just want to play?** Install the **[Game Night desktop app](docs/launcher.md)** — no terminal.  
+> **Just want to play?** Read the **[player tutorial](docs/USER_GUIDE.md)** and install the **[Game Night desktop app](docs/launcher.md)** — no terminal.  
 > **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → extension → bridge).  
 > Full doc index: **[docs/README.md](docs/README.md)**.
 

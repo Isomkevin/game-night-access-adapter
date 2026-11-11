@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Policy — Game Night Access Adapter</title>
+    <meta name="theme-color" content="#0b3d3a" />
+    <link rel="icon" type="image/svg+xml" href="/landing/mark.svg" />
+    <link rel="stylesheet" href="/ui/tokens.css" />
+    <link rel="stylesheet" href="/landing/landing.css" />
+    <style>
+      .legal {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 32px clamp(16px, 4vw, 40px) 64px;
+        color: var(--gnaa-ink);
+        line-height: 1.55;
+      }
+      .legal h1 {
+        font-family: var(--gnaa-display);
+        color: var(--gnaa-teal-deep);
+        font-size: clamp(1.6rem, 3vw, 2rem);
+        margin: 0 0 8px;
+      }
+      .legal h2 {
+        margin: 28px 0 8px;
+        font-size: 1.15rem;
+        color: var(--gnaa-teal);
+      }
+      .legal p,
+      .legal li {
+        color: var(--gnaa-ink);
+      }
+      .legal .meta {
+        color: var(--gnaa-muted);
+        margin-bottom: 24px;
+      }
+      .legal a {
+        color: var(--gnaa-teal);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="logo" href="/" aria-label="Game Night Access Adapter home">
+        <img src="/landing/mark.svg" width="36" height="36" alt="" />
+        <span class="logo-text">
+          <span class="logo-name">Game Night</span>
+          <span class="logo-sub">Access Adapter</span>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/guide/">Tutorial</a>
+        <a href="/hub/">Control hub</a>
+      </nav>
+    </header>
+
+    <main id="main" class="legal">
+      <h1>Privacy Policy</h1>
+      <p class="meta">Game Night Access Adapter · Last updated: 11 November 2026</p>
+
+      <p>
+        This policy covers the <strong>Game Night Access Adapter</strong> Chrome extension and the
+        related local bridge / desktop app. Plain language is intentional.
+      </p>
+
+      <h2>What the product does</h2>
+      <p>
+        It remaps accessibility inputs (phone tilt, camera/head gestures, voice, on-screen buttons)
+        onto keyboard actions so you can play keyboard-driven browser games. You choose which game
+        tab receives those keys with <strong>Use this tab</strong>.
+      </p>
+
+      <h2>What we collect</h2>
+      <p><strong>We do not run a Game Night account system.</strong> We do not sell personal data.</p>
+      <ul>
+        <li>
+          <strong>Remap settings</strong> (which input maps to which key) are stored in Chrome’s
+          local extension storage on your computer (<code>storage</code> permission).
+        </li>
+        <li>
+          <strong>Camera</strong> frames are processed on your device for gestures. They are not
+          uploaded to Game Night servers.
+        </li>
+        <li>
+          <strong>Phone controller</strong> motion and button events go only to the access bridge
+          you are using (usually on your own computer at <code>localhost</code>, or a bridge URL you
+          chose).
+        </li>
+        <li>
+          <strong>Voice:</strong> when you turn listening on, Chrome’s built-in speech recognition
+          may send audio to Google while listening is active (Chrome’s behaviour). The extension
+          does <em>not</em> store audio or transcripts. Microphone permission is requested by the
+          page or Chrome prompt when you use voice.
+        </li>
+      </ul>
+
+      <h2>Permissions we ask for</h2>
+      <ul>
+        <li><strong>storage</strong> — remember your control mappings and setup progress.</li>
+        <li>
+          <strong>tabs / activeTab</strong> — find and pin the game tab you want to control.
+        </li>
+        <li>
+          <strong>Host access to http(s) pages</strong> — games can run on many websites; the
+          extension must be able to send keyboard events into the tab you pinned. We do not scrape
+          or upload page content for advertising.
+        </li>
+      </ul>
+
+      <h2>Bridge and desktop app</h2>
+      <p>
+        The local bridge (including the Game Night desktop tray app) runs on your machine and
+        serves controller pages. Network traffic for controllers stays on your LAN or the bridge
+        host you configured. The optional hosted demo bridge on Render is only used if you point
+        the extension at that address.
+      </p>
+
+      <h2>Children</h2>
+      <p>
+        The product is a general accessibility tool for browser games. Guardians should supervise
+        younger players’ browser and microphone use.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this policy:
+        <a href="https://github.com/Isomkevin/game-night-access-adapter/issues"
+          >GitHub issues</a
+        >
+        on the public repository.
+      </p>
+
+      <p><a href="/">← Back to Game Night home</a> · <a href="/guide/">Tutorial</a></p>
+    </main>
+  </body>
+</html>

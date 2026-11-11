@@ -1,0 +1,38 @@
+.guide-hero {
+  padding: 48px clamp(16px, 4vw, 40px) 24px;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%, color-mix(in srgb, var(--gnaa-teal) 18%, transparent), transparent),
+    var(--gnaa-sand);
+}
+
+.guide-steps {
+  margin: 0 0 16px;
+  padding-left: 1.25rem;
+  max-width: 40rem;
+}
+
+.guide-steps li {
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.guide-list {
+  margin: 0 0 16px;
+  padding-left: 1.25rem;
+  max-width: 40rem;
+}
+
+.guide-list li {
+  margin-bottom: 10px;
+  line-height: 1.45;
+}
+
+.guide-sub {
+  margin: 20px 0 8px;
+  font-size: 1.05rem;
+  color: var(--gnaa-teal-deep);
+}
+
+.narrow {
+  max-width: 44rem;
+}

@@ -2,6 +2,8 @@
 
 Install **Game Night** once. It starts the access bridge in the background and helps you turn on the Chrome extension. You open **your own** browser game — Game Night does not launch a specific title.
 
+**Full non-technical tutorial (install → everyday use):** [USER_GUIDE.md](USER_GUIDE.md) · in-app [/guide/](https://game-night-bridge.onrender.com/guide/)
+
 Developers: [DEPLOY.md](DEPLOY.md) · [launcher/README.md](../launcher/README.md).
 
 ## Install

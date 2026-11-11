@@ -111,6 +111,10 @@ const server = http.createServer((req, res) => {
   let filePath;
   if (url.pathname === '/' || url.pathname === '/index.html') {
     filePath = path.join(LANDING_DIR, 'index.html');
+  } else if (url.pathname === '/privacy' || url.pathname === '/privacy/') {
+    filePath = path.join(LANDING_DIR, 'privacy.html');
+  } else if (url.pathname === '/guide' || url.pathname === '/guide/') {
+    filePath = path.join(LANDING_DIR, 'guide.html');
   } else if (
     url.pathname === '/presentation' ||
     url.pathname === '/presentation/' ||

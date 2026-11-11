@@ -10,6 +10,7 @@
 | 4 | [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) | Terminals, ports, env, shells |
 | 5 | [DEPLOY.md](DEPLOY.md) | Desktop app, local full-stack, hosted Render bridge |
 | 5b | [launcher.md](launcher.md) | Non-technical Game Night desktop install |
+| 5c | [USER_GUIDE.md](USER_GUIDE.md) | Complete player tutorial (install → daily use) |
 | 6 | [architecture.md](architecture.md) | Data flow and injection |
 | 7 | [protocol.md](protocol.md) | Wire contract before changing inputs |
 | 8 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, docs-before-push, first PR |
@@ -67,7 +68,8 @@ Add a short doc for each new input adapter before merging: how to run it, what w
 | [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) | Ports / terminals / shells |
 | [DEPLOY.md](DEPLOY.md) | Local deploy + Render hosted bridge |
 | [launcher.md](launcher.md) | Game Night desktop app (players) |
-| [store/README.md](store/README.md) | Chrome Web Store publish checklist |
+| [USER_GUIDE.md](USER_GUIDE.md) | Complete non-technical tutorial |
+| [store/README.md](store/README.md) · [store/PUBLISH.md](store/PUBLISH.md) | Chrome Web Store publish |
 | [architecture.md](architecture.md) | System design |
 | [protocol.md](protocol.md) | WebSocket + remap contract |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Workflow |

@@ -29,6 +29,7 @@ async function refreshStatus() {
 gameNight.onExtensionInfo((info) => {
   const steps = (info.steps || []).join('\n\n');
   hint.textContent = steps || `Folder: ${info.path || ''}`;
+  if (info.port) window.__gnaaPort = info.port;
 });
 
 document.getElementById('btn-ext').addEventListener('click', () => {
@@ -41,6 +42,10 @@ document.getElementById('btn-hub').addEventListener('click', () => {
 
 document.getElementById('btn-landing').addEventListener('click', () => {
   gameNight.openLanding();
+});
+
+document.getElementById('btn-guide')?.addEventListener('click', () => {
+  gameNight.openUrl(`http://127.0.0.1:${window.__gnaaPort || 18765}/guide/`);
 });
 
 document.getElementById('btn-done').addEventListener('click', async () => {

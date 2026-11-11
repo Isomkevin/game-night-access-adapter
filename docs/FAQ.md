@@ -36,6 +36,18 @@ Always clone with `--recurse-submodules` when possible.
 
 **No.** Load the extension, pin a game tab, and use the popup demo pad first. Start the bridge when you test phone / camera / voice.
 
+### Is there a simple tutorial for non-technical players?
+
+Yes — [USER_GUIDE.md](USER_GUIDE.md) (install → first setup → every day). In the running app open [/guide/](https://game-night-bridge.onrender.com/guide/).
+
+### Is there a simple tutorial for non-technical players?
+
+Yes — [USER_GUIDE.md](USER_GUIDE.md) (install → first setup → every day). In the running app open [/guide/](https://game-night-bridge.onrender.com/guide/).
+
+### Is there a simple tutorial for non-technical players?
+
+Yes — [USER_GUIDE.md](USER_GUIDE.md) (install → first setup → every day). In the running app open [/guide/](https://game-night-bridge.onrender.com/guide/).
+
 ### How do I deploy / run Game Night locally?
 
 **Players:** install the **Game Night** desktop app — [launcher.md](launcher.md). No terminal. Open any browser game → **Use this tab**.

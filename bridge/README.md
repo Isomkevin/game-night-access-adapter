@@ -90,6 +90,8 @@ curl http://127.0.0.1:18765/health
 | Path | Serves |
 | --- | --- |
 | `/` | Product landing ([`landing/`](landing/)) |
+| `/guide/` | Non-technical tutorial |
+| `/privacy/` | Privacy policy (Chrome Web Store) |
 | `/hub/` | Control-method hub ([`hub/`](hub/)) |
 | `/landing/*` | Landing assets (CSS, mark, favicon) |
 | `/health` | JSON status |
