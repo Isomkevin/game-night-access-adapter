@@ -149,7 +149,7 @@ function updatePinHint(s) {
     return;
   }
   if (s?.gameTabOpen) {
-    hint.textContent = 'Browser fallback: LibreCorsa tab. Start the desktop adapter to play any game.';
+    hint.textContent = 'Browser fallback: demo game tab. Pin any game with Use this tab, or start the desktop adapter.';
     return;
   }
   hint.textContent = 'Start the desktop adapter (0.2.7+) for any game, or pin a browser tab.';
@@ -170,7 +170,7 @@ async function refreshStatus() {
       el.className = 'status ok';
       detail.textContent = s.voiceOn
         ? 'Voice and on-screen buttons press the adapter’s keys in whatever game is focused.'
-        : 'Pad, voice, and other inputs press the adapter’s keys in any focused game — not only LibreCorsa.';
+        : 'Pad, voice, and other inputs press the adapter’s keys in whatever game is focused.';
     } else {
       el.textContent = primary.title;
       el.className = `status ${primary.tone}`;

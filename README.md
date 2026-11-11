@@ -1,6 +1,6 @@
 # Game Night Access Adapter
 
-Proof-of-concept accessibility adapter so players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — can remap camera, voice, and phone inputs onto the keyboard actions a browser game already understands. **[LibreCorsa](https://github.com/KhazP/librecorsa)** is the default demo; pin any `http(s)` game tab with **Use this tab** in the extension popup and retune key codes in Setup.
+Accessibility adapter for gaming controls: players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — remap camera, voice, phone, and on-screen inputs onto the keyboard actions browser games already understand. Pin any `http(s)` game tab with **Use this tab** and retune key codes in Setup. **[LibreCorsa](https://github.com/KhazP/librecorsa)** ships as a ready demo.
 
 > **What is this supposed to be and do?** Full narrative: **[docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)**.  
 > **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → game → extension demo pad → optional bridge).  
@@ -21,7 +21,7 @@ Camera / voice / phone / demo UI
         ↓
  Chrome extension (remap table → pinned game tab)
         ↓
- KeyboardEvent.code (LibreCorsa defaults: KeyW/A/S/D, …)
+ KeyboardEvent.code (defaults: KeyW/A/S/D, … — retune per game)
 ```
 
 - **No extra hardware for the web phone path.** The LAN web page controller works on Justin’s MacBook without USB/ADB.

@@ -1,7 +1,7 @@
 {
   "name": "game-night-access-adapter",
   "version": "1.0.0",
-  "description": "Proof-of-concept accessibility adapter so players with different access needs can remap camera, voice, and phone inputs onto keyboard controls for browser games. LibreCorsa is the default demo.",
+  "description": "Accessibility adapter for gaming controls: remap camera, voice, phone, and on-screen inputs onto keyboard controls for browser games — designed for players with disabilities. Includes a LibreCorsa demo.",
   "main": "index.js",
   "directories": {
     "doc": "docs"

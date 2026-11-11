@@ -411,8 +411,8 @@ function renderSetup() {
 
   if (method === 'demo') {
     addStep('Pin the Game Night extension in Chrome.');
-    addStep('Open your game (or LibreCorsa), pin it with Use this tab, then focus the game.');
-    addStep('Click the race so the game can hear keys.');
+    addStep('Open your game, pin it with Use this tab, then focus the game.');
+    addStep('Click the game so it can hear keys.');
     addStep('Open the extension popup and try Throttle, Left, and Right.');
     addStep('Optional: turn on Latch mode so you do not need to hold buttons.');
     addAction('Open game', () => chrome.runtime.sendMessage({ type: 'gnaa-open-game' }), 'gnaa-btn--amber');

@@ -6,7 +6,7 @@
     <title>Game Night Access Adapter — Play Games your way</title>
     <meta
       name="description"
-      content="Remappable camera, voice, phone, and on-screen controls for LibreCorsa. Software-only accessibility adapter co-designed with players who need different ways to race."
+      content="Accessible game controls for people with disabilities. Remap camera, voice, phone, and on-screen pads onto the keys browser games already understand — no extra hardware, no code edits."
     />
     <meta name="theme-color" content="#0b3d3a" />
     <link rel="icon" type="image/svg+xml" href="/landing/mark.svg" />
@@ -14,7 +14,7 @@
     <meta property="og:title" content="Game Night Access Adapter" />
     <meta
       property="og:description"
-      content="Race LibreCorsa with the controls that match how you move — phone tilt, head tracking, voice, or on-screen pad. Remap without editing code."
+      content="Accessible game controls for people with disabilities. Remap phone tilt, head tracking, voice, and on-screen pads to the way you move — no extra hardware, no code edits."
     />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -54,8 +54,8 @@
           <p class="eyebrow">Game Night Access Adapter</p>
           <h1 id="hero-title" class="brand">Play together without assuming fast fingers.</h1>
           <p class="hero-lede">
-            Remap phone tilt, head movement, voice, and on-screen controls onto the keys LibreCorsa
-            already understands — no extra hardware, no code edits.
+            Remap phone tilt, head movement, voice, and on-screen controls onto the keys browser
+            games already understand — no extra hardware, no code edits.
           </p>
           <div class="hero-cta">
             <a class="gnaa-btn gnaa-btn--amber" href="/hub/">Choose your controls</a>
@@ -68,7 +68,7 @@
             >
           </div>
           <p class="hero-meta gnaa-hint">
-            Co-designed with Justin Machogu · Built for Chrome + LibreCorsa
+            Co-designed with Justin Machogu · Built for Chrome + keyboard-driven browser games
           </p>
         </div>
 
@@ -111,7 +111,7 @@
           <p class="eyebrow">The problem</p>
           <h2 id="problem-title">Browser games assume a mouse, chords, and continuous pace.</h2>
           <p class="section-lede">
-            That locks players with motor access needs out of racing with friends and family.
+            That locks players with motor access needs out of game night with friends and family.
             Justin’s ask was simple and non-negotiable: <strong>fully remappable controls</strong>
             that match the movements he can use — on your laptop, with software only.
           </p>
@@ -123,8 +123,8 @@
           <p class="eyebrow">How it works</p>
           <h2 id="how-title">Accessible inputs become the keys the game already hears.</h2>
           <p class="section-lede">
-            We do not rewrite LibreCorsa. A local bridge and Chrome extension translate your inputs
-            into keyboard codes during the driving phase.
+            We do not rewrite the game. A local bridge and Chrome extension translate your inputs
+            into the keyboard codes the focused game already hears.
           </p>
 
           <ol class="flow" aria-label="Input pipeline">
@@ -145,8 +145,8 @@
             </li>
             <li class="flow-step">
               <span class="flow-num">4</span>
-              <h3>Drive</h3>
-              <p>Synthetic keydown/keyup reach LibreCorsa while you are on track.</p>
+              <h3>Play</h3>
+              <p>Synthetic keydown/keyup reach the pinned game tab while it is focused.</p>
             </li>
           </ol>
         </div>
@@ -157,8 +157,8 @@
           <p class="eyebrow">Control methods</p>
           <h2 id="controls-title">Pick the body movement that works — combine them if you want.</h2>
           <p class="section-lede">
-            Every method below is a real page on this bridge. Keep the Chrome extension installed and
-            LibreCorsa focused in a driving session.
+            Every method below is a real page on this bridge. Keep the Chrome extension installed,
+            pin your game tab, and focus the game so it can receive keys.
           </p>
 
           <div class="method-grid">
@@ -207,7 +207,7 @@
             <h2 id="remap-title">Change mappings without editing code.</h2>
             <p class="section-lede">
               Extension Setup walks Welcome → Choose → Customize → Ready. Profiles live in Chrome
-              storage and export as JSON. Defaults match LibreCorsa’s own bindings.
+              storage and export as JSON. Defaults use common WASD bindings — retune for your game.
             </p>
             <ul class="check-list">
               <li>48px touch targets and high-legibility type (Atkinson Hyperlegible)</li>
@@ -215,7 +215,7 @@
               <li>Works on Justin’s MacBook — no USB gamepad or ADB</li>
             </ul>
           </div>
-          <aside class="key-map gnaa-card" aria-label="Default LibreCorsa bindings">
+          <aside class="key-map gnaa-card" aria-label="Default game key bindings">
             <h3>Default game keys</h3>
             <dl>
               <div><dt>Steer</dt><dd>A / D</dd></div>
@@ -231,15 +231,16 @@
       <section class="section start" id="start" aria-labelledby="start-title">
         <div class="section-inner">
           <p class="eyebrow">Get started</p>
-          <h2 id="start-title">From zero to driving with accessible controls.</h2>
+          <h2 id="start-title">From zero to playing with accessible controls.</h2>
           <ol class="start-steps">
             <li>
-              <strong>Run LibreCorsa</strong> locally at
-              <a href="http://localhost:3000" rel="noopener noreferrer">localhost:3000</a>
+              <strong>Open a keyboard-driven browser game</strong> — pin any
+              <code>http(s)</code> tab with <strong>Use this tab</strong>. For a ready demo, run
+              <a href="http://localhost:3000" rel="noopener noreferrer">LibreCorsa locally</a>
               or open
               <a href="https://khazp.github.io/librecorsa/" rel="noopener noreferrer"
                 >the hosted build</a
-              >, then enter a driving session.
+              >.
             </li>
             <li>
               <strong>Load the Chrome extension</strong> unpacked from
@@ -253,7 +254,7 @@
             <li>
               <strong>Connect the bridge</strong> — open the
               <a href="/hub/">control hub</a> on this host (or run the bridge locally), then focus
-              the game canvas.
+              the game.
             </li>
           </ol>
           <div class="start-cta">
@@ -299,10 +300,10 @@
                   <code>git clone --recurse-submodules https://github.com/Isomkevin/game-night-access-adapter.git</code>
                 </li>
                 <li>
-                  Game:<br />
+                  Demo game (optional):<br />
                   <code>cd game &amp;&amp; npm install &amp;&amp; npm run dev</code><br />
                   → <a href="http://localhost:3000" rel="noopener noreferrer">http://localhost:3000</a>
-                  (driving session)
+                  — or pin any keyboard-driven browser game
                 </li>
                 <li>
                   Extension: <code>chrome://extensions</code> → Load unpacked →
@@ -323,10 +324,10 @@
               </p>
               <ol class="start-steps">
                 <li>
-                  Run LibreCorsa locally or open
+                  Open your game (or the
                   <a href="https://khazp.github.io/librecorsa/" rel="noopener noreferrer"
-                    >khazp.github.io/librecorsa</a
-                  >
+                    >LibreCorsa demo</a
+                  >) and pin it with <strong>Use this tab</strong>
                 </li>
                 <li>Load the Chrome extension from <code>extension/</code></li>
                 <li>
@@ -370,7 +371,7 @@
         <img src="/landing/mark.svg" width="28" height="28" alt="" />
         <div>
           <p class="brand footer-name">Game Night Access Adapter</p>
-          <p class="gnaa-hint">Inclusive racing companion · MIT adapter code</p>
+          <p class="gnaa-hint">Inclusive gaming controls · MIT adapter code</p>
         </div>
       </div>
       <nav class="footer-nav" aria-label="Footer">
@@ -394,7 +395,7 @@
         <a href="https://github.com/KhazP/librecorsa" rel="noopener noreferrer">LibreCorsa</a>
       </nav>
       <p class="footer-copy">
-        Game Night team with co-designer Justin Machogu. LibreCorsa MIT · Toolkit Apache-2.0.
+        Game Night team with co-designer Justin Machogu. Demo game LibreCorsa MIT · Toolkit Apache-2.0.
       </p>
     </footer>
 

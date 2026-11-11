@@ -1020,7 +1020,7 @@
         <div class="chip-row reveal reveal-4">
           <span class="chip chip--warm">Co-designed with Justin Machogu</span>
           <span class="chip chip--live">No extra hardware</span>
-          <span class="chip">LibreCorsa PoC · pin any game tab</span>
+          <span class="chip">Browser games · pin any game tab</span>
         </div>
       </section>
 
@@ -1105,7 +1105,7 @@
           <li class="pipe-step">
             <span class="pipe-num">5</span>
             <h3>Game</h3>
-            <p>LibreCorsa (or pinned tab) receives keys in the driving phase.</p>
+            <p>The pinned game tab receives keys while focused.</p>
           </li>
         </ol>
       </section>
@@ -1192,12 +1192,12 @@
             <ul>
               <li>Setup walkthrough: Welcome → Choose → Customize → Ready.</li>
               <li>Profiles in <code>chrome.storage</code>; export / import as JSON.</li>
-              <li>Defaults match LibreCorsa: A/D steer, W/S pedals, Space boost.</li>
-              <li>Injection only matters in the <strong>driving</strong> phase.</li>
+              <li>Defaults use common WASD bindings: A/D steer, W/S pedals, Space boost — retune for your game.</li>
+              <li>Pin any <code>http(s)</code> game tab; keys fire while that tab is focused.</li>
             </ul>
             <p style="margin-top: 14px; font-size: 1rem">
-              LibreCorsa listens on <code>window</code> and does not check
-              <code>isTrusted</code> — synthetic keys work.
+              Works best with games that listen for keyboard events on
+              <code>window</code> without requiring <code>isTrusted</code>.
             </p>
           </div>
         </div>
@@ -1211,7 +1211,7 @@
           <ol class="demo-steps">
             <li>Load unpacked extension from <code>extension/</code>.</li>
             <li>Open Setup / Options — change one binding live.</li>
-            <li>Enter LibreCorsa driving phase; focus the game canvas.</li>
+            <li>Open your game, pin it, and focus the canvas (demo: LibreCorsa).</li>
             <li>Drive with demo pad, phone tilt, or head tracking.</li>
           </ol>
           <div>
@@ -1253,7 +1253,7 @@
             <ul>
               <li>Software-only accessibility path — laptop + phone.</li>
               <li>Input abstraction: any source → shared protocol → remap.</li>
-              <li>Game stays upstream; adapter wraps around LibreCorsa.</li>
+              <li>Game stays upstream; adapter wraps around any keyboard-driven browser game.</li>
               <li>
                 Toolkit voice + upstream example PR
                 <a
@@ -1305,7 +1305,7 @@
           </div>
           <div class="person person--wide">
             <strong>Stack</strong>
-            <span>Chrome MV3 · Node WebSocket · MediaPipe · AI for Accessibility Toolkit · LibreCorsa</span>
+            <span>Chrome MV3 · Node WebSocket · MediaPipe · AI for Accessibility Toolkit · browser games</span>
           </div>
         </div>
       </section>
@@ -1315,7 +1315,7 @@
         <p class="brand reveal">Closing</p>
         <h1 class="reveal reveal-2">Gaming should adapt to people, not the other way around.</h1>
         <p class="lede reveal reveal-3">
-          Same race. Controls that match how you move.
+          Same game night. Controls that match how you move.
         </p>
         <blockquote class="quote reveal reveal-4">
           Play together without assuming fast fingers.
@@ -1336,7 +1336,7 @@
           >
         </div>
         <p style="margin-top: 8px; font-size: 0.95rem" class="reveal reveal-4">
-          github.com/Isomkevin/game-night-access-adapter · Adapter MIT · LibreCorsa MIT · Toolkit
+          github.com/Isomkevin/game-night-access-adapter · Adapter MIT · demo game LibreCorsa MIT · Toolkit
           Apache-2.0
         </p>
       </section>

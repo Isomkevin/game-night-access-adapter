@@ -8,9 +8,9 @@ Browser games often assume mouse, multi-key keyboard chords, and fast continuous
 
 ## Approach
 
-We adapt one open-source browser racer — **LibreCorsa** — instead of building a new game. A Chrome extension remaps accessible inputs (head / vision tracking, voice, phone tilt, on-screen pad) onto the keyboard codes LibreCorsa already understands. A small local bridge fans inputs over WebSocket. The phone is a **software controller** (LAN web page), not USB hardware, so the solution stays within the challenge's no-extra-hardware rule and works on Justin's MacBook.
+We do not build a new game. A Chrome extension remaps accessible inputs (head / vision tracking, voice, phone tilt, on-screen pad) onto the keyboard codes keyboard-driven browser games already understand. A small local bridge fans inputs over WebSocket. The phone is a **software controller** (LAN web page), not USB hardware, so the solution stays within the challenge's no-extra-hardware rule and works on Justin's MacBook. **LibreCorsa** ships as the ready demo; players can pin any compatible browser game tab.
 
-Players change mappings in the extension Options / Setup UI without editing code; profiles export and import as JSON. Injection only applies while LibreCorsa is in the driving phase.
+Players change mappings in the extension Options / Setup UI without editing code; profiles export and import as JSON. Injection applies to the pinned, focused game tab.
 
 ## Toolkit
 
@@ -25,4 +25,4 @@ We use and extend the [AI for Accessibility Toolkit](https://github.com/AI-for-A
 
 ## Credits
 
-Game Night team with co-designer Justin Machogu. LibreCorsa (MIT code). AI for Accessibility Toolkit (Apache-2.0).
+Game Night team with co-designer Justin Machogu. Demo game LibreCorsa (MIT code). AI for Accessibility Toolkit (Apache-2.0).

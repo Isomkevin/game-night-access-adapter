@@ -6,9 +6,9 @@
 
 Browser games assume mouse + multi-key keyboard. Justin (and players like him) need **fully remappable** controls so head, voice, phone tilt, or large on-screen buttons can drive the same game. See [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).
 
-### Do we modify LibreCorsa?
+### Do we modify the game?
 
-**No** for the accessibility path. Keep the `game/` submodule clean. Inject keys via the Chrome extension. Do not land voice patches inside the game.
+**No** for the accessibility path. Keep the demo `game/` submodule (LibreCorsa) clean. Inject keys via the Chrome extension into any pinned tab. Do not land voice patches inside the game.
 
 ### Is the phone “extra hardware”?
 
@@ -16,7 +16,7 @@ For the challenge web path: **no** — the phone is a **software controller** (b
 
 ### Does this work for every browser game?
 
-The extension can **pin any `http(s)` tab** and inject keys. LibreCorsa is the demo and co-design target. Other games may need different key codes in Setup. Pointer-only or `isTrusted`-gated games may not work.
+The extension can **pin any `http(s)` tab** and inject keys. LibreCorsa is the included demo and co-design target, not a hard limit. Other games may need different key codes in Setup. Pointer-only or `isTrusted`-gated games may not work.
 
 ## Setup
 
@@ -34,7 +34,7 @@ Always clone with `--recurse-submodules` when possible.
 
 ### Do I need the bridge on day one?
 
-**No.** Load the extension and use the popup demo pad against LibreCorsa first. Start the bridge when you test phone / camera / voice.
+**No.** Load the extension, pin a game tab, and use the popup demo pad first. Start the bridge when you test phone / camera / voice.
 
 ### How do I deploy / run Game Night locally?
 
@@ -58,11 +58,11 @@ https://game-night-bridge.onrender.com — product landing, hub, phone, camera, 
 
 ### Why doesn’t the car move?
 
-Usually: not in **driving** phase, game tab not focused, or tab not pinned / not a LibreCorsa fallback URL. See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)#extension-demo-pad-does-nothing.
+Usually: game tab not focused, tab not pinned, or (for the LibreCorsa demo) not yet in a playable/driving session. See [TROUBLESHOOTING.md](TROUBLESHOOTING.md)#extension-demo-pad-does-nothing.
 
 ### What does **Use this tab** do?
 
-Pins the current Chrome tab as the injection target for this browser session. Required for non-LibreCorsa games; recommended even for LibreCorsa so routing is explicit.
+Pins the current Chrome tab as the injection target for this browser session. Required for most games; recommended even when using the LibreCorsa demo so routing is explicit.
 
 ### Remap didn’t stick
 

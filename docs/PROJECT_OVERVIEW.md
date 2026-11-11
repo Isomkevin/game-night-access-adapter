@@ -1,8 +1,8 @@
 # What this project is supposed to be and do
 
-**Game Night Access Adapter** is a proof-of-concept accessibility adapter for the browser racing game [LibreCorsa](https://github.com/KhazP/librecorsa). It lets players with different motor access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — play using remappable camera, voice, phone, and on-screen controls instead of mouse and multi-key keyboard chords.
+**Game Night Access Adapter** is an accessibility adapter for gaming controls. It lets players with different motor access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — play keyboard-driven browser games using remappable camera, voice, phone, and on-screen controls instead of mouse and multi-key keyboard chords. [LibreCorsa](https://github.com/KhazP/librecorsa) is the included demo game, not the product limit.
 
-The game itself is **not** rewritten. Alternate inputs are translated into the keyboard codes LibreCorsa already understands.
+The game itself is **not** rewritten. Alternate inputs are translated into the keyboard codes the focused game already understands.
 
 New developers: [ONBOARDING.md](ONBOARDING.md) (run the stack) → [DEPLOY.md](DEPLOY.md) (local + Render) → [GLOSSARY.md](GLOSSARY.md) (terms) → [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) (ports/terminals). Technical data flow: [architecture.md](architecture.md). Wire contract: [protocol.md](protocol.md). Short judging write-up: [writeup.md](writeup.md). Full index: [README.md](README.md).
 
@@ -29,7 +29,7 @@ Camera / voice / phone / demo (on-screen) UI
         ↓
  Chrome extension (player’s remap table)
         ↓
- LibreCorsa keyboard codes (KeyW, KeyA, KeyS, KeyD, Space, …)
+ Game keyboard codes (defaults: KeyW, KeyA, KeyS, KeyD, Space, …)
 ```
 
 ### Intended input methods
@@ -47,9 +47,9 @@ Camera / voice / phone / demo (on-screen) UI
 2. The extension builds a key such as `phone:tiltLeft`.
 3. It looks up the player’s remap → game action (e.g. `steerLeft`).
 4. It looks up the key code (`KeyA` or a player override).
-5. It injects `keydown` / `keyup` into the LibreCorsa tab.
+5. It injects `keydown` / `keyup` into the pinned game tab.
 
-Profiles live in `chrome.storage.local` and can be exported/imported as JSON from the extension Options / Setup UI. Default game actions and keys match LibreCorsa’s own bindings:
+Profiles live in `chrome.storage.local` and can be exported/imported as JSON from the extension Options / Setup UI. Default game actions and keys use common WASD bindings (matching the LibreCorsa demo):
 
 | Game action | Default key |
 | --- | --- |
@@ -65,7 +65,7 @@ Holds (`down` then `up`) are for steering and pedals. Voice (and some camera pul
 
 ### When keys matter
 
-Injection only matters while LibreCorsa is in the **driving** phase. Menus ignore those keys by design. LibreCorsa listens for `keydown` / `keyup` on `window` and does not check `event.isTrusted`, so the extension can dispatch synthetic `KeyboardEvent`s (with a page-world hook as fallback).
+Injection applies to the pinned, focused game tab. Games that listen for `keydown` / `keyup` on `window` without requiring `event.isTrusted` work best (the LibreCorsa demo does). The extension can dispatch synthetic `KeyboardEvent`s (with a page-world hook as fallback).
 
 ## How the pieces fit
 
@@ -86,7 +86,7 @@ This is a monorepo. `game/` (LibreCorsa) and `toolkit/` (fork of the [AI for Acc
         ▼
    extension background  (remap source:action → game action → KeyW/…)
         ▼
-   content script on LibreCorsa tab  (keydown/keyup)
+   content script on pinned game tab  (keydown/keyup)
         ▼
    game physics
 ```
@@ -130,4 +130,4 @@ Deliverable checklist: root [README.md](../README.md). Presentation: [presentati
 
 ## Credits / license
 
-Game Night team with co-designer Justin Machogu. LibreCorsa (MIT). AI for Accessibility Toolkit (Apache-2.0). Original adapter code in this repository: MIT (see `LICENSE`).
+Game Night team with co-designer Justin Machogu. Demo game LibreCorsa (MIT). AI for Accessibility Toolkit (Apache-2.0). Original adapter code in this repository: MIT (see `LICENSE`).

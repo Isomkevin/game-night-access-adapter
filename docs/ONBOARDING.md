@@ -1,6 +1,6 @@
 # Developer onboarding
 
-Goal of this guide: on a clean machine, go from zero to **steering LibreCorsa with the extension demo pad** in under 30 minutes, then optionally add bridge inputs (phone / camera / voice).
+Goal of this guide: on a clean machine, go from zero to **driving a browser game with the extension demo pad** in under 30 minutes (LibreCorsa is the ready demo), then optionally add bridge inputs (phone / camera / voice).
 
 ## Learning path (read in order)
 

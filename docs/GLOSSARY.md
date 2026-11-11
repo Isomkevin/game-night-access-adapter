@@ -11,7 +11,7 @@ Short definitions used across this repo. If a PR introduces a new term, add it h
 | **State** | `down` / `up` for held controls; `pulse` for a short tap (~120 ms). |
 | **Bridge** | Node HTTP + WebSocket server (`bridge/`, default port **18765**) that fans inputs to the extension. Run locally or use the hosted Render URL. |
 | **Hosted bridge** | Public Render deploy at https://game-night-bridge.onrender.com (`wss://…` for the extension). See [DEPLOY.md](DEPLOY.md). |
-| **Local deploy** | Full stack on one machine: LibreCorsa (`game/`), Load unpacked extension, bridge `npm start`. |
+| **Local deploy** | Full stack on one machine: demo game (`game/` / LibreCorsa) or any pinned browser game, Load unpacked extension, bridge `npm start`. |
 | **Extension** | Chrome MV3 app in `extension/` — remap UI, WebSocket client, keystroke injection. |
 | **Pin / Use this tab** | Session flag that tells the extension which browser tab receives injected keys. |
 | **Demo pad** | On-screen controls in the extension popup. Works with the bridge **offline**. |
@@ -24,4 +24,4 @@ Short definitions used across this repo. If a PR introduces a new term, add it h
 | **Phone-tilt desktop adapter** | Optional Python / ADB path (`access_adapter/`, `adapters/phone_tilt/`) that sends OS keystrokes. Separate from the web phone page. |
 | **Hub / Landing** | Product pages served by the bridge at `/` and `/hub/` linking to phone, camera, voice. |
 | **Co-designer** | Justin Machogu — primary accessibility tester (macOS). Record sessions in [testing-log.md](testing-log.md). |
-| **PoC** | Proof of concept scoped to one game (LibreCorsa demo) plus remappable inputs — not a universal multi-game product claim. |
+| **PoC** | Proof of concept for remappable accessible inputs onto keyboard-driven browser games; LibreCorsa is the included demo, not the product limit. |

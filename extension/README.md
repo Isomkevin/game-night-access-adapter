@@ -7,7 +7,7 @@ Manifest V3 extension that:
 3. Injects `keydown` / `keyup` into a **pinned** game tab (any `http(s)` page)
 4. Provides a **demo pad** so you can test without Omar’s bridge
 
-LibreCorsa remains the default demo (Open game → `localhost:3000`). For any other keyboard-driven browser game: open the game, click **Use this tab**, and retune key codes in Setup if needed.
+Pin any keyboard-driven browser game with **Use this tab** and retune key codes in Setup if needed. LibreCorsa is the included demo (Open game → `localhost:3000`).
 
 New developers: finish [docs/ONBOARDING.md](../docs/ONBOARDING.md) first.  
 Full local stack + hosted bridge: [docs/DEPLOY.md](../docs/DEPLOY.md).
@@ -18,7 +18,7 @@ Full local stack + hosted bridge: [docs/DEPLOY.md](../docs/DEPLOY.md).
 2. Enable **Developer mode**
 3. **Load unpacked** → select **this** directory (`…/game-night-access-adapter/extension`)
 4. Confirm the service worker starts (no errors on the extension card)
-5. Open a game tab (LibreCorsa at `http://localhost:3000` by default) and click **Use this tab** in the popup — or rely on the LibreCorsa URL fallback
+5. Open a game tab and click **Use this tab** in the popup (LibreCorsa demo at `http://localhost:3000` if you want a ready target)
 
 After every `git pull` that touches `extension/`, click **Reload** on the extension card.
 
@@ -33,7 +33,7 @@ After every `git pull` that touches `extension/`, click **Reload** on the extens
 
 **Bridge URL (Setup → Advanced):** default `ws://127.0.0.1:18765`. For the hosted Render bridge use `wss://game-night-bridge.onrender.com`.
 
-**Focus:** click the game canvas before using popup buttons. Inputs go only to the pinned tab (or LibreCorsa demo hosts when nothing is pinned).
+**Focus:** click the game canvas before using popup buttons. Inputs go only to the pinned tab (or the LibreCorsa demo host fallback when nothing is pinned).
 
 ## File map
 

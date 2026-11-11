@@ -2,7 +2,7 @@
 
 ## Goal
 
-Remap camera, voice, and phone inputs onto the keyboard actions a browser game already understands — with **no extra hardware**. [LibreCorsa](https://github.com/KhazP/librecorsa) is the default demo and co-design target (Justin, limited finger mobility); the extension can pin any `http(s)` game tab.
+Remap camera, voice, and phone inputs onto the keyboard actions browser games already understand — with **no extra hardware**. The extension can pin any `http(s)` game tab; [LibreCorsa](https://github.com/KhazP/librecorsa) is the included demo and co-design target (Justin, limited finger mobility).
 
 Product intent (what this is supposed to be and do): [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md).  
 New developers: [ONBOARDING.md](ONBOARDING.md).
