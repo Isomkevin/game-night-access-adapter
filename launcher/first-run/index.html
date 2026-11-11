@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Game Night — Get started</title>
+    <link rel="stylesheet" href="first-run.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <p class="eyebrow">Game Night</p>
+      <h1>Three steps to play</h1>
+      <p class="lede">
+        Works with <strong>any keyboard-driven browser game</strong>. We never open a game for
+        you — you pick the tab.
+      </p>
+
+      <ol class="steps" id="steps">
+        <li>
+          <strong>Install the Chrome extension</strong> (one time)
+          <p class="hint" id="ext-hint">Preparing folder…</p>
+          <button type="button" class="btn secondary" id="btn-ext">Show Load unpacked steps again</button>
+        </li>
+        <li>
+          <strong>Open your game</strong> in Chrome, click the page, then click the extension →
+          <em>Use this tab</em>
+        </li>
+        <li>
+          <strong>Choose controls</strong> in the control hub (phone, camera, voice, or on-screen
+          pad)
+          <p>
+            <button type="button" class="btn primary" id="btn-hub">Open control hub</button>
+          </p>
+        </li>
+      </ol>
+
+      <div class="status" id="status" role="status">Checking bridge…</div>
+
+      <div class="actions">
+        <button type="button" class="btn primary" id="btn-done">I’m set up — continue</button>
+        <button type="button" class="btn ghost" id="btn-landing">Open Game Night home</button>
+      </div>
+    </main>
+    <script src="first-run.js"></script>
+  </body>
+</html>

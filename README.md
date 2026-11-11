@@ -3,7 +3,8 @@
 Accessibility adapter for gaming controls: players with different access needs — starting with co-designer **Justin Machogu** (limited finger mobility) — remap camera, voice, phone, and on-screen inputs onto the keyboard actions browser games already understand. Pin any `http(s)` game tab with **Use this tab** and retune key codes in Setup. **[LibreCorsa](https://github.com/KhazP/librecorsa)** ships as a ready demo.
 
 > **What is this supposed to be and do?** Full narrative: **[docs/PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)**.  
-> **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → game → extension demo pad → optional bridge).  
+> **Just want to play?** Install the **[Game Night desktop app](docs/launcher.md)** — no terminal.  
+> **New to the repo?** Start with **[docs/ONBOARDING.md](docs/ONBOARDING.md)** (clone → extension → bridge).  
 > Full doc index: **[docs/README.md](docs/README.md)**.
 
 > **Status:** Phase A scaffold + extension demo path landed. A phone-tilt desktop path is also implemented under `adapters/phone_tilt/` and `access_adapter/` (Linux + Samsung Galaxy A25). Test with Justin before calling features supported — see [`docs/testing-log.md`](docs/testing-log.md).
@@ -55,8 +56,8 @@ git submodule update --init --recursive
 
 ## Quick start
 
-For the full walkthrough (driving phase, badge meanings, verify checklist), use [docs/ONBOARDING.md](docs/ONBOARDING.md).  
-**Local full-stack deploy + hosted Render bridge:** [docs/DEPLOY.md](docs/DEPLOY.md).
+**Players:** [docs/launcher.md](docs/launcher.md) (one-click desktop app).  
+**Contributors:** [docs/ONBOARDING.md](docs/ONBOARDING.md) · [docs/DEPLOY.md](docs/DEPLOY.md) (local stack + hosted Render bridge).
 
 ### 1. Game (any keyboard browser game — LibreCorsa demo)
 

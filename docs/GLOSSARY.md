@@ -11,7 +11,8 @@ Short definitions used across this repo. If a PR introduces a new term, add it h
 | **State** | `down` / `up` for held controls; `pulse` for a short tap (~120 ms). |
 | **Bridge** | Node HTTP + WebSocket server (`bridge/`, default port **18765**) that fans inputs to the extension. Run locally or use the hosted Render URL. |
 | **Hosted bridge** | Public Render deploy at https://game-night-bridge.onrender.com (`wss://…` for the extension). See [DEPLOY.md](DEPLOY.md). |
-| **Local deploy** | Full stack on one machine: demo game (`game/` / LibreCorsa) or any pinned browser game, Load unpacked extension, bridge `npm start`. |
+| **Local deploy** | Full stack on one machine: any pinned browser game, Load unpacked extension, bridge `npm start`. |
+| **Game Night launcher** | Desktop tray app (`launcher/`) that starts the bridge and coaches extension install. See [launcher.md](launcher.md). |
 | **Extension** | Chrome MV3 app in `extension/` — remap UI, WebSocket client, keystroke injection. |
 | **Pin / Use this tab** | Session flag that tells the extension which browser tab receives injected keys. |
 | **Demo pad** | On-screen controls in the extension popup. Works with the bridge **offline**. |

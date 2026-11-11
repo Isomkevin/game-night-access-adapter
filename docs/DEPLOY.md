@@ -1,15 +1,26 @@
 # Deploy Game Night Access Adapter
 
-Two ways to run the stack:
+Ways to run the stack:
 
 | Mode | When to use | Latency |
 | --- | --- | --- |
-| **Local (full stack)** | Co-designer sessions, development, demos on one LAN | Best |
-| **Hosted bridge (Render)** | Judges / teammates open phone, camera, voice over HTTPS without Node | Higher; free tier cold-starts |
+| **Desktop app (Game Night)** | Non-technical players — no terminal | Best |
+| **Local (full stack)** | Contributors / co-designer sessions with Node | Best |
+| **Hosted bridge (Render)** | Judges / teammates open controllers over HTTPS without Node | Higher; free tier cold-starts |
 
-The Chrome extension is always loaded unpacked from `extension/` on each machine. The game can be local LibreCorsa **or** the [hosted GitHub Pages build](https://khazp.github.io/librecorsa/).
+**Any keyboard-driven browser game** works: open it in Chrome → extension **Use this tab**. LibreCorsa is an optional demo for contributors, not required.
 
-## A. Local deploy (recommended for Justin)
+End-user install: **[launcher.md](launcher.md)**. Build the app: [launcher/README.md](../launcher/README.md).
+
+## 0. Desktop app (recommended for players)
+
+1. Install **Game Night** for your OS ([launcher.md](launcher.md)).
+2. Launch it — tray icon starts the bridge and coaches the one-time extension install.
+3. Open **your** browser game → **Use this tab** → control hub.
+
+No Git, no `npm`, no specific game URL. After reboot, Start at login (or open the app once) is enough.
+
+## A. Local deploy (contributors / Justin with Node)
 
 ### Prerequisites
 
@@ -26,7 +37,9 @@ cd game-night-access-adapter
 
 If `game/` is empty: `git submodule update --init --recursive`.
 
-### 2. Start LibreCorsa (game)
+### 2. Open a browser game
+
+Use any keyboard-driven `http(s)` game in Chrome. Optional LibreCorsa demo:
 
 ```bash
 cd game
@@ -34,9 +47,7 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:3000**, finish menus, and enter a **driving** session (keys are ignored on title/loading screens).
-
-Leave this terminal running.
+Open **http://localhost:3000** (for LibreCorsa, enter a **driving** session — keys are ignored on menus).
 
 ### 3. Load the Chrome extension
 

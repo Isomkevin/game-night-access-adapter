@@ -38,13 +38,16 @@ Always clone with `--recurse-submodules` when possible.
 
 ### How do I deploy / run Game Night locally?
 
-Full stack on one machine:
+**Players:** install the **Game Night** desktop app — [launcher.md](launcher.md). No terminal. Open any browser game → **Use this tab**.
 
-1. `git clone --recurse-submodules …` then `cd game && npm install && npm run dev` → http://localhost:3000 (driving session)
+**Contributors** (full stack on one machine):
+
+1. `git clone --recurse-submodules …`
 2. Chrome → Load unpacked → `extension/`
 3. `cd bridge && npm install && npm start` → http://127.0.0.1:18765/
+4. Open any keyboard-driven game → **Use this tab** (optional LibreCorsa demo via `cd game && npm run dev`)
 
-Step-by-step: [DEPLOY.md](DEPLOY.md) §A · [ONBOARDING.md](ONBOARDING.md).
+Step-by-step: [DEPLOY.md](DEPLOY.md) · [ONBOARDING.md](ONBOARDING.md).
 
 ### Windows vs macOS vs Linux?
 

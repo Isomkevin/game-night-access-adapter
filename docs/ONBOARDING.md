@@ -9,6 +9,7 @@ Goal of this guide: on a clean machine, go from zero to **driving a browser game
 | 1. Why this exists | 10 min | [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) |
 | 2. Words we use | 5 min | [GLOSSARY.md](GLOSSARY.md) |
 | 3. Run the stack (this file) | 20–40 min | Sections 1–3 below |
+| 3b. Non-technical install | 10 min | [launcher.md](launcher.md) (desktop app) |
 | 4. Terminals / ports | 5 min | [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) |
 | 5. Local vs hosted deploy | 5 min | [DEPLOY.md](DEPLOY.md) |
 | 6. How data flows | 10 min | [architecture.md](architecture.md) + [protocol.md](protocol.md) |
@@ -59,6 +60,10 @@ You are onboarded when **all** of these are true:
 5. You know where [TROUBLESHOOTING.md](TROUBLESHOOTING.md) and [FAQ.md](FAQ.md) live.
 
 Optional same day: bridge badge `ON` + one of phone / camera / voice.
+
+## 0. Prefer the desktop app?
+
+If you are **not** developing the code, install **Game Night** instead of cloning: [launcher.md](launcher.md). Come back here only for contributor workflows.
 
 ## 1. Clone the monorepo
 

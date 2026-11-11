@@ -17,14 +17,16 @@ Kevin owns the stub; Omar owns hardening, reconnect UX, and any optional OS-leve
 
 ## Local deploy (full Game Night)
 
-You need **three** pieces on the laptop: a keyboard-driven browser game (LibreCorsa demo optional), the Chrome extension, and this bridge. Condensed steps:
+**Players:** prefer the desktop tray app — [docs/launcher.md](../docs/launcher.md) — so you never run this package by hand.
+
+**Contributors** need a keyboard-driven browser game, the Chrome extension, and this bridge:
 
 ```bash
-# Terminal 1 — demo game (or open / pin any browser game instead)
-cd game && npm install && npm run dev          # http://localhost:3000
-
-# Terminal 2 — bridge (this package)
+# Bridge (this package)
 cd bridge && npm install && npm start          # http://127.0.0.1:18765
+
+# Optional LibreCorsa demo (or pin any browser game instead)
+cd game && npm install && npm run dev          # http://localhost:3000
 ```
 
 Then Load unpacked → `extension/`, pin the game with **Use this tab**, focus it, badge → `ON`.  

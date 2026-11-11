@@ -66,6 +66,8 @@ automatic updates. It needs things only the project owner can provide:
    typically a few days to a few weeks.
 
 After approval, the Windows setup and `.deb` can be replaced by a link to the store page.
+The **Game Night** desktop launcher ([launcher.md](launcher.md)) should then prefer the Store link over Load unpacked.
+Checklist: [store/README.md](store/README.md).
 
 ## Building the packages
 

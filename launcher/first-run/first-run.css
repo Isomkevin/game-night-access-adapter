@@ -1,0 +1,118 @@
+:root {
+  --teal: #0b3d3a;
+  --teal-mid: #1a6b5c;
+  --sand: #f3efe6;
+  --ink: #1a2422;
+  --muted: #5a6a66;
+  --border: #d5ddd9;
+  --amber: #c9842b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", "Atkinson Hyperlegible", system-ui, sans-serif;
+  background: var(--sand);
+  color: var(--ink);
+  line-height: 1.45;
+}
+
+.panel {
+  padding: 28px 28px 32px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--teal-mid);
+}
+
+h1 {
+  margin: 0 0 10px;
+  font-size: 1.55rem;
+  color: var(--teal);
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  margin: 0 0 20px;
+  color: var(--muted);
+}
+
+.steps {
+  margin: 0 0 18px;
+  padding-left: 1.2rem;
+}
+
+.steps li {
+  margin-bottom: 14px;
+}
+
+.hint {
+  margin: 6px 0 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.btn.primary {
+  background: var(--amber);
+  color: #1a1408;
+}
+
+.btn.secondary {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--teal);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--teal-mid);
+  text-decoration: underline;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.status {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--border);
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.status.ok {
+  border-color: #7cb89a;
+  color: var(--teal);
+}
+
+.status.warn {
+  border-color: #e0b56a;
+}

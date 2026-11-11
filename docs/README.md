@@ -8,7 +8,8 @@
 | 2 | [GLOSSARY.md](GLOSSARY.md) | Shared vocabulary |
 | 3 | [ONBOARDING.md](ONBOARDING.md) | Clone → game → extension demo → optional bridge |
 | 4 | [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) | Terminals, ports, env, shells |
-| 5 | [DEPLOY.md](DEPLOY.md) | Local full-stack deploy + hosted Render bridge |
+| 5 | [DEPLOY.md](DEPLOY.md) | Desktop app, local full-stack, hosted Render bridge |
+| 5b | [launcher.md](launcher.md) | Non-technical Game Night desktop install |
 | 6 | [architecture.md](architecture.md) | Data flow and injection |
 | 7 | [protocol.md](protocol.md) | Wire contract before changing inputs |
 | 8 | [CONTRIBUTING.md](CONTRIBUTING.md) | Branches, docs-before-push, first PR |
@@ -48,6 +49,7 @@ Add a short doc for each new input adapter before merging: how to run it, what w
 | --- | --- |
 | Chrome extension | [`../extension/README.md`](../extension/README.md) |
 | Local bridge | [`../bridge/README.md`](../bridge/README.md) |
+| Game Night desktop launcher | [`../launcher/README.md`](../launcher/README.md) · [launcher.md](launcher.md) |
 | Phone controller (web) | [`../phone-controller/README.md`](../phone-controller/README.md) |
 | Camera / vision (MediaPipe) | [`../camera/README.md`](../camera/README.md) |
 | Voice | [`../voice/README.md`](../voice/README.md) |
@@ -64,6 +66,8 @@ Add a short doc for each new input adapter before merging: how to run it, what w
 | [FAQ.md](FAQ.md) | Common questions |
 | [DEV_ENVIRONMENT.md](DEV_ENVIRONMENT.md) | Ports / terminals / shells |
 | [DEPLOY.md](DEPLOY.md) | Local deploy + Render hosted bridge |
+| [launcher.md](launcher.md) | Game Night desktop app (players) |
+| [store/README.md](store/README.md) | Chrome Web Store publish checklist |
 | [architecture.md](architecture.md) | System design |
 | [protocol.md](protocol.md) | WebSocket + remap contract |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Workflow |

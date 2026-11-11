@@ -232,28 +232,43 @@
         <div class="section-inner">
           <p class="eyebrow">Get started</p>
           <h2 id="start-title">From zero to playing with accessible controls.</h2>
+
+          <div
+            class="launcher-status"
+            id="launcher-status"
+            role="status"
+            aria-live="polite"
+            data-state="checking"
+          >
+            <span class="launcher-status-dot" aria-hidden="true"></span>
+            <div class="launcher-status-copy">
+              <strong class="launcher-status-title">Checking this bridge…</strong>
+              <p class="launcher-status-detail gnaa-hint">
+                Open any keyboard-driven browser game → extension popup →
+                <strong>Use this tab</strong>.
+              </p>
+            </div>
+          </div>
+
           <ol class="start-steps">
             <li>
-              <strong>Open a keyboard-driven browser game</strong> — pin any
-              <code>http(s)</code> tab with <strong>Use this tab</strong>. For a ready demo, run
-              <a href="http://localhost:3000" rel="noopener noreferrer">LibreCorsa locally</a>
-              or open
-              <a href="https://khazp.github.io/librecorsa/" rel="noopener noreferrer"
-                >the hosted build</a
-              >.
-            </li>
-            <li>
-              <strong>Load the Chrome extension</strong> unpacked from
-              <code>extension/</code> — see the
+              <strong>Easiest:</strong> install the
               <a
-                href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/ONBOARDING.md"
+                href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/launcher.md"
                 rel="noopener noreferrer"
-                >onboarding guide</a
-              >.
+                >Game Night desktop app</a
+              >
+              — it starts this bridge and coaches the one-time Chrome extension install. No
+              terminal.
             </li>
             <li>
-              <strong>Connect the bridge</strong> — open the
-              <a href="/hub/">control hub</a> on this host (or run the bridge locally), then focus
+              <strong>Open your browser game</strong> — any keyboard-driven
+              <code>http(s)</code> page. Pin it with the extension popup →
+              <strong>Use this tab</strong>.
+            </li>
+            <li>
+              <strong>Choose controls</strong> in the
+              <a href="/hub/">control hub</a> (phone, camera, voice, or on-screen pad), then focus
               the game.
             </li>
           </ol>
@@ -292,30 +307,35 @@
 
           <div class="deploy-grid">
             <div class="deploy-col">
-              <h3>Local full stack</h3>
-              <p class="deploy-blurb">Best latency. Use for Justin’s live sessions.</p>
+              <h3>Desktop app (recommended)</h3>
+              <p class="deploy-blurb">
+                One installer starts the bridge and guides extension setup. You still open
+                <em>your</em> game in Chrome.
+              </p>
               <ol class="start-steps">
                 <li>
-                  Clone with submodules:<br />
-                  <code>git clone --recurse-submodules https://github.com/Isomkevin/game-night-access-adapter.git</code>
+                  Download <strong>Game Night</strong> for your OS — see
+                  <a
+                    href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/launcher.md"
+                    rel="noopener noreferrer"
+                    >launcher guide</a
+                  >.
                 </li>
+                <li>Launch the app (tray icon). Complete Load unpacked once when prompted.</li>
                 <li>
-                  Demo game (optional):<br />
-                  <code>cd game &amp;&amp; npm install &amp;&amp; npm run dev</code><br />
-                  → <a href="http://localhost:3000" rel="noopener noreferrer">http://localhost:3000</a>
-                  — or pin any keyboard-driven browser game
-                </li>
-                <li>
-                  Extension: <code>chrome://extensions</code> → Load unpacked →
-                  <code>extension/</code>
-                </li>
-                <li>
-                  Bridge:<br />
-                  <code>cd bridge &amp;&amp; npm install &amp;&amp; npm start</code><br />
-                  → <a href="http://127.0.0.1:18765/" rel="noopener noreferrer">http://127.0.0.1:18765/</a>
-                  · WS <code>ws://127.0.0.1:18765</code>
+                  Open any keyboard-driven browser game → <strong>Use this tab</strong> →
+                  <a href="/hub/">control hub</a>.
                 </li>
               </ol>
+              <p class="gnaa-hint">
+                Contributors: <code>cd bridge &amp;&amp; npm start</code> still works. Full
+                steps in
+                <a
+                  href="https://github.com/Isomkevin/game-night-access-adapter/blob/main/docs/DEPLOY.md"
+                  rel="noopener noreferrer"
+                  >DEPLOY.md</a
+                >.
+              </p>
             </div>
             <div class="deploy-col">
               <h3>Hosted bridge (this site)</h3>

@@ -15,6 +15,8 @@ __pycache__/
 *.egg-info/
 .eggs/
 dist/
+dist/launcher/
+launcher/node_modules/
 build/
 packaging/windows/vendor/
 packaging/vendor/

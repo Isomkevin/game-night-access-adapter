@@ -14,7 +14,9 @@ Chrome is not a terminal: Load unpacked from `extension/`, keep DevTools handy o
 
 **Minimum day-one:** Terminal 1 + Chrome extension only (no bridge).
 
-**Full local deploy** (game + extension + bridge) and **hosted Render bridge**: [DEPLOY.md](DEPLOY.md).
+**Players:** desktop app — [launcher.md](launcher.md) (no terminals).  
+**Full local deploy** (extension + bridge + any game) and **hosted Render bridge**: [DEPLOY.md](DEPLOY.md).  
+**Launcher development:** `cd launcher && npm install && npm start` (repo bridge).
 
 ## Ports
 

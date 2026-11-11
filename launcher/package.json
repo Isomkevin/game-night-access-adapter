@@ -1,0 +1,137 @@
+{
+  "name": "game-night-launcher",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Game Night desktop launcher — starts the access bridge and guides first-run setup",
+  "main": "src/main.js",
+  "author": "Game Night",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "smoke:bridge": "node scripts/smoke-bridge.mjs",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac",
+    "dist:linux": "electron-builder --linux"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.gamenight.launcher",
+    "productName": "Game Night",
+    "copyright": "Copyright © Game Night team",
+    "directories": {
+      "output": "../dist/launcher",
+      "buildResources": "assets"
+    },
+    "files": [
+      "src/**/*",
+      "first-run/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../bridge",
+        "to": "app/bridge",
+        "filter": ["**/*", "!node_modules/**", "!**/node_modules/**"]
+      },
+      {
+        "from": "../phone-controller",
+        "to": "app/phone-controller",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../camera",
+        "to": "app/camera",
+        "filter": ["**/*", "!tests/**", "!**/tests/**"]
+      },
+      {
+        "from": "../voice",
+        "to": "app/voice",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../packages/ui",
+        "to": "app/packages/ui",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../packages/shared",
+        "to": "app/packages/shared",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../docs",
+        "to": "app/docs",
+        "filter": ["presentation.html", "presentation-checklist.md"]
+      },
+      {
+        "from": "../extension",
+        "to": "app/extension",
+        "filter": ["**/*", "!tests/**", "!**/tests/**"]
+      },
+      {
+        "from": "../bridge/node_modules",
+        "to": "app/bridge/node_modules",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ],
+      "icon": "assets/icon.png",
+      "artifactName": "GameNight-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Game Night",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["universal"] }
+      ],
+      "category": "public.app-category.accessibility",
+      "icon": "assets/icon.png",
+      "artifactName": "GameNight-${version}.${ext}",
+      "hardenedRuntime": false
+    },
+    "dmg": {
+      "contents": [
+        { "x": 130, "y": 220 },
+        { "x": 410, "y": 220, "type": "link", "path": "/Applications" }
+      ]
+    },
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": ["x64"] },
+        { "target": "deb", "arch": ["x64"] }
+      ],
+      "category": "Accessibility",
+      "icon": "assets/icon.png",
+      "artifactName": "GameNight-${version}.${ext}",
+      "desktop": {
+        "Name": "Game Night",
+        "Comment": "Accessible controls for browser games",
+        "Categories": "Accessibility;Game;"
+      }
+    },
+    "deb": {
+      "depends": ["libgtk-3-0", "libnotify4", "libnss3", "libxss1", "libxtst6", "xdg-utils"]
+    }
+  }
+}

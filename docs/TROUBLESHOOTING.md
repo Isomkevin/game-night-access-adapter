@@ -34,15 +34,15 @@ Use the extension popup **Camera overlay** so the preview runs inside the game t
 
 ## Badge stuck on `OFF` / bridge won’t connect
 
-1. Is the bridge running? `cd bridge && npm start` (or are you using the hosted URL?)
+1. Is the bridge running? Desktop tray **Game Night** → Restart bridge, or `cd bridge && npm start`, or hosted URL
 2. Health: `curl http://127.0.0.1:18765/health` → `"ok": true`  
    Hosted: https://game-night-bridge.onrender.com/health (first hit after sleep can take ~1 minute)
 3. Popup → **Reconnect**
-4. Port conflict: set `GNAA_PORT=18766` when starting the bridge, then open extension **Options → Bridge connection** and save `ws://127.0.0.1:18766` (or edit storage `bridgeUrl`). Defaults remain `18765`.
+4. Port conflict: set `GNAA_PORT=18766` when starting the bridge, then open extension **Options → Bridge connection** and save `ws://127.0.0.1:18766` (or edit storage `bridgeUrl`). Defaults remain `18765`. The desktop app may auto-move to `18766` and show a dialog.
 5. Hosted: confirm Setup connection is exactly `wss://game-night-bridge.onrender.com` (not `ws://` and not a trailing slash)
 6. Firewall blocking localhost is rare; corporate proxies can break WS — try another network
 
-Deploy reference: [DEPLOY.md](DEPLOY.md).
+Player recovery: [launcher.md](launcher.md). Deploy reference: [DEPLOY.md](DEPLOY.md).
 
 ## Phone page loads but doesn’t steer
 

@@ -1,0 +1,82 @@
+name: Launcher installers
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "launcher/**"
+      - "bridge/**"
+      - "phone-controller/**"
+      - "camera/**"
+      - "voice/**"
+      - "extension/**"
+      - "packages/**"
+      - "packaging/launcher/**"
+      - ".github/workflows/launcher-installers.yml"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install bridge deps
+        run: npm ci
+        working-directory: bridge
+      - name: Install launcher deps
+        run: npm ci
+        working-directory: launcher
+      - name: Build Windows installer
+        run: npm run dist:win
+        working-directory: launcher
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game-night-launcher-windows
+          path: dist/launcher/*.{exe,yml,yaml}
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install bridge deps
+        run: npm ci
+        working-directory: bridge
+      - name: Install launcher deps
+        run: npm ci
+        working-directory: launcher
+      - name: Build Linux packages
+        run: npm run dist:linux
+        working-directory: launcher
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game-night-launcher-linux
+          path: |
+            dist/launcher/*.AppImage
+            dist/launcher/*.deb
+            dist/launcher/*.{yml,yaml}
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install bridge deps
+        run: npm ci
+        working-directory: bridge
+      - name: Install launcher deps
+        run: npm ci
+        working-directory: launcher
+      - name: Build macOS DMG
+        run: npm run dist:mac
+        working-directory: launcher
+      - uses: actions/upload-artifact@v4
+        with:
+          name: game-night-launcher-macos
+          path: dist/launcher/*.{dmg,zip,yml,yaml}
